@@ -1,0 +1,41 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/images"
+public_folder: "/images"
+
+site_url: https://www.cross-country-trips.com
+display_url: https://www.cross-country-trips.com
+logo_url: https://www.cross-country-trips.com/favicon.ico
+
+collections:
+  - name: "trips"
+    label: "RV Trips Archive"
+    folder: "y:/Lolos_Migration_Data/exported_content/trips"
+    create: true
+    slug: "{{year}}-{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Trip Year", name: "year", widget: "string" }
+      - { label: "URL Slug Alias", name: "slug", widget: "string" }
+      - { label: "Summary Journal", name: "body", widget: "markdown" }
+
+  - name: "stops"
+    label: "Trip Stops & Campgrounds"
+    folder: "y:/Lolos_Migration_Data/exported_content/stops"
+    create: true
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Parent Trip ID", name: "parent_trip_nid", widget: "string" }
+      - { label: "URL Slug Alias", name: "slug", widget: "string" }
+      - { label: "Travelogue", name: "body", widget: "markdown" }
+
+  - name: "tips"
+    label: "RV Tips & Advice"
+    folder: "y:/Lolos_Migration_Data/exported_content/tips"
+    create: true
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "URL Slug Alias", name: "slug", widget: "string" }
+      - { label: "Article Body", name: "body", widget: "markdown" }

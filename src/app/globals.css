@@ -1,26 +1,670 @@
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 @import "tailwindcss";
+/* Tailwind v4 rebuild trigger */
+
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Curated HSL Color Tokens: Lazy Daze Evergreen & Metallic Gold */
+  --color-green-primary: hsl(152, 55%, 20%);
+  --color-green-dark: hsl(152, 60%, 12%);
+  --color-green-light: hsl(152, 45%, 28%);
+  
+  --color-gold-primary: hsl(38, 85%, 55%);
+  --color-gold-light: hsl(40, 90%, 65%);
+  --color-gold-dark: hsl(36, 80%, 42%);
+
+  --bg-main: hsl(152, 40%, 8%);
+  --bg-card: hsla(152, 50%, 14%, 0.75);
+  --bg-card-hover: hsla(152, 45%, 18%, 0.85);
+  
+  --text-primary: hsl(0, 0%, 96%);
+  --text-secondary: hsl(152, 15%, 80%);
+  --text-muted: hsl(152, 10%, 65%);
+  --text-inverse: hsl(152, 60%, 10%);
+
+  --border-gold: hsla(38, 85%, 55%, 0.35);
+  --border-light: hsla(0, 0%, 100%, 0.12);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-main);
+  background-image: radial-gradient(circle at 15% 20%, hsla(152, 60%, 15%, 0.5) 0%, transparent 40%),
+                    radial-gradient(circle at 85% 80%, hsla(38, 85%, 25%, 0.15) 0%, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography Standards - Classic Readable Sizing */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  color: var(--text-primary);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.85rem;
+}
+
+h2 {
+  font-size: 1.35rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.65rem;
+  color: var(--color-gold-primary);
+}
+
+h3 {
+  font-size: 1.15rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+a {
+  color: var(--color-gold-light);
+  text-decoration: none;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-gold-primary);
+  text-decoration: underline;
+}
+
+/* Glassmorphism Panel Utilities */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.glass-panel:hover {
+  border-color: var(--border-gold);
+}
+
+/* Enhanced Glass Sidebars & Cards */
+.glass-sidebar {
+  background: hsla(152, 55%, 11%, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsla(38, 85%, 55%, 0.28);
+  border-radius: 12px;
+  box-shadow: 0 10px 35px 0 rgba(0, 0, 0, 0.55);
+  transition: all 0.25s ease;
+}
+
+.glass-sidebar:hover {
+  border-color: hsla(38, 85%, 55%, 0.45);
+}
+
+.glass-card {
+  background: hsla(152, 45%, 16%, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.glass-card:hover {
+  background: hsla(152, 45%, 20%, 0.85);
+  border-color: hsla(38, 85%, 55%, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Classic Button Accents */
+.btn-gold {
+  background: linear-gradient(135deg, var(--color-gold-primary), var(--color-gold-dark));
+  color: var(--text-inverse);
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none !important;
+}
+
+.btn-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsla(38, 85%, 55%, 0.3);
+  color: var(--text-inverse);
+}
+
+/* Multi-Level Dropdown Navigation Menu */
+.nav-container {
+  background: rgba(10, 25, 18, 0.95);
+  border-bottom: 2px solid var(--color-gold-primary);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  display: block;
+  padding: 10px 14px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 4px;
+  text-decoration: none !important;
+}
+
+.nav-link:hover, .nav-item:hover > .nav-link {
+  background: var(--color-green-light);
+  color: var(--color-gold-light);
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 230px;
+  background: #0d1e16;
+  border: 1px solid var(--border-gold);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  list-style: none;
+  padding: 6px 0;
+  z-index: 200;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.nav-item:hover > .dropdown-menu {
+  display: block;
+}
+
+.dropdown-item a {
+  display: block;
+  padding: 8px 16px;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  text-decoration: none !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.dropdown-item a:hover {
+  background: var(--color-green-primary);
+  color: #fff;
+  padding-left: 20px;
+}
+
+/* Custom Select Dropdown Styling */
+select.gold-select {
+  background: #0f231a;
+  color: var(--text-primary);
+  border: 1px solid var(--color-gold-primary);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+select.gold-select:focus {
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4);
+}
+
+/* 35mm Slide Card Wrapper */
+.slide-mount {
+  background: #fff;
+  padding: 12px 12px 24px 12px;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  color: #222;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.slide-mount:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+}
+
+/* Foolproof Layout System for Stop and Trip Pages */
+.layout-grid-3col {
+  display: grid !important;
+  grid-template-columns: 280px minmax(0, 1fr) 280px !important;
+  gap: 28px !important;
+  width: 100% !important;
+  align-items: start !important;
+}
+
+@media (max-width: 1100px) {
+  .layout-grid-3col {
+    grid-template-columns: 240px minmax(0, 1fr) 240px !important;
+    gap: 16px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .layout-grid-3col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.layout-grid-2col {
+  display: grid !important;
+  grid-template-columns: 320px minmax(0, 1fr) !important;
+  gap: 28px !important;
+  width: 100% !important;
+  align-items: start !important;
+}
+
+@media (max-width: 900px) {
+  .layout-grid-2col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Sidebar Lists and Items Guarantee */
+.sidebar-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.sidebar-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 14px !important;
+  border-radius: 8px !important;
+  text-decoration: none !important;
+  font-size: 0.875rem !important;
+  line-height: 1.35 !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-bottom: 4px !important;
+}
+
+.sidebar-item-active {
+  background-color: #f59e0b !important;
+  color: #08150f !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25) !important;
+}
+
+.sidebar-item-inactive {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #e5e7eb !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.sidebar-item-inactive:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  color: #fff !important;
+}
+
+/* Bulletproof Drupal Inline Image Assist & Figure Styling */
+figure.drupal-figure {
+  width: 300px !important;
+  max-width: 100% !important;
+  background-color: #0c1d15 !important;
+  padding: 10px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+  margin-bottom: 1.25rem !important;
+}
+
+figure.drupal-figure.float-right {
+  float: right !important;
+  margin-left: 1.5rem !important;
+  margin-right: 0 !important;
+  clear: right !important;
+}
+
+figure.drupal-figure.float-left {
+  float: left !important;
+  margin-right: 1.5rem !important;
+  margin-left: 0 !important;
+  clear: left !important;
+}
+
+figure.drupal-figure.mx-auto {
+  float: none !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: block !important;
+  clear: both !important;
+}
+
+figure.drupal-figure img, .travelogue-interactive-body img {
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 6px !important;
+  display: block !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+figure.drupal-figure:hover img, .travelogue-interactive-body img:hover {
+  transform: scale(1.03) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7) !important;
+}
+
+figure.drupal-figure figcaption {
+  font-size: 0.75rem !important;
+  color: #d1d5db !important;
+  font-style: italic !important;
+  text-align: center !important;
+  margin-top: 0.5rem !important;
+  line-height: 1.3 !important;
+}
+
+/* Foolproof Typography & List Formatting for All Travelogues and Articles */
+.travelogue-interactive-body p {
+  margin-bottom: 1.5em !important;
+  line-height: 1.75 !important;
+}
+
+.travelogue-interactive-body ul {
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+  margin-left: 2.25rem !important;
+  margin-bottom: 1.5em !important;
+  margin-top: 0.75em !important;
+  padding-left: 0.5rem !important;
+}
+
+.travelogue-interactive-body ol {
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+  margin-left: 2.25rem !important;
+  margin-bottom: 1.5em !important;
+  margin-top: 0.75em !important;
+  padding-left: 0.5rem !important;
+}
+
+.travelogue-interactive-body li {
+  margin-bottom: 0.6em !important;
+  line-height: 1.6 !important;
+  display: list-item !important;
+}
+
+/* Foolproof Unconditional 3-Column Layout for Trips and Stops */
+.trip-page-layout {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  gap: 1.5rem !important;
+}
+
+.trip-sidebar-column {
+  width: 250px !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+.trip-overview-sidebar-column {
+  width: 450px !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+}
+
+.trip-right-sidebar-column {
+  width: 250px !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+@media (min-width: 1280px) {
+  .trip-page-layout {
+    gap: 2rem !important;
+  }
+  .trip-sidebar-column {
+    width: 270px !important;
+  }
+  .trip-overview-sidebar-column {
+    width: 450px !important;
+  }
+  .trip-right-sidebar-column {
+    width: 270px !important;
+  }
+}
+
+.trip-main-column {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Guarantee exact same width for Route Map and Itinerary Table without overflow */
+.trip-sidebar-map-box {
+  width: 100% !important;
+  margin-bottom: 1.25rem !important;
+  display: block !important;
+  background: #050e09 !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  border-radius: 0.5rem !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+}
+
+.trip-sidebar-map-img {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.trip-sidebar-table-box {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  border-radius: 0.5rem !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+  background: #07130d !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS — Mobile, Tablet, Desktop
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Prevent ALL horizontal overflow */
+*, *::before, *::after { box-sizing: border-box; }
+img, video, iframe { max-width: 100%; height: auto; }
+table { word-break: break-word; }
+
+/* ── Tablet (≤1024px): collapse right sidebar, shrink left ── */
+@media (max-width: 1024px) {
+  .trip-page-layout { gap: 1rem !important; }
+  .trip-sidebar-column { width: 220px !important; }
+  .trip-overview-sidebar-column { width: 340px !important; }
+  .trip-right-sidebar-column { display: none !important; }
+  .nav-link { padding: 12px 10px !important; font-size: 0.9rem !important; }
+  .sidebar-item { padding: 12px 14px !important; }
+  button, .btn-gold { min-height: 44px; }
+}
+
+/* ── Mobile (≤768px): single column stack ── */
+@media (max-width: 768px) {
+  /* Core layout */
+  .trip-page-layout {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+  .trip-sidebar-column,
+  .trip-overview-sidebar-column,
+  .trip-right-sidebar-column {
+    width: 100% !important;
+    position: static !important;
+    max-height: none !important;
+  }
+  .trip-main-column { width: 100% !important; }
+
+  /* Header */
+  header h1 { font-size: 1.35rem !important; }
+  header p, header div[style*="italic"] { font-size: 0.8rem !important; }
+
+  /* Main padding */
+  main { padding: 12px 10px !important; }
+
+  /* Home grid */
+  .home-grid { grid-template-columns: 1fr !important; }
+
+  /* Stats grid 2-col on mobile */
+  .stats-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Float images: no floats on mobile */
+  figure.drupal-figure.float-right,
+  figure.drupal-figure.float-left {
+    float: none !important;
+    margin: 0 auto 1rem auto !important;
+    width: 100% !important;
+    max-width: 320px !important;
+    display: block !important;
+    clear: both !important;
+  }
+
+  /* Itinerary table scrollable */
+  .trip-sidebar-table-box { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  .itinerary-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }
+  .itinerary-table-wrap table { min-width: 440px; }
+
+  /* Leaflet map */
+  .leaflet-container { height: 360px !important; }
+
+  /* Stop nav bar */
+  .stop-nav-bar { flex-direction: column !important; gap: 8px !important; }
+
+  /* Breadcrumbs */
+  .breadcrumb-row { flex-wrap: wrap; gap: 4px; }
+
+  /* Nav dropdown: full width on mobile */
+  .nav-container ul[style*="absolute"] {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    min-width: unset !important;
+    max-height: 60vh !important;
+  }
+
+  /* Layout grid utilities */
+  .layout-grid-3col,
+  .layout-grid-2col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Small phone (≤480px) ── */
+@media (max-width: 480px) {
+  header h1 { font-size: 1.1rem !important; }
+  .slide-mount { padding: 6px 6px 14px !important; }
+  .stats-grid-4 { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+  main { padding: 10px 8px !important; }
+}
+
+/* ── Photo album grid ── */
+.photo-album-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1200px) { .photo-album-grid { grid-template-columns: repeat(5, 1fr); } }
+@media (max-width: 1024px) { .photo-album-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 768px)  { .photo-album-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
+@media (max-width: 480px)  { .photo-album-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
+
+/* ── Trip Map Explorer (TripMapExplorer.jsx) ── */
+.tme-outer {
+  display: flex;
+  flex-direction: row;
+  min-height: 500px;
+}
+@media (max-width: 900px) {
+  .tme-outer {
+    flex-direction: column !important;
+    min-height: unset !important;
+  }
+  .tme-year-list {
+    width: 100% !important;
+    max-height: 100px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(245,158,11,0.2) !important;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tme-year-btn {
+    flex-shrink: 0 !important;
+    width: auto !important;
+    padding: 8px 14px !important;
+    border-left-color: transparent !important;
+    border-bottom: 3px solid transparent !important;
+    white-space: nowrap !important;
+    font-size: 0.82rem !important;
+  }
+  .tme-year-btn.tme-active {
+    border-bottom-color: #f59e0b !important;
+    border-left-color: transparent !important;
+    background: rgba(245,158,11,0.15) !important;
+  }
+  .tme-highlights-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .tme-map-img-wrap { min-height: 200px !important; }
+}
+
+/* Lightbox on mobile */
+@media (max-width: 768px) {
+  .lightbox-nav-btn { width: 36px !important; height: 36px !important; font-size: 0.9rem !important; }
+  .lightbox-close-btn { top: 8px !important; right: 8px !important; }
 }

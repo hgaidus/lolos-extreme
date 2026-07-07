@@ -1,22 +1,32 @@
+import fs from "fs";
+import path from "path";
 import React from "react";
 import Link from "next/link";
+import { DATA_DIR } from "@/lib/dataPaths";
 
-const crossCountryTrips = [
-  { title: "1999 Cross Country Road Trip", slug: "1999-cross-country-road-trip" },
-  { title: "2000 Cross Country Road Trip", slug: "2000-cross-country-road-trip" },
-  { title: "2001 Cross Country Road Trip", slug: "2001-cross-country-road-trip" },
-  { title: "2002 Cross Country Road Trip", slug: "2002-cross-country-road-trip" },
-  { title: "2003 Cross Country Road Trip", slug: "2003-cross-country-road-trip" },
-  { title: "2005 Cross Country Road Trip", slug: "2005-cross-country-road-trip" },
-  { title: "2007 Cross Country Road Trip", slug: "2007-cross-country-road-trip" },
-  { title: "2009 Cross Country Camping Trip", slug: "2009-cross-country-camping-trip" },
-  { title: "2011 Cross Country Road Trip", slug: "2011-cross-country-road-trip" },
-  { title: "2013 Cross Country Road Trip", slug: "2013-cross-country-road-trip" },
-  { title: "2015 Herb and Lolo's Migration West", slug: "2015-herb-and-lolos-migration-west" },
-  { title: "2016 Bringing the Boat West", slug: "2016-bringing-boat-west" },
-];
+function cleanTitle(str = "") {
+  return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
+}
+
+function getAllTrips() {
+  try {
+    const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
+    const byNid = new Map();
+    trips.forEach(t => {
+      if (t && t.nid && t.slug && !byNid.has(t.nid)) byNid.set(t.nid, t);
+    });
+    const yearOf = (t) => Number(t.year) || (t.created ? new Date(Number(t.created) * 1000).getFullYear() : 0);
+    return Array.from(byNid.values()).sort((a, b) => {
+      const yearDiff = yearOf(a) - yearOf(b);
+      return yearDiff !== 0 ? yearDiff : (Number(a.created) || 0) - (Number(b.created) || 0);
+    });
+  } catch {
+    return [];
+  }
+}
 
 export default function CrossCountryRoadTripsList() {
+  const crossCountryTrips = getAllTrips();
   return (
     <div className="w-full">
       {/* Breadcrumb Navigation */}
@@ -75,7 +85,7 @@ export default function CrossCountryRoadTripsList() {
                           display: 'block'
                         }}
                       >
-                        {trip.title}
+                        {cleanTitle(trip.title)}
                       </Link>
                     </td>
                     <td style={{ padding: '12px 16px', width: '30%', border: '1px solid #d3e7eb' }}>

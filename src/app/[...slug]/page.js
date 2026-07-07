@@ -18,7 +18,10 @@ export async function generateMetadata({ params }) {
     return { title: "Not Found | Lolo's Extreme Cross Country RV Trips" };
   }
   const item = lookupItem(slugStr);
-  const title = item ? cleanTitle(item.title) : slugStr.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  if (!item) {
+    return { title: "Not Found | Lolo's Extreme Cross Country RV Trips" };
+  }
+  const title = cleanTitle(item.title);
   return {
     title: `${title} | Lolo's Extreme Cross Country RV Trips`,
     description: `Read Lolo and Herb's historical RV travelogue for ${title}.`,
@@ -250,15 +253,11 @@ export default async function CatchAllPage({ params }) {
     notFound();
   }
   const item = lookupItem(slugStr);
+  if (!item) {
+    notFound();
+  }
   const { stops, trips, comments, photoTitles, activities } = getExportedData();
-
-  // If item not found in JSON subset, create a gracefully styled fallback
-  const displayItem = item || {
-    title: slugStr.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-    travelogue: `Historical travelogue and camping log for ${slugStr}. Preserved from the original Drupal database archive.`,
-    itemType: 'stop',
-    nid: '9999'
-  };
+  const displayItem = item;
 
   const displayTitle = cleanTitle(displayItem.title);
 
@@ -351,11 +350,7 @@ export default async function CatchAllPage({ params }) {
       title: p.title || `${displayTitle} Photo Archive #${i+1}`
     }));
 
-  // Fallback gallery photos if none found
-  const displayPhotos = stopPhotos.length > 0 ? stopPhotos : [
-    { url: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1000&auto=format&fit=crop&q=80", title: `Campsite view at ${displayTitle}.` },
-    { url: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1000&auto=format&fit=crop&q=80", title: `Lazy Daze motorhome parked along the scenic overlook.` }
-  ];
+  const displayPhotos = stopPhotos;
 
   // Determine parent trip and trip stops for the Left Sidebar
   let currentTrip = null;

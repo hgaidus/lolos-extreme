@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import Link from 'next/link';
 import TripMapExplorer from '@/components/TripMapExplorer';
 import { DATA_DIR } from '@/lib/dataPaths';
 
@@ -76,7 +77,7 @@ export default function HomePage() {
             20+ summers driving 114,000+ miles across the USA and Canada in our Lazy Daze motorhome.
           </p>
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <a href="/travel-itineraries" style={{
+            <Link href="/travel-itineraries" style={{
               background: "linear-gradient(135deg,#d97706,#92400e)",
               color: "#fff",
               fontWeight: 700,
@@ -89,8 +90,8 @@ export default function HomePage() {
               lineHeight: "20px",
             }}>
               Browse All Trips →
-            </a>
-            <a href="/photo-albums" style={{
+            </Link>
+            <Link href="/photo-albums" style={{
               background: "rgba(255,255,255,0.08)",
               border: "1px solid rgba(255,255,255,0.2)",
               color: "#e2e8f0",
@@ -104,7 +105,7 @@ export default function HomePage() {
               lineHeight: "20px",
             }}>
               📸 Photo Albums
-            </a>
+            </Link>
           </div>
         </div>
         {/* Decorative emoji RV on right — hidden on very small screens via inline media-less trick */}
@@ -207,13 +208,13 @@ export default function HomePage() {
           fontSize: "0.88rem",
           color: "#cbd5e1",
         }}>
-          <div>• <a href="/travel-itineraries" style={{ color: "#fff", fontWeight: 600 }}>Best Driving Routes &amp; Itineraries</a> — stops &amp; mileages</div>
-          <div>• <a href="/travel-itineraries" style={{ color: "#fff", fontWeight: 600 }}>Travelogues</a> — personal experiences at each stop</div>
-          <div>• <a href="/trip-stops-map"     style={{ color: "#fff", fontWeight: 600 }}>Overview Map</a> — 809+ push-pin GPS stops</div>
+          <div>• <Link href="/travel-itineraries" style={{ color: "#fff", fontWeight: 600 }}>Best Driving Routes &amp; Itineraries</Link> — stops &amp; mileages</div>
+          <div>• <Link href="/travel-itineraries" style={{ color: "#fff", fontWeight: 600 }}>Travelogues</Link> — personal experiences at each stop</div>
+          <div>• <Link href="/trip-stops-map"     style={{ color: "#fff", fontWeight: 600 }}>Overview Map</Link> — 809+ push-pin GPS stops</div>
           <div>• Activities — hikes, mountain biking, fishing &amp; rafting</div>
-          <div>• <a href="/photo-albums"        style={{ color: "#fff", fontWeight: 600 }}>Photographs</a> — 85 collections of 35mm slides</div>
-          <div>• <a href="/about-lolo-and-herb" style={{ color: "#fff", fontWeight: 600 }}>About Lolo &amp; Herb</a> — our story &amp; the Lazy Daze</div>
-          <div>• Top Highlights — places not to be missed</div>
+          <div>• <Link href="/photo-albums"        style={{ color: "#fff", fontWeight: 600 }}>Photographs</Link> — 85 collections of 35mm slides</div>
+          <div>• <Link href="/about-lolo-and-herb" style={{ color: "#fff", fontWeight: 600 }}>About Lolo &amp; Herb</Link> — our story &amp; the Lazy Daze</div>
+          <div>• <Link href="/activities/highlight" style={{ color: "#fff", fontWeight: 600 }}>Top Highlights</Link> — places not to be missed</div>
         </div>
       </section>
     </div>

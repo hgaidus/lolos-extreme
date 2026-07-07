@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import LightboxViewer from '@/components/LightboxViewer';
 import { getPhotosForAlbum } from '@/utils/albumPhotos';
 
@@ -18,9 +19,9 @@ export default async function AlbumDetailPage({ params }) {
   return (
     <div className="w-full">
       <div className="mb-6 pb-4 border-b border-white/10">
-        <a href="/photo-albums" className="text-amber-400 hover:underline font-semibold text-sm inline-flex items-center gap-1.5 mb-3">
+        <Link href="/photo-albums" className="text-amber-400 hover:underline font-semibold text-sm inline-flex items-center gap-1.5 mb-3">
           &larr; Back to All 35mm Albums
-        </a>
+        </Link>
         <h1 className="text-2xl md:text-3xl font-bold text-white m-0">
           {title}
         </h1>

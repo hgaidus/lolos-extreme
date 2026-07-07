@@ -138,7 +138,7 @@ export default async function ActivityTypePage({ params }) {
             })
           ) : (
             <div className="glass-card p-12 text-center text-gray-400">
-              <p className="text-base italic">No activities found matching category "{displayTypeName}".</p>
+              <p className="text-base italic">No activities found matching category &quot;{displayTypeName}&quot;.</p>
             </div>
           )}
         </div>

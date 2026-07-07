@@ -7,12 +7,16 @@ export default function SlideCard({ title, subtitle, imageUrl, href, onClick }) 
     <div className="bg-[#3f3f46] hover:bg-[#52525b] border border-white/10 hover:border-amber-400/60 rounded overflow-hidden transition-all duration-200 flex flex-col group shadow-md h-full w-full">
       {/* Thumbnail image container with fixed aspect ratio / height so grid stays perfectly aligned */}
       <div className="w-full h-44 sm:h-48 md:h-52 bg-[#27272a] p-2 flex items-center justify-center overflow-hidden relative">
-        <img 
-          src={imageUrl || "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600&auto=format&fit=crop&q=80"} 
-          alt={title || "Archive Slide"} 
-          className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 block"
-          loading="lazy"
-        />
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={title || "Archive Slide"}
+            className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 block"
+            loading="lazy"
+          />
+        ) : (
+          <span className="text-xs text-gray-500 italic px-2 text-center">No preview available</span>
+        )}
       </div>
 
       {/* Caption container */}

@@ -89,20 +89,18 @@ export function getPhotosForAlbum(albumOrSlug) {
   });
 
   if (results.length === 0) {
-    return [
-      { url: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1000&auto=format&fit=crop&q=80", title: "Lazy Daze motorhome parked overlooking scenic wilderness." },
-      { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1000&auto=format&fit=crop&q=80", title: "Morning fog lifting over campground pines along the coastal highway." },
-      { url: "https://images.unsplash.com/photo-1517957754642-2870518e16f8?w=1000&auto=format&fit=crop&q=80", title: "Lolo and Herb setting up camp near the trail entrance." }
-    ];
+    return [];
   }
 
-  return results.map((t, idx) => ({
-    url: t.filename ? `/photos/${t.filename}` : "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1000&auto=format&fit=crop&q=80",
-    title: t.title || `${query} Slide #${idx + 1}`
-  }));
+  return results
+    .filter(t => t.filename)
+    .map((t, idx) => ({
+      url: `/photos/${t.filename}`,
+      title: t.title || `${query} Slide #${idx + 1}`
+    }));
 }
 
 export function getAlbumPreviewPhoto(albumOrSlug) {
   const p = getPhotosForAlbum(albumOrSlug);
-  return p.length > 0 ? p[0].url : "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80";
+  return p.length > 0 ? p[0].url : null;
 }

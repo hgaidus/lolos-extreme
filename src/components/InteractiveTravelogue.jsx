@@ -11,6 +11,7 @@ export default function InteractiveTravelogue({
   use35mmSlides = false
 }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [extraSlides, setExtraSlides] = useState([]);
   const contentRef = useRef(null);
 
   // Helper to normalize image URLs or filenames for comparison
@@ -79,20 +80,25 @@ export default function InteractiveTravelogue({
     return list;
   }, [photos, htmlContent, albumTitle]);
 
+  // Slides discovered on-the-fly by clicking an inline image that wasn't in
+  // the memoized list (e.g. an <img> the regex above didn't parse). Kept in
+  // separate state rather than mutated onto allSlides directly.
+  const combinedSlides = useMemo(() => [...allSlides, ...extraSlides], [allSlides, extraSlides]);
+
   const openLightbox = (index) => setSelectedIndex(index);
   const closeLightbox = () => setSelectedIndex(null);
 
   const showNext = useCallback(() => {
-    if (selectedIndex !== null && allSlides.length > 0) {
-      setSelectedIndex((prev) => (prev + 1) % allSlides.length);
+    if (selectedIndex !== null && combinedSlides.length > 0) {
+      setSelectedIndex((prev) => (prev + 1) % combinedSlides.length);
     }
-  }, [selectedIndex, allSlides.length]);
+  }, [selectedIndex, combinedSlides.length]);
 
   const showPrev = useCallback(() => {
-    if (selectedIndex !== null && allSlides.length > 0) {
-      setSelectedIndex((prev) => (prev - 1 + allSlides.length) % allSlides.length);
+    if (selectedIndex !== null && combinedSlides.length > 0) {
+      setSelectedIndex((prev) => (prev - 1 + combinedSlides.length) % combinedSlides.length);
     }
-  }, [selectedIndex, allSlides.length]);
+  }, [selectedIndex, combinedSlides.length]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -117,20 +123,20 @@ export default function InteractiveTravelogue({
     if (!src) return;
 
     const cleanSrc = getNormalizeKey(src);
-    let idx = allSlides.findIndex(p => {
+    let idx = combinedSlides.findIndex(p => {
       const cleanP = getNormalizeKey(p.url);
       return cleanP === cleanSrc && cleanP.length > 0;
     });
 
     if (idx === -1) {
       const alt = img.getAttribute('alt') || "";
-      allSlides.push({ url: src, title: alt || `${albumTitle || ''} Photo` });
-      idx = allSlides.length - 1;
+      idx = combinedSlides.length;
+      setExtraSlides((prev) => [...prev, { url: src, title: alt || `${albumTitle || ''} Photo` }]);
     }
     setSelectedIndex(idx);
   };
 
-  const currentPhoto = selectedIndex !== null ? allSlides[selectedIndex] : null;
+  const currentPhoto = selectedIndex !== null ? combinedSlides[selectedIndex] : null;
   const fallbackImg = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1000&auto=format&fit=crop&q=80";
 
   return (
@@ -208,7 +214,7 @@ export default function InteractiveTravelogue({
               />
 
               {/* Left Prev Zone (50% width) */}
-              {allSlides.length > 1 && (
+              {combinedSlides.length > 1 && (
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
@@ -259,7 +265,7 @@ export default function InteractiveTravelogue({
               )}
 
               {/* Right Next Zone (50% width) */}
-              {allSlides.length > 1 && (
+              {combinedSlides.length > 1 && (
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
@@ -328,7 +334,7 @@ export default function InteractiveTravelogue({
                   {currentPhoto.title || `Photograph ${selectedIndex + 1}`}
                 </div>
                 <div style={{ fontSize: "0.8rem", color: "#666666", fontWeight: "500" }}>
-                  Image {selectedIndex + 1} of {allSlides.length}
+                  Image {selectedIndex + 1} of {combinedSlides.length}
                 </div>
               </div>
 

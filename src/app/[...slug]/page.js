@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import InteractiveTravelogue from '@/components/InteractiveTravelogue';
 import { cleanDrupalContent } from '@/utils/cleanContent';
+import { DATA_DIR } from '@/lib/dataPaths';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -166,13 +167,12 @@ function formatStopDateOnly(ts) {
 
 function getExportedData() {
   try {
-    const dataDir = path.normalize("y:\\Lolos_Migration_Data\\exported_content\\data");
-    const stops = JSON.parse(fs.readFileSync(path.join(dataDir, "stops.json"), "utf-8"));
-    const trips = JSON.parse(fs.readFileSync(path.join(dataDir, "trips.json"), "utf-8"));
-    const pages = JSON.parse(fs.readFileSync(path.join(dataDir, "standalone_pages.json"), "utf-8"));
-    const comments = JSON.parse(fs.readFileSync(path.join(dataDir, "comments.json"), "utf-8"));
-    const photoTitles = JSON.parse(fs.readFileSync(path.join(dataDir, "photo_titles.json"), "utf-8"));
-    const activities = JSON.parse(fs.readFileSync(path.join(dataDir, "activities.json"), "utf-8"));
+    const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
+    const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
+    const pages = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "standalone_pages.json"), "utf-8"));
+    const comments = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "comments.json"), "utf-8"));
+    const photoTitles = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "photo_titles.json"), "utf-8"));
+    const activities = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "activities.json"), "utf-8"));
     return { stops, trips, pages, comments, photoTitles, activities };
   } catch (err) {
     console.warn("Could not load ETL data in catch-all", err);

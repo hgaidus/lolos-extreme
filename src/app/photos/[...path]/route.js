@@ -1,26 +1,27 @@
 import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
+import { FILES_DIR } from '@/lib/dataPaths';
 
 export async function GET(request, { params }) {
   try {
     const { path: pathArray } = await params;
     let filename = pathArray.join('/');
     filename = filename.replace(/^sites\/default\/files\/(?:images\/)?/i, '');
-    
+
     // Check candidate directories including subdirectories
     const baseDirs = [
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images\\1k"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images\\2k"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images\\3k"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images\\4k"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images\\5k"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images\\6k"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images\\7k"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images\\8k"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images-old"),
-      path.normalize("y:\\Lolos_Migration_Data\\files")
+      path.join(FILES_DIR, "images"),
+      path.join(FILES_DIR, "images", "1k"),
+      path.join(FILES_DIR, "images", "2k"),
+      path.join(FILES_DIR, "images", "3k"),
+      path.join(FILES_DIR, "images", "4k"),
+      path.join(FILES_DIR, "images", "5k"),
+      path.join(FILES_DIR, "images", "6k"),
+      path.join(FILES_DIR, "images", "7k"),
+      path.join(FILES_DIR, "images", "8k"),
+      path.join(FILES_DIR, "images-old"),
+      FILES_DIR
     ];
 
     // Strip any modifier (.preview, .thumbnail, .mini) to find the stem and extension

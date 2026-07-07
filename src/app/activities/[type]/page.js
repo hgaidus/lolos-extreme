@@ -2,14 +2,14 @@ import fs from "fs";
 import path from "path";
 import Link from "next/link";
 import { cleanDrupalContent } from "@/utils/cleanContent";
+import { DATA_DIR } from "@/lib/dataPaths";
 
 function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
 }
 
 export async function generateStaticParams() {
-  const dataDir = path.normalize("y:\\Lolos_Migration_Data\\exported_content\\data");
-  const activitiesPath = path.join(dataDir, "activities.json");
+  const activitiesPath = path.join(DATA_DIR, "activities.json");
   if (!fs.existsSync(activitiesPath)) return [];
 
   const activities = JSON.parse(fs.readFileSync(activitiesPath, "utf-8"));
@@ -27,12 +27,11 @@ export async function generateStaticParams() {
 
 export default async function ActivityTypePage({ params }) {
   const { type } = await params;
-  const dataDir = path.normalize("y:\\Lolos_Migration_Data\\exported_content\\data");
-  const activities = JSON.parse(fs.readFileSync(path.join(dataDir, "activities.json"), "utf-8"));
-  const stops = JSON.parse(fs.readFileSync(path.join(dataDir, "stops.json"), "utf-8"));
-  const trips = JSON.parse(fs.readFileSync(path.join(dataDir, "trips.json"), "utf-8"));
-  const photoTitles = fs.existsSync(path.join(dataDir, "photo_titles.json"))
-    ? JSON.parse(fs.readFileSync(path.join(dataDir, "photo_titles.json"), "utf-8"))
+  const activities = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "activities.json"), "utf-8"));
+  const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
+  const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
+  const photoTitles = fs.existsSync(path.join(DATA_DIR, "photo_titles.json"))
+    ? JSON.parse(fs.readFileSync(path.join(DATA_DIR, "photo_titles.json"), "utf-8"))
     : [];
 
   // Build lookup maps

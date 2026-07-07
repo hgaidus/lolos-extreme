@@ -1,14 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import { DATA_DIR } from '@/lib/dataPaths';
 
 let cachedData = null;
 
 function loadData() {
   if (cachedData) return cachedData;
   try {
-    const dataDir = path.normalize("y:\\Lolos_Migration_Data\\exported_content\\data");
-    const albumsObj = JSON.parse(fs.readFileSync(path.join(dataDir, "albums.json"), "utf-8"));
-    const titlesObj = JSON.parse(fs.readFileSync(path.join(dataDir, "photo_titles.json"), "utf-8"));
+    const albumsObj = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "albums.json"), "utf-8"));
+    const titlesObj = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "photo_titles.json"), "utf-8"));
 
     cachedData = {
       albumsObj: Array.isArray(albumsObj) ? albumsObj : Object.values(albumsObj),

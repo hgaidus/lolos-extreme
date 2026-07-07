@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { DATA_DIR } from '@/lib/dataPaths';
 
 export const metadata = {
   title: "Interactive Trip Stops Map | Cross-Country Trips",
@@ -8,10 +9,8 @@ export const metadata = {
 
 function getMapData() {
   try {
-    const dataPath = path.normalize("y:\\Lolos_Migration_Data\\exported_content\\data\\locations.geojson");
-    const geojson = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
-    const stopsPath = path.normalize("y:\\Lolos_Migration_Data\\exported_content\\data\\stops.json");
-    const stops = JSON.parse(fs.readFileSync(stopsPath, "utf-8"));
+    const geojson = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "locations.geojson"), "utf-8"));
+    const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
     
     // Map nid to stop title and travelogue snippet
     const stopMap = {};

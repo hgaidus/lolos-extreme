@@ -1,17 +1,18 @@
 import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
+import { FILES_DIR } from '@/lib/dataPaths';
 
 export async function GET(request, { params }) {
   try {
     const { path: pathArray } = await params;
     const filename = pathArray.join('/');
-    
+
     // Check candidate directories
     const baseDirs = [
-      path.normalize("y:\\Lolos_Migration_Data\\files"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images"),
-      path.normalize("y:\\Lolos_Migration_Data\\files\\images-old")
+      FILES_DIR,
+      path.join(FILES_DIR, "images"),
+      path.join(FILES_DIR, "images-old")
     ];
 
     let filePath = null;

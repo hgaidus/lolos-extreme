@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import TripMapExplorer from '@/components/TripMapExplorer';
+import { DATA_DIR } from '@/lib/dataPaths';
 
 function getHomeBody() {
   try {
-    const dataDir = path.normalize("y:\\Lolos_Migration_Data\\exported_content\\data");
-    const pages = JSON.parse(fs.readFileSync(path.join(dataDir, "standalone_pages.json"), "utf-8"));
+    const pages = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "standalone_pages.json"), "utf-8"));
     const home = pages.find(p => p.title && p.title.includes("Plan Your Route"));
     return home ? home.body : "";
   } catch { return ""; }

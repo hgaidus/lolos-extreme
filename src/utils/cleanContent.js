@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { DATA_DIR } from "@/lib/dataPaths";
 
 let cachedNidMap = null;
 
@@ -7,11 +8,10 @@ function getNidMap() {
   if (cachedNidMap) return cachedNidMap;
   cachedNidMap = new Map();
   try {
-    const dataDir = path.normalize("y:\\Lolos_Migration_Data\\exported_content\\data");
-    if (fs.existsSync(dataDir)) {
-      const stops = JSON.parse(fs.readFileSync(path.join(dataDir, "stops.json"), "utf-8"));
-      const trips = JSON.parse(fs.readFileSync(path.join(dataDir, "trips.json"), "utf-8"));
-      const pages = JSON.parse(fs.readFileSync(path.join(dataDir, "standalone_pages.json"), "utf-8"));
+    if (fs.existsSync(DATA_DIR)) {
+      const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
+      const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
+      const pages = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "standalone_pages.json"), "utf-8"));
       const all = [...stops, ...trips, ...pages];
       all.forEach((item) => {
         if (item && item.nid && (item.slug || item.title)) {

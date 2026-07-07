@@ -6,10 +6,15 @@ import InteractiveTravelogue from '@/components/InteractiveTravelogue';
 import { cleanDrupalContent } from '@/utils/cleanContent';
 import { DATA_DIR } from '@/lib/dataPaths';
 
+function isExcludedSlug(slugStr) {
+  const s = slugStr.toLowerCase();
+  return s.includes('lazy-daze') || s === 'tips' || s.startsWith('tips/');
+}
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const slugStr = slug.join('/');
-  if (slugStr.toLowerCase().includes('lazy-daze')) {
+  if (isExcludedSlug(slugStr)) {
     return { title: "Not Found | Lolo's Extreme Cross Country RV Trips" };
   }
   const item = lookupItem(slugStr);
@@ -181,8 +186,9 @@ function getExportedData() {
 }
 
 function lookupItem(slugStr) {
-  if (slugStr.toLowerCase().includes('lazy-daze')) return null;
-  const { stops, trips, pages } = getExportedData();
+  if (isExcludedSlug(slugStr)) return null;
+  const { stops, trips, pages: allPages } = getExportedData();
+  const pages = allPages.filter(p => !((p.slug || '').toLowerCase() === 'tips' || (p.slug || '').toLowerCase().startsWith('tips/')));
   const cleanSlug = decodeURIComponent(slugStr).replace(/^\//, '');
 
   let found = stops.find(s => s.slug === cleanSlug || s.slug === `/${cleanSlug}`);
@@ -240,7 +246,7 @@ function lookupItem(slugStr) {
 export default async function CatchAllPage({ params }) {
   const { slug } = await params;
   const slugStr = slug.join('/');
-  if (slugStr.toLowerCase().includes('lazy-daze')) {
+  if (isExcludedSlug(slugStr)) {
     notFound();
   }
   const item = lookupItem(slugStr);

@@ -13,6 +13,7 @@ function getHomeBody() {
 
 function cleanBody(html) {
   return html
+    .replace(/<li>\s*<strong>Tips<\/strong>[\s\S]*?<\/li>/i, "")
     .replace(/href="internal:node\/(\d+)"/g, 'href="#"')
     .replace(/href="internal:([^"]+)"/g, 'href="/$1"')
     .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
@@ -213,7 +214,6 @@ export default function HomePage() {
           <div>• <a href="/photo-albums"        style={{ color: "#fff", fontWeight: 600 }}>Photographs</a> — 85 collections of 35mm slides</div>
           <div>• <a href="/about-lolo-and-herb" style={{ color: "#fff", fontWeight: 600 }}>About Lolo &amp; Herb</a> — our story &amp; the Lazy Daze</div>
           <div>• Top Highlights — places not to be missed</div>
-          <div>• Tips — maximize your RV travel experience</div>
         </div>
       </section>
     </div>

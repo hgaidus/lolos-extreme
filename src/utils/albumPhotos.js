@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { DATA_DIR } from '@/lib/dataPaths';
+import { photoFileExists } from '@/lib/photoExists';
 
 let cachedData = null;
 
@@ -66,12 +67,14 @@ export function getPhotosForAlbum(albumOrSlug) {
   }
 
   if (album && Array.isArray(album.images) && album.images.length > 0) {
-    return album.images.map((img, idx) => ({
-      url: img.url.startsWith('/') ? img.url : `/photos/${img.filename || img.url}`,
-      title: img.title || `${album.title} Slide #${idx + 1}`,
-      filename: img.filename,
-      image_nid: img.image_nid
-    }));
+    return album.images
+      .filter(img => photoFileExists(img.filename || img.url))
+      .map((img, idx) => ({
+        url: img.url.startsWith('/') ? img.url : `/photos/${img.filename || img.url}`,
+        title: img.title || `${album.title} Slide #${idx + 1}`,
+        filename: img.filename,
+        image_nid: img.image_nid
+      }));
   }
 
   // Fallback if not found in authoritative list
@@ -93,7 +96,7 @@ export function getPhotosForAlbum(albumOrSlug) {
   }
 
   return results
-    .filter(t => t.filename)
+    .filter(t => t.filename && photoFileExists(t.filename))
     .map((t, idx) => ({
       url: `/photos/${t.filename}`,
       title: t.title || `${query} Slide #${idx + 1}`

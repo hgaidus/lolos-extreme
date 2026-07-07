@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import InteractiveTravelogue from '@/components/InteractiveTravelogue';
 import { cleanDrupalContent } from '@/utils/cleanContent';
 import { DATA_DIR } from '@/lib/dataPaths';
+import { photoFileExists } from '@/lib/photoExists';
 
 function isExcludedSlug(slugStr) {
   const s = slugStr.toLowerCase();
@@ -345,6 +346,7 @@ export default async function CatchAllPage({ params }) {
   // Find archival photos for this stop
   const stopPhotos = photoTitles
     .filter(p => String(p.trip_stop_nid) === String(displayItem.nid))
+    .filter(p => photoFileExists(p.filename))
     .map((p, i) => ({
       url: `/photos/${p.filename}`,
       title: p.title || `${displayTitle} Photo Archive #${i+1}`

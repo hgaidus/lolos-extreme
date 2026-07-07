@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { DATA_DIR } from "@/lib/dataPaths";
+import { photoFileExists } from "@/lib/photoExists";
 
 let cachedNidMap = null;
 
@@ -84,19 +85,21 @@ export function cleanDrupalContent(text, photoTitles = []) {
 
     if (nid && imageMap.has(String(nid))) {
       const imgData = imageMap.get(String(nid));
-      const floatClass =
-        align === "left"
-          ? "float-left mr-6 mb-4 clear-left"
-          : align === "center"
-          ? "mx-auto block my-4 clear-both"
-          : "float-right ml-6 mb-4 clear-right";
-
       const cleanFilename = (imgData.filename || "").replace(/^sites\/default\/files\/(?:images\/)?/i, '');
 
-      return `\n\n<figure class="drupal-figure ${floatClass} max-w-xs w-80 bg-[#0c1d15] p-2.5 rounded-lg border border-amber-500/30 shadow-lg">\n  <img src="/photos/${cleanFilename}" alt="${title || imgData.title}" class="w-full h-auto rounded" onerror="this.style.display='none'" />\n  ${title || imgData.title ? `<figcaption class="text-xs text-gray-300 italic text-center mt-2 leading-tight">${title || imgData.title}</figcaption>` : ""}\n</figure>\n\n`;
+      if (photoFileExists(cleanFilename)) {
+        const floatClass =
+          align === "left"
+            ? "float-left mr-6 mb-4 clear-left"
+            : align === "center"
+            ? "mx-auto block my-4 clear-both"
+            : "float-right ml-6 mb-4 clear-right";
+
+        return `\n\n<figure class="drupal-figure ${floatClass} max-w-xs w-80 bg-[#0c1d15] p-2.5 rounded-lg border border-amber-500/30 shadow-lg">\n  <img src="/photos/${cleanFilename}" alt="${title || imgData.title}" class="w-full h-auto rounded" onerror="this.style.display='none'" />\n  ${title || imgData.title ? `<figcaption class="text-xs text-gray-300 italic text-center mt-2 leading-tight">${title || imgData.title}</figcaption>` : ""}\n</figure>\n\n`;
+      }
     }
 
-    // If image not found in map, strip the shortcode so user never sees brackets
+    // If image not found in map, or the file doesn't actually exist on disk, strip the shortcode so user never sees brackets or a broken image
     return "";
   });
 

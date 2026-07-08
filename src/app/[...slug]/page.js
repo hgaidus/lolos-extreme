@@ -401,22 +401,34 @@ export default async function CatchAllPage({ params }) {
       {/* Unified 3-Column Layout: Fixed Left & Right Sidebars, Fluid Center Content */}
       <div className="trip-page-layout flex flex-row gap-4 sm:gap-6 lg:gap-8 items-start w-full">
         {/* LEFT SIDEBAR: Route Map & Itinerary Table (Fixed Width) - ONLY FOR TRIPS, STOPS, AND ABOUT US */}
-        {(displayItem.itemType === 'trip' || displayItem.itemType === 'stop' || displayItem.slug === 'about-lolo-and-herb' || String(displayItem.nid) === '2') && (
-          <aside 
+        {(displayItem.itemType === 'trip' || displayItem.itemType === 'stop' || displayItem.slug === 'about-lolo-and-herb' || String(displayItem.nid) === '2' || displayItem.slug === 'contact-us') && (
+          <aside
             className={`${displayItem.itemType === 'trip' ? 'trip-overview-sidebar-column' : 'trip-sidebar-column'} shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin`}
           >
             <div>
               {/* About Lolo & Herb Sidebar Photo per Original Drupal Site */}
               {(displayItem.slug === 'about-lolo-and-herb' || String(displayItem.nid) === '2') ? (
                 <div className="trip-sidebar-map-box text-center bg-[#0a1c13] p-3 rounded-lg border border-amber-500/30 font-sans mb-4">
-                  <img 
-                    src="/photos/HL_Yosemite.jpg" 
-                    alt="Herb and Lolo Backpacking in Yosemite circa 1986" 
+                  <img
+                    src="/photos/HL_Yosemite.jpg"
+                    alt="Herb and Lolo Backpacking in Yosemite circa 1986"
                     title="Herb and Lolo Backpacking in Yosemite circa 1986"
                     className="w-full h-auto rounded shadow-md border border-white/10 mx-auto"
                   />
                   <div className="mt-2.5 text-xs text-amber-200/90 font-medium leading-relaxed">
                     <strong>Herb and Lolo Backpacking in Yosemite circa 1986</strong>
+                  </div>
+                </div>
+              ) : displayItem.slug === 'contact-us' ? (
+                <div className="trip-sidebar-map-box text-center bg-[#0a1c13] p-3 rounded-lg border border-amber-500/30 font-sans mb-4">
+                  <img
+                    src="/photos/family_yellowstone_1992.jpg"
+                    alt="The Gaidus family in Yellowstone, 1992"
+                    title="The Gaidus family in Yellowstone, 1992"
+                    className="w-full h-auto rounded shadow-md border border-white/10 mx-auto"
+                  />
+                  <div className="mt-2.5 text-xs text-amber-200/90 font-medium leading-relaxed">
+                    <strong>The Gaidus family in Yellowstone, 1992</strong>
                   </div>
                 </div>
               ) : (

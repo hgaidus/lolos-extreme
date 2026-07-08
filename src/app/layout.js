@@ -1,7 +1,27 @@
+import fs from "fs";
+import path from "path";
 import "./globals.css";
 import TopNav from "../components/TopNav";
 import Link from "next/link";
 import { Inter, Outfit } from "next/font/google";
+import { DATA_DIR } from "@/lib/dataPaths";
+
+function cleanTitle(str = "") {
+  return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
+}
+
+function getTripTitlesBySlug() {
+  try {
+    const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
+    const map = {};
+    trips.forEach(t => {
+      if (t && t.slug) map[t.slug] = cleanTitle(t.title);
+    });
+    return map;
+  } catch {
+    return {};
+  }
+}
 
 const inter  = Inter ({ subsets: ["latin"], variable: "--font-inter",  display: "swap" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap" });
@@ -25,6 +45,7 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
+  const tripTitles = getTripTitlesBySlug();
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
       <body style={{
@@ -79,7 +100,7 @@ export default function RootLayout({ children }) {
         </header>
 
         {/* ── Sticky Navigation Bar ── */}
-        <TopNav />
+        <TopNav tripTitles={tripTitles} />
 
         {/* ── Main Content ── */}
         <main style={{

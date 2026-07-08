@@ -11,7 +11,7 @@ const MENUS = [
   { key: "intl",  label: "International",        items: menuTrips.international },
 ];
 
-export default function TopNav() {
+export default function TopNav({ tripTitles = {} }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMenu, setOpenMenu]     = useState(null);
   const [mobileExpanded, setMobileExpanded] = useState(null);
@@ -179,7 +179,11 @@ export default function TopNav() {
                     <li><Link href={m.top.href} onClick={close} style={{ ...linkStyle, color: "#f59e0b", fontWeight: 700 }}>{m.top.label}</Link></li>
                   )}
                   {m.items.map((item, i) => (
-                    <li key={i}><Link href={item.href} onClick={close} style={linkStyle}>{item.title}</Link></li>
+                    <li key={i}>
+                      <Link href={item.href} onClick={close} title={tripTitles[item.href.replace(/^\//, "")] || item.title} style={linkStyle}>
+                        {item.title}
+                      </Link>
+                    </li>
                   ))}
                 </ul>
               )}
@@ -188,6 +192,8 @@ export default function TopNav() {
 
           <li><Link href="/photo-albums"  onClick={close} style={navLinkStyle}>Photos</Link></li>
           <li><Link href="/trip-stops-map" onClick={close} style={navLinkStyle}>Map</Link></li>
+          <li><Link href="/search"         onClick={close} style={navLinkStyle}>Search</Link></li>
+          <li><Link href="/contact-us"     onClick={close} style={navLinkStyle}>Contact</Link></li>
           <li><Link href="/admin"          onClick={close} style={{ ...navLinkStyle, color: "#f59e0b" }}>CMS Admin</Link></li>
         </ul>
       </div>
@@ -262,7 +268,7 @@ export default function TopNav() {
                     </Link>
                   )}
                   {m.items.map((item, i) => (
-                    <Link key={i} href={item.href} onClick={close} style={{
+                    <Link key={i} href={item.href} onClick={close} title={tripTitles[item.href.replace(/^\//, "")] || item.title} style={{
                       display: "block",
                       padding: "12px 28px",
                       color: "#cbd5e1",
@@ -280,10 +286,12 @@ export default function TopNav() {
             </div>
           ))}
 
-          {/* Photos + Map */}
+          {/* Photos + Map + Search + Contact */}
           {[
             { href: "/photo-albums",   label: "Photos" },
             { href: "/trip-stops-map", label: "Map" },
+            { href: "/search",         label: "Search" },
+            { href: "/contact-us",     label: "Contact" },
           ].map(l => (
             <Link key={l.href} href={l.href} onClick={close} style={{
               display: "block",

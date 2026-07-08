@@ -192,7 +192,7 @@ function getExportedData() {
 function lookupItem(slugStr) {
   if (isExcludedSlug(slugStr)) return null;
   const { stops, trips, pages: allPages } = getExportedData();
-  const pages = allPages.filter(p => !((p.slug || '').toLowerCase() === 'tips' || (p.slug || '').toLowerCase().startsWith('tips/')));
+  const pages = allPages.filter(p => p.type !== 'amazon_node' && !((p.slug || '').toLowerCase() === 'tips' || (p.slug || '').toLowerCase().startsWith('tips/')));
   const cleanSlug = decodeURIComponent(slugStr).replace(/^\//, '');
 
   let found = stops.find(s => s.slug === cleanSlug || s.slug === `/${cleanSlug}`);

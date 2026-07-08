@@ -77,6 +77,7 @@ function getIndex() {
 
   const pageEntries = pages
     .filter(p => p.nid && p.slug)
+    .filter(p => p.type !== "amazon_node")
     .filter(p => {
       const s = (p.slug || "").toLowerCase();
       return !s.includes("lazy-daze") && s !== "tips" && !s.startsWith("tips/");

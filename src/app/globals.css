@@ -1,7 +1,13 @@
 @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 @import "tailwindcss";
-/* Tailwind v4 rebuild trigger */
 
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+}
 
 :root {
   /* Curated HSL Color Tokens: Lazy Daze Evergreen & Metallic Gold */
@@ -24,12 +30,6 @@
 
   --border-gold: hsla(38, 85%, 55%, 0.35);
   --border-light: hsla(0, 0%, 100%, 0.12);
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 body {
@@ -298,8 +298,8 @@ select.gold-select:focus {
   flex-direction: column !important;
   gap: 8px !important;
   list-style: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  padding: 0;
+  margin: 0;
   width: 100% !important;
 }
 
@@ -308,15 +308,15 @@ select.gold-select:focus {
   flex-direction: row !important;
   align-items: center !important;
   justify-content: space-between !important;
-  padding: 10px 14px !important;
+  padding: 10px 14px;
   border-radius: 8px !important;
   text-decoration: none !important;
   font-size: 0.875rem !important;
   line-height: 1.35 !important;
   transition: all 0.2s ease !important;
   width: 100% !important;
-  box-sizing: border-box !important;
-  margin-bottom: 4px !important;
+  box-sizing: border-box;
+  margin-bottom: 4px;
 }
 
 .sidebar-item-active {
@@ -343,31 +343,31 @@ figure.drupal-figure {
   width: 300px !important;
   max-width: 100% !important;
   background-color: #0c1d15 !important;
-  padding: 10px !important;
+  padding: 10px;
   border-radius: 8px !important;
   border: 1px solid rgba(245, 158, 11, 0.3) !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
-  margin-bottom: 1.25rem !important;
+  margin-bottom: 1.25rem;
 }
 
 figure.drupal-figure.float-right {
   float: right !important;
-  margin-left: 1.5rem !important;
-  margin-right: 0 !important;
+  margin-left: 1.5rem;
+  margin-right: 0;
   clear: right !important;
 }
 
 figure.drupal-figure.float-left {
   float: left !important;
-  margin-right: 1.5rem !important;
-  margin-left: 0 !important;
+  margin-right: 1.5rem;
+  margin-left: 0;
   clear: left !important;
 }
 
 figure.drupal-figure.mx-auto {
   float: none !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+  margin-left: auto;
+  margin-right: auto;
   display: block !important;
   clear: both !important;
 }
@@ -377,7 +377,7 @@ figure.drupal-figure img, .travelogue-interactive-body img {
   height: auto !important;
   border-radius: 6px !important;
   display: block !important;
-  margin: 0 !important;
+  margin: 0;
   cursor: pointer !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
@@ -392,38 +392,49 @@ figure.drupal-figure figcaption {
   color: #d1d5db !important;
   font-style: italic !important;
   text-align: center !important;
-  margin-top: 0.5rem !important;
+  margin-top: 0.5rem;
   line-height: 1.3 !important;
 }
 
 /* Foolproof Typography & List Formatting for All Travelogues and Articles */
 .travelogue-interactive-body p {
-  margin-bottom: 1.5em !important;
+  margin-bottom: 1.5em;
   line-height: 1.75 !important;
 }
 
 .travelogue-interactive-body ul {
   list-style-type: disc !important;
   list-style-position: outside !important;
-  margin-left: 2.25rem !important;
-  margin-bottom: 1.5em !important;
-  margin-top: 0.75em !important;
-  padding-left: 0.5rem !important;
+  margin-left: 2.25rem;
+  margin-bottom: 1.5em;
+  margin-top: 0.75em;
+  padding-left: 0.5rem;
 }
 
 .travelogue-interactive-body ol {
   list-style-type: decimal !important;
   list-style-position: outside !important;
-  margin-left: 2.25rem !important;
-  margin-bottom: 1.5em !important;
-  margin-top: 0.75em !important;
-  padding-left: 0.5rem !important;
+  margin-left: 2.25rem;
+  margin-bottom: 1.5em;
+  margin-top: 0.75em;
+  padding-left: 0.5rem;
 }
 
 .travelogue-interactive-body li {
-  margin-bottom: 0.6em !important;
+  margin-bottom: 0.6em;
   line-height: 1.6 !important;
   display: list-item !important;
+}
+
+.travelogue-interactive-body hr {
+  margin: 0.5em 0 1.5em;
+  border: none !important;
+  border-top: 1px solid var(--border-gold) !important;
+}
+
+.travelogue-interactive-body .trip-description-box {
+  padding: 1rem;
+  margin-bottom: 1.5em;
 }
 
 /* Foolproof Unconditional 3-Column Layout for Trips and Stops */
@@ -438,14 +449,14 @@ figure.drupal-figure figcaption {
 .trip-sidebar-column {
   width: 250px !important;
   flex-shrink: 0 !important;
-  box-sizing: border-box !important;
+  box-sizing: border-box;
   overflow-x: hidden !important;
 }
 
 .trip-overview-sidebar-column {
   width: 450px !important;
   flex-shrink: 0 !important;
-  box-sizing: border-box !important;
+  box-sizing: border-box;
   overflow-x: hidden !important;
   max-width: 100% !important;
 }
@@ -453,7 +464,7 @@ figure.drupal-figure figcaption {
 .trip-right-sidebar-column {
   width: 250px !important;
   flex-shrink: 0 !important;
-  box-sizing: border-box !important;
+  box-sizing: border-box;
   overflow-x: hidden !important;
 }
 
@@ -476,13 +487,13 @@ figure.drupal-figure figcaption {
   flex: 1 1 0% !important;
   min-width: 0 !important;
   width: auto !important;
-  box-sizing: border-box !important;
+  box-sizing: border-box;
 }
 
 /* Guarantee exact same width for Route Map and Itinerary Table without overflow */
 .trip-sidebar-map-box {
   width: 100% !important;
-  margin-bottom: 1.25rem !important;
+  margin-bottom: 1.25rem;
   display: block !important;
   background: #050e09 !important;
   border: 1px solid rgba(245, 158, 11, 0.3) !important;
@@ -497,7 +508,7 @@ figure.drupal-figure figcaption {
   max-width: 100% !important;
   object-fit: contain !important;
   display: block !important;
-  margin: 0 auto !important;
+  margin: 0 auto;
 }
 
 .trip-sidebar-table-box {
@@ -526,7 +537,7 @@ table { word-break: break-word; }
   .trip-overview-sidebar-column { width: 340px !important; }
   .trip-right-sidebar-column { display: none !important; }
   .nav-link { padding: 12px 10px !important; font-size: 0.9rem !important; }
-  .sidebar-item { padding: 12px 14px !important; }
+  .sidebar-item { padding: 12px 14px; }
   button, .btn-gold { min-height: 44px; }
 }
 
@@ -563,7 +574,7 @@ table { word-break: break-word; }
   figure.drupal-figure.float-right,
   figure.drupal-figure.float-left {
     float: none !important;
-    margin: 0 auto 1rem auto !important;
+    margin: 0 auto 1rem auto;
     width: 100% !important;
     max-width: 320px !important;
     display: block !important;

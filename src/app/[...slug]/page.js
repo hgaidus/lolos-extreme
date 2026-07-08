@@ -337,7 +337,7 @@ export default async function CatchAllPage({ params }) {
   if (displayItem.itemType === 'trip') {
     rawText = displayItem.travelogue || displayItem.body || (String(displayItem.year || "").length > 10 ? displayItem.year : "") || displayItem.summary || "";
   } else if (displayItem.description && displayItem.travelogue && displayItem.description !== displayItem.travelogue) {
-    rawText = `<div class="p-4 mb-6 bg-[#0c1d15]/80 border-l-4 border-amber-500 rounded text-amber-200/90 italic font-medium leading-relaxed">${displayItem.description}</div>\n\n` + displayItem.travelogue;
+    rawText = displayItem.travelogue + `\n\n<hr />\n\n<div class="trip-description-box bg-[#0c1d15]/80 border-l-4 border-amber-500 rounded text-amber-200/90 italic font-medium leading-relaxed">${displayItem.description}</div>`;
   } else {
     rawText = displayItem.travelogue || displayItem.description || displayItem.summary || displayItem.body || "";
   }

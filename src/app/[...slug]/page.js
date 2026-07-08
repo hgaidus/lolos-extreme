@@ -465,14 +465,14 @@ export default async function CatchAllPage({ params }) {
                             </tbody>
                           </table>
                         ) : (
-                          <table className="w-full text-left text-xs border-collapse font-sans">
+                          <table className="w-full text-left text-xs border-collapse font-sans table-fixed">
                             <thead>
                               <tr className="bg-[#0a1c13] text-amber-400 border-b border-white/10">
-                                <th className="py-2.5 px-2 text-center w-8 font-bold">#</th>
+                                <th className="py-2.5 px-2 text-center w-[26px] font-bold whitespace-nowrap">#</th>
                                 <th className="py-2.5 px-2 font-bold">Itinerary</th>
-                                <th className="py-2.5 px-1 text-center font-bold">State</th>
-                                <th className="py-2.5 px-1 text-right font-bold">Miles</th>
-                                <th className="py-2.5 px-2 text-right font-bold">Hours</th>
+                                <th className="py-2.5 px-1 text-center w-[38px] font-bold whitespace-nowrap">State</th>
+                                <th className="py-2.5 px-1 text-right w-[44px] font-bold whitespace-nowrap">Miles</th>
+                                <th className="py-2.5 px-2 text-right w-[46px] font-bold whitespace-nowrap">Hours</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
@@ -480,15 +480,15 @@ export default async function CatchAllPage({ params }) {
                                 tripStops.map((stop, idx) => {
                                   return (
                                     <tr key={stop.nid || idx} className={idx % 2 === 0 ? "bg-white/5 hover:bg-white/10 transition-colors" : "bg-transparent hover:bg-white/10 transition-colors"}>
-                                      <td className="py-2.5 px-2 text-center font-bold text-gray-400">{idx + 1}</td>
+                                      <td className="py-2.5 px-2 text-center font-bold text-gray-400 whitespace-nowrap">{idx + 1}</td>
                                       <td className="py-2.5 px-2 font-medium">
                                         <Link href={`/${stop.slug}`} className="text-[#38bdf8] hover:underline no-underline block truncate max-w-[240px]">
                                           {cleanTitle(stop.title)}
                                         </Link>
                                       </td>
-                                      <td className="py-2.5 px-1 text-center font-semibold text-gray-300">{stop.state || '--'}</td>
-                                      <td className="py-2.5 px-1 text-right text-gray-300">{stop.miles ?? '--'}</td>
-                                      <td className="py-2.5 px-2 text-right text-gray-300">{stop.hours ?? '--'}</td>
+                                      <td className="py-2.5 px-1 text-center font-semibold text-gray-300 whitespace-nowrap">{stop.state || '--'}</td>
+                                      <td className="py-2.5 px-1 text-right text-gray-300 whitespace-nowrap">{stop.miles ?? '--'}</td>
+                                      <td className="py-2.5 px-2 text-right text-gray-300 whitespace-nowrap">{stop.hours ?? '--'}</td>
                                     </tr>
                                   );
                                 })
@@ -501,12 +501,12 @@ export default async function CatchAllPage({ params }) {
                             {tripStops.length > 0 && (
                               <tfoot>
                                 <tr className="bg-[#14532d]/90 text-white font-bold border-t border-amber-500/30">
-                                  <td colSpan="2" className="py-2.5 px-2 text-right uppercase tracking-wider text-[11px]">Total: {tripStops.length} Stops</td>
-                                  <td className="py-2.5 px-1 text-center">--</td>
-                                  <td className="py-2.5 px-1 text-right text-amber-300">
+                                  <td colSpan="2" className="py-2.5 px-2 text-right uppercase tracking-wider text-[11px] whitespace-nowrap">Total: {tripStops.length} Stops</td>
+                                  <td className="py-2.5 px-1 text-center whitespace-nowrap">--</td>
+                                  <td className="py-2.5 px-1 text-right text-amber-300 whitespace-nowrap">
                                     {tripStops.reduce((acc, s) => acc + (Number(s.miles) || 0), 0)}
                                   </td>
-                                  <td className="py-2.5 px-2 text-right text-amber-300">
+                                  <td className="py-2.5 px-2 text-right text-amber-300 whitespace-nowrap">
                                     {tripStops.reduce((acc, s) => acc + (Number(s.hours) || 0), 0)}
                                   </td>
                                 </tr>

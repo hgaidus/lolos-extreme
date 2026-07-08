@@ -277,10 +277,10 @@ export default async function CatchAllPage({ params }) {
             <table className="w-full text-left text-sm border-collapse font-sans">
               <thead>
                 <tr className="bg-[#14532d] text-white border-b border-amber-500/30">
-                  <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs">Stop Name</th>
-                  <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs">Trip Name</th>
-                  <th className="py-3.5 px-3 font-bold uppercase tracking-wider text-xs text-center">State</th>
-                  <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs">Stop Type</th>
+                  <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs whitespace-nowrap">Stop Name</th>
+                  <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs whitespace-nowrap">Trip Name</th>
+                  <th className="py-3.5 px-3 text-center font-bold uppercase tracking-wider text-xs whitespace-nowrap w-20">State</th>
+                  <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs whitespace-nowrap">Stop Type</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10 bg-[#07130d]/80">
@@ -302,7 +302,7 @@ export default async function CatchAllPage({ params }) {
                             </Link>
                           ) : '--'}
                         </td>
-                        <td className="py-3 px-3 text-center font-bold">
+                        <td className="py-3 px-3 text-center font-bold whitespace-nowrap">
                           {stop.state ? (
                             <Link href={`/state/${stop.state.toLowerCase()}`} className="text-[#38bdf8] hover:text-sky-300 hover:underline">
                               {stop.state}

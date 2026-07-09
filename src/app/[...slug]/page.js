@@ -438,7 +438,7 @@ export default async function CatchAllPage({ params }) {
         {/* LEFT SIDEBAR: Route Map & Itinerary Table (Fixed Width) - ONLY FOR TRIPS, STOPS, AND ABOUT US */}
         {(displayItem.itemType === 'trip' || displayItem.itemType === 'stop' || displayItem.slug === 'about-lolo-and-herb' || String(displayItem.nid) === '2' || displayItem.slug === 'contact-us') && (
           <aside
-            className={`${displayItem.itemType === 'trip' ? 'trip-overview-sidebar-column' : 'trip-sidebar-column'} shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin`}
+            className={`${displayItem.itemType === 'trip' ? 'trip-overview-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin' : 'trip-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20'}`}
           >
             <div>
               {/* About Lolo & Herb Sidebar Photo per Original Drupal Site */}

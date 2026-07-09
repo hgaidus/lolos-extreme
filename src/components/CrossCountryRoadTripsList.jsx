@@ -31,41 +31,41 @@ export default function CrossCountryRoadTripsList() {
     <div className="w-full max-w-4xl mx-auto min-w-0 py-6 px-4 sm:px-6 font-sans">
       {/* Breadcrumb Navigation */}
       <div className="mb-4 flex gap-2 items-center text-sm flex-wrap">
-        <Link href="/" className="text-amber-400 hover:underline font-semibold">Home</Link>
-        <span className="text-gray-500">/</span>
-        <span className="text-gray-300 font-medium">Cross Country Road Trip</span>
+        <Link href="/" className="text-[#c1593a] hover:underline font-semibold">Home</Link>
+        <span className="text-[#8a8371]">/</span>
+        <span className="text-[#5c5847] font-medium">Cross Country Road Trip</span>
       </div>
 
-      <h1 className="text-3xl md:text-4xl font-extrabold text-[#d97706] mb-6 font-sans">
+      <h1 className="text-3xl md:text-4xl font-bold text-[#3f5c4c] mb-6 font-heading">
         Cross Country Road Trip
       </h1>
 
-      <div className="glass-panel overflow-hidden border border-amber-500/30 rounded-lg shadow-xl">
+      <div className="bg-white overflow-hidden border border-[#e4dcc8] rounded-lg shadow-md">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm border-collapse font-sans">
             <thead>
-              <tr className="bg-[#14532d] text-white border-b border-amber-500/30">
+              <tr className="bg-[#3f5c4c] text-white">
                 <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs">Trip Name</th>
                 <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs text-center w-24">Year</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10 bg-[#07130d]/80">
+            <tbody className="divide-y divide-[#e4dcc8]">
               {crossCountryTrips.length > 0 ? (
                 crossCountryTrips.map((trip, idx) => (
-                  <tr key={trip.slug} className={idx % 2 === 0 ? "bg-white/5 hover:bg-white/10 transition-colors" : "bg-transparent hover:bg-white/10 transition-colors"}>
+                  <tr key={trip.slug} className={idx % 2 === 0 ? "bg-[#faf6ee] hover:bg-[#f2ede1] transition-colors" : "bg-white hover:bg-[#f2ede1] transition-colors"}>
                     <td className="py-3 px-4 font-semibold">
-                      <Link href={`/${trip.slug}`} className="text-[#38bdf8] hover:text-sky-300 hover:underline">
+                      <Link href={`/${trip.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline">
                         {cleanTitle(trip.title)}
                       </Link>
                     </td>
-                    <td className="py-3 px-4 text-center text-gray-300 font-medium">
+                    <td className="py-3 px-4 text-center text-[#5c5847] font-medium">
                       {trip.displayYear || '--'}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="2" className="py-8 text-center text-gray-400">No trips found.</td>
+                  <td colSpan="2" className="py-8 text-center text-[#8a8371]">No trips found.</td>
                 </tr>
               )}
             </tbody>

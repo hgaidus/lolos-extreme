@@ -40,11 +40,11 @@ export default function TopNav({ tripTitles = {} }) {
     top: "100%",
     left: 0,
     minWidth: "240px",
-    background: "#0a1c13",
-    border: "1px solid #f59e0b",
+    background: "#ffffff",
+    border: "1px solid #c1593a",
     borderTop: "none",
     borderRadius: "0 0 10px 10px",
-    boxShadow: "0 16px 40px rgba(0,0,0,0.85)",
+    boxShadow: "0 16px 32px rgba(62,50,30,0.28)",
     listStyle: "none",
     padding: "6px 0",
     margin: 0,
@@ -57,10 +57,10 @@ export default function TopNav({ tripTitles = {} }) {
   const linkStyle = {
     display: "block",
     padding: "11px 18px",
-    color: "#e2e8f0",
+    color: "#5c5648",
     fontSize: "0.9rem",
     textDecoration: "none",
-    borderBottom: "1px solid rgba(255,255,255,0.05)",
+    borderBottom: "1px solid rgba(62,50,30,0.07)",
     transition: "background 0.12s",
     minHeight: "44px",
     lineHeight: "22px",
@@ -87,8 +87,8 @@ export default function TopNav({ tripTitles = {} }) {
     <nav
       ref={navRef}
       style={{
-        background: "rgba(8,21,15,0.98)",
-        borderBottom: "2px solid #f59e0b",
+        background: "rgba(63,92,76,0.97)",
+        borderBottom: "2px solid #c1593a",
         position: "sticky",
         top: 0,
         zIndex: 200,
@@ -107,7 +107,7 @@ export default function TopNav({ tripTitles = {} }) {
 
         {/* Mobile: site name + hamburger */}
         <Link href="/" onClick={close} style={{
-          color: "#f59e0b",
+          color: "#faf6ee",
           fontWeight: 700,
           fontSize: "0.95rem",
           textDecoration: "none",
@@ -123,8 +123,8 @@ export default function TopNav({ tripTitles = {} }) {
           className="hamburger-btn"
           style={{
             background: "transparent",
-            border: "1px solid rgba(245,158,11,0.6)",
-            color: "#f59e0b",
+            border: "1px solid rgba(193,89,58,0.7)",
+            color: "#d1704f",
             padding: "8px 14px",
             borderRadius: "6px",
             cursor: "pointer",
@@ -166,9 +166,9 @@ export default function TopNav({ tripTitles = {} }) {
             >
               <button
                 onClick={(e) => toggle(m.key, e)}
-                style={{ ...navLinkStyle, background: openMenu === m.key ? "rgba(245,158,11,0.12)" : "none" }}
+                style={{ ...navLinkStyle, background: openMenu === m.key ? "rgba(193,89,58,0.18)" : "none" }}
               >
-                {m.label} <span style={{ fontSize: "0.65rem", color: "#f59e0b", marginLeft: "2px" }}>▼</span>
+                {m.label} <span style={{ fontSize: "0.65rem", color: "#d1704f", marginLeft: "2px" }}>▼</span>
               </button>
               {openMenu === m.key && (
                 <ul style={ddStyle}
@@ -176,7 +176,7 @@ export default function TopNav({ tripTitles = {} }) {
                   onMouseLeave={leave}
                 >
                   {m.top && (
-                    <li><Link href={m.top.href} onClick={close} style={{ ...linkStyle, color: "#f59e0b", fontWeight: 700 }}>{m.top.label}</Link></li>
+                    <li><Link href={m.top.href} onClick={close} style={{ ...linkStyle, color: "#c1593a", fontWeight: 700 }}>{m.top.label}</Link></li>
                   )}
                   {m.items.map((item, i) => (
                     <li key={i}>
@@ -194,15 +194,15 @@ export default function TopNav({ tripTitles = {} }) {
           <li><Link href="/trip-stops-map" onClick={close} style={navLinkStyle}>Map</Link></li>
           <li><Link href="/search"         onClick={close} style={navLinkStyle}>Search</Link></li>
           <li><Link href="/contact-us"     onClick={close} style={navLinkStyle}>Contact</Link></li>
-          <li><Link href="/admin"          onClick={close} style={{ ...navLinkStyle, color: "#f59e0b" }}>CMS Admin</Link></li>
+          <li><Link href="/admin"          onClick={close} style={{ ...navLinkStyle, color: "#d1704f" }}>CMS Admin</Link></li>
         </ul>
       </div>
 
       {/* ── Mobile slide-down menu ── */}
       {mobileOpen && (
         <div style={{
-          background: "#080f0b",
-          borderTop: "1px solid rgba(245,158,11,0.2)",
+          background: "#33493c",
+          borderTop: "1px solid rgba(193,89,58,0.3)",
           overflowY: "auto",
           maxHeight: "80vh",
           WebkitOverflowScrolling: "touch",
@@ -215,11 +215,11 @@ export default function TopNav({ tripTitles = {} }) {
             <Link key={l.href} href={l.href} onClick={close} style={{
               display: "block",
               padding: "14px 20px",
-              color: "#e2e8f0",
+              color: "#faf6ee",
               fontWeight: 600,
               fontSize: "1rem",
               textDecoration: "none",
-              borderBottom: "1px solid rgba(255,255,255,0.06)",
+              borderBottom: "1px solid rgba(250,246,238,0.08)",
               minHeight: "48px",
             }}>
               {l.label}
@@ -237,12 +237,12 @@ export default function TopNav({ tripTitles = {} }) {
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "14px 20px",
-                  color: "#f59e0b",
+                  color: "#d1704f",
                   fontWeight: 700,
                   fontSize: "1rem",
                   background: "none",
                   border: "none",
-                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  borderBottom: "1px solid rgba(250,246,238,0.08)",
                   cursor: "pointer",
                   minHeight: "48px",
                   textAlign: "left",
@@ -252,16 +252,16 @@ export default function TopNav({ tripTitles = {} }) {
                 <span style={{ fontSize: "0.75rem", marginLeft: "8px" }}>{mobileExpanded === m.key ? "▲" : "▼"}</span>
               </button>
               {mobileExpanded === m.key && (
-                <div style={{ background: "#0a160e" }}>
+                <div style={{ background: "#2b3d31" }}>
                   {m.top && (
                     <Link href={m.top.href} onClick={close} style={{
                       display: "block",
                       padding: "12px 28px",
-                      color: "#f59e0b",
+                      color: "#d1704f",
                       fontWeight: 700,
                       fontSize: "0.9rem",
                       textDecoration: "none",
-                      borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      borderBottom: "1px solid rgba(250,246,238,0.06)",
                       minHeight: "44px",
                     }}>
                       {m.top.label}
@@ -271,10 +271,10 @@ export default function TopNav({ tripTitles = {} }) {
                     <Link key={i} href={item.href} onClick={close} title={tripTitles[item.href.replace(/^\//, "")] || item.title} style={{
                       display: "block",
                       padding: "12px 28px",
-                      color: "#cbd5e1",
+                      color: "#d7e3d9",
                       fontSize: "0.88rem",
                       textDecoration: "none",
-                      borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      borderBottom: "1px solid rgba(250,246,238,0.06)",
                       minHeight: "44px",
                       lineHeight: "20px",
                     }}>
@@ -296,11 +296,11 @@ export default function TopNav({ tripTitles = {} }) {
             <Link key={l.href} href={l.href} onClick={close} style={{
               display: "block",
               padding: "14px 20px",
-              color: "#e2e8f0",
+              color: "#faf6ee",
               fontWeight: 600,
               fontSize: "1rem",
               textDecoration: "none",
-              borderBottom: "1px solid rgba(255,255,255,0.06)",
+              borderBottom: "1px solid rgba(250,246,238,0.08)",
               minHeight: "48px",
             }}>
               {l.label}

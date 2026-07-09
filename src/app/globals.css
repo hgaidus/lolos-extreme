@@ -10,8 +10,8 @@
 
   body {
     background-color: var(--bg-main);
-    background-image: radial-gradient(circle at 15% 20%, hsla(152, 60%, 15%, 0.5) 0%, transparent 40%),
-                      radial-gradient(circle at 85% 80%, hsla(38, 85%, 25%, 0.15) 0%, transparent 50%);
+    background-image: radial-gradient(circle at 12% 15%, hsla(140, 25%, 55%, 0.14) 0%, transparent 42%),
+                      radial-gradient(circle at 88% 85%, hsla(14, 55%, 50%, 0.10) 0%, transparent 48%);
     background-attachment: fixed;
     color: var(--text-primary);
     font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
@@ -24,7 +24,7 @@
 
   /* Typography Standards - Classic Readable Sizing */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-outfit), system-ui, sans-serif;
+    font-family: var(--font-heading), Georgia, serif;
     color: var(--text-primary);
     font-weight: 700;
     line-height: 1.3;
@@ -39,7 +39,7 @@
     font-size: 1.35rem;
     margin-top: 1.25rem;
     margin-bottom: 0.65rem;
-    color: var(--color-gold-primary);
+    color: var(--color-green-dark);
   }
 
   h3 {
@@ -49,7 +49,7 @@
   }
 
   a {
-    color: var(--color-gold-light);
+    color: var(--color-green-dark);
     text-decoration: none;
     transition: color 0.2s ease, opacity 0.2s ease;
   }
@@ -61,26 +61,26 @@
 }
 
 :root {
-  /* Curated HSL Color Tokens: Lazy Daze Evergreen & Metallic Gold */
-  --color-green-primary: hsl(152, 55%, 20%);
-  --color-green-dark: hsl(152, 60%, 12%);
-  --color-green-light: hsl(152, 45%, 28%);
-  
-  --color-gold-primary: hsl(38, 85%, 55%);
-  --color-gold-light: hsl(40, 90%, 65%);
-  --color-gold-dark: hsl(36, 80%, 42%);
+  /* Curated Color Tokens: Lazy Daze Sage & Coral — pulled from the RV's own paint job */
+  --color-green-primary: #7c9880;
+  --color-green-dark: #3f5c4c;
+  --color-green-light: #9fb6a2;
 
-  --bg-main: hsl(152, 40%, 8%);
-  --bg-card: hsla(152, 50%, 14%, 0.75);
-  --bg-card-hover: hsla(152, 45%, 18%, 0.85);
-  
-  --text-primary: hsl(0, 0%, 96%);
-  --text-secondary: hsl(152, 15%, 80%);
-  --text-muted: hsl(152, 10%, 65%);
-  --text-inverse: hsl(152, 60%, 10%);
+  --color-gold-primary: #c1593a;
+  --color-gold-light: #d1704f;
+  --color-gold-dark: #a54a2f;
 
-  --border-gold: hsla(38, 85%, 55%, 0.35);
-  --border-light: hsla(0, 0%, 100%, 0.12);
+  --bg-main: #faf6ee;
+  --bg-card: rgba(255, 255, 255, 0.78);
+  --bg-card-hover: rgba(255, 255, 255, 0.94);
+
+  --text-primary: #2e2c26;
+  --text-secondary: #5c5648;
+  --text-muted: #8a8272;
+  --text-inverse: #faf6ee;
+
+  --border-gold: rgba(193, 89, 58, 0.35);
+  --border-light: rgba(90, 74, 50, 0.16);
 }
 
 /* Glassmorphism Panel Utilities */
@@ -90,7 +90,7 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-light);
   border-radius: 12px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  box-shadow: 0 8px 28px 0 rgba(62, 50, 30, 0.10);
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
@@ -100,32 +100,32 @@
 
 /* Enhanced Glass Sidebars & Cards */
 .glass-sidebar {
-  background: hsla(152, 55%, 11%, 0.88);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid hsla(38, 85%, 55%, 0.28);
+  border: 1px solid rgba(193, 89, 58, 0.22);
   border-radius: 12px;
-  box-shadow: 0 10px 35px 0 rgba(0, 0, 0, 0.55);
+  box-shadow: 0 10px 30px 0 rgba(62, 50, 30, 0.12);
   transition: all 0.25s ease;
 }
 
 .glass-sidebar:hover {
-  border-color: hsla(38, 85%, 55%, 0.45);
+  border-color: rgba(193, 89, 58, 0.4);
 }
 
 .glass-card {
-  background: hsla(152, 45%, 16%, 0.7);
+  background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(62, 50, 30, 0.08);
   border-radius: 10px;
   transition: all 0.2s ease;
 }
 
 .glass-card:hover {
-  background: hsla(152, 45%, 20%, 0.85);
-  border-color: hsla(38, 85%, 55%, 0.4);
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(193, 89, 58, 0.35);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 18px rgba(62, 50, 30, 0.14);
 }
 
 /* Classic Button Accents */
@@ -146,13 +146,13 @@
 
 .btn-gold:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px hsla(38, 85%, 55%, 0.3);
+  box-shadow: 0 4px 14px rgba(193, 89, 58, 0.35);
   color: var(--text-inverse);
 }
 
 /* Multi-Level Dropdown Navigation Menu */
 .nav-container {
-  background: rgba(10, 25, 18, 0.95);
+  background: rgba(63, 92, 76, 0.95);
   border-bottom: 2px solid var(--color-gold-primary);
   position: sticky;
   top: 0;
@@ -185,7 +185,7 @@
 
 .nav-link:hover, .nav-item:hover > .nav-link {
   background: var(--color-green-light);
-  color: var(--color-gold-light);
+  color: var(--text-inverse);
 }
 
 .dropdown-menu {
@@ -194,10 +194,10 @@
   top: 100%;
   left: 0;
   min-width: 230px;
-  background: #0d1e16;
+  background: #ffffff;
   border: 1px solid var(--border-gold);
   border-radius: 0 0 8px 8px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 24px rgba(62, 50, 30, 0.22);
   list-style: none;
   padding: 6px 0;
   z-index: 200;
@@ -215,7 +215,7 @@
   color: var(--text-secondary);
   font-size: 0.88rem;
   text-decoration: none !important;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(62, 50, 30, 0.06);
 }
 
 .dropdown-item a:hover {
@@ -226,7 +226,7 @@
 
 /* Custom Select Dropdown Styling */
 select.gold-select {
-  background: #0f231a;
+  background: #ffffff;
   color: var(--text-primary);
   border: 1px solid var(--color-gold-primary);
   padding: 10px 14px;
@@ -238,7 +238,7 @@ select.gold-select {
 }
 
 select.gold-select:focus {
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 0 2px rgba(193, 89, 58, 0.3);
 }
 
 /* 35mm Slide Card Wrapper */
@@ -246,14 +246,14 @@ select.gold-select:focus {
   background: #fff;
   padding: 12px 12px 24px 12px;
   border-radius: 4px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 15px rgba(62, 50, 30, 0.28);
   color: #222;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .slide-mount:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 25px rgba(62, 50, 30, 0.38);
 }
 
 /* Foolproof Layout System for Stop and Trip Pages */
@@ -320,33 +320,33 @@ select.gold-select:focus {
 }
 
 .sidebar-item-active {
-  background-color: #f59e0b !important;
-  color: #08150f !important;
+  background-color: var(--color-green-primary) !important;
+  color: #fff !important;
   font-weight: 700 !important;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(124, 152, 128, 0.35) !important;
 }
 
 .sidebar-item-inactive {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  color: #e5e7eb !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  background-color: rgba(62, 50, 30, 0.04) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid rgba(62, 50, 30, 0.07) !important;
 }
 
 .sidebar-item-inactive:hover {
-  background-color: rgba(255, 255, 255, 0.15) !important;
-  border-color: rgba(245, 158, 11, 0.4) !important;
-  color: #fff !important;
+  background-color: rgba(193, 89, 58, 0.10) !important;
+  border-color: rgba(193, 89, 58, 0.35) !important;
+  color: var(--text-primary) !important;
 }
 
 /* Bulletproof Drupal Inline Image Assist & Figure Styling */
 figure.drupal-figure {
   width: 300px !important;
   max-width: 100% !important;
-  background-color: #0c1d15 !important;
+  background-color: #ffffff !important;
   padding: 10px;
   border-radius: 8px !important;
-  border: 1px solid rgba(245, 158, 11, 0.3) !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(193, 89, 58, 0.25) !important;
+  box-shadow: 0 10px 20px -6px rgba(62, 50, 30, 0.18) !important;
   margin-bottom: 1.25rem;
 }
 
@@ -384,12 +384,12 @@ figure.drupal-figure img, .travelogue-interactive-body img {
 
 figure.drupal-figure:hover img, .travelogue-interactive-body img:hover {
   transform: scale(1.03) !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7) !important;
+  box-shadow: 0 10px 22px rgba(62, 50, 30, 0.3) !important;
 }
 
 figure.drupal-figure figcaption {
   font-size: 0.75rem !important;
-  color: #d1d5db !important;
+  color: var(--text-muted) !important;
   font-style: italic !important;
   text-align: center !important;
   margin-top: 0.5rem;
@@ -495,11 +495,11 @@ figure.drupal-figure figcaption {
   width: 100% !important;
   margin-bottom: 1.25rem;
   display: block !important;
-  background: #050e09 !important;
-  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(193, 89, 58, 0.25) !important;
   border-radius: 0.5rem !important;
   overflow: hidden !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 4px 10px -2px rgba(62, 50, 30, 0.14) !important;
 }
 
 .trip-sidebar-map-img {
@@ -514,11 +514,11 @@ figure.drupal-figure figcaption {
 .trip-sidebar-table-box {
   width: 100% !important;
   max-width: 100% !important;
-  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  border: 1px solid rgba(193, 89, 58, 0.25) !important;
   border-radius: 0.5rem !important;
   overflow: hidden !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
-  background: #07130d !important;
+  box-shadow: 0 4px 10px -2px rgba(62, 50, 30, 0.14) !important;
+  background: #ffffff !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════

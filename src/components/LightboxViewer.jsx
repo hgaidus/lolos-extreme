@@ -55,9 +55,9 @@ export default function LightboxViewer({ photos = [], albumTitle = "Photo Galler
             <div
               key={idx}
               onClick={() => openLightbox(idx)}
-              className="bg-[#3f3f46] hover:bg-[#52525b] border border-white/10 hover:border-amber-400/60 rounded overflow-hidden cursor-pointer transition-all duration-200 flex flex-col group shadow-md"
+              className="bg-white hover:bg-[#faf6ee] border border-[#e4dcc8] hover:border-[#c1593a]/50 rounded overflow-hidden cursor-pointer transition-all duration-200 flex flex-col group shadow-md"
             >
-              <div className="w-full h-44 sm:h-48 md:h-52 bg-[#27272a] p-2 flex items-center justify-center overflow-hidden relative">
+              <div className="w-full h-44 sm:h-48 md:h-52 bg-[#f2ede1] p-2 flex items-center justify-center overflow-hidden relative">
                 <img
                   src={photo.url}
                   alt={photo.title || `Photo ${idx + 1}`}
@@ -70,8 +70,8 @@ export default function LightboxViewer({ photos = [], albumTitle = "Photo Galler
                 />
               </div>
               {photo.title && (
-                <div className="p-2.5 text-center flex-1 flex items-center justify-center bg-[#3f3f46] group-hover:bg-[#52525b] transition-colors">
-                  <p className="text-xs sm:text-sm font-medium text-gray-100 line-clamp-2 leading-snug m-0">
+                <div className="p-2.5 text-center flex-1 flex items-center justify-center bg-white group-hover:bg-[#faf6ee] transition-colors">
+                  <p className="text-xs sm:text-sm font-medium text-[#2e2c26] line-clamp-2 leading-snug m-0">
                     {photo.title}
                   </p>
                 </div>

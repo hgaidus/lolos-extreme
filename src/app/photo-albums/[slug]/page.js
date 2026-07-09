@@ -18,14 +18,14 @@ export default async function AlbumDetailPage({ params }) {
 
   return (
     <div className="w-full">
-      <div className="mb-6 pb-4 border-b border-white/10">
-        <Link href="/photo-albums" className="text-amber-400 hover:underline font-semibold text-sm inline-flex items-center gap-1.5 mb-3">
+      <div className="mb-6 pb-4 border-b border-black/10">
+        <Link href="/photo-albums" className="text-[#c1593a] hover:underline font-semibold text-sm inline-flex items-center gap-1.5 mb-3">
           &larr; Back to All 35mm Albums
         </Link>
-        <h1 className="text-2xl md:text-3xl font-bold text-white m-0">
+        <h1 className="text-2xl md:text-3xl font-bold text-[#2e2c26] m-0">
           {title}
         </h1>
-        <p className="text-base md:text-lg text-gray-300 mt-2 m-0">
+        <p className="text-base md:text-lg text-[#6b6459] mt-2 m-0">
           Preserved Kodak &amp; Fujifilm 35mm Slide Archive ({photos.length} photos) — Click any slide below to launch the interactive slideshow.
         </p>
       </div>

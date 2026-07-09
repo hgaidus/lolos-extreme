@@ -3,7 +3,7 @@ import path from "path";
 import "./globals.css";
 import TopNav from "../components/TopNav";
 import Link from "next/link";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Lora } from "next/font/google";
 import { DATA_DIR } from "@/lib/dataPaths";
 
 function cleanTitle(str = "") {
@@ -23,8 +23,8 @@ function getTripTitlesBySlug() {
   }
 }
 
-const inter  = Inter ({ subsets: ["latin"], variable: "--font-inter",  display: "swap" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const lora  = Lora ({ subsets: ["latin"], variable: "--font-heading", display: "swap" });
 
 export const metadata = {
   title: "Lolo's Extreme Cross Country RV Trips",
@@ -47,10 +47,10 @@ export const viewport = {
 export default function RootLayout({ children }) {
   const tripTitles = getTripTitlesBySlug();
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
+    <html lang="en" className={`${inter.variable} ${lora.variable}`}>
       <body style={{
-        backgroundColor: "#08150f",
-        color: "#f8fafc",
+        backgroundColor: "#faf6ee",
+        color: "#2e2c26",
         fontFamily: 'var(--font-inter), system-ui, -apple-system, sans-serif',
         margin: 0,
         padding: 0,
@@ -62,11 +62,11 @@ export default function RootLayout({ children }) {
 
         {/* ── Classic Header Banner ── */}
         <header style={{
-          background: "linear-gradient(180deg, #08150f 0%, #0d1f14 100%)",
-          borderBottom: "2px solid rgba(245,158,11,0.5)",
+          background: "linear-gradient(180deg, #3f5c4c 0%, #33493c 100%)",
+          borderBottom: "2px solid rgba(193,89,58,0.55)",
           padding: "16px 16px",
           textAlign: "center",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+          boxShadow: "0 4px 20px rgba(30,25,15,0.25)",
         }}>
           <div style={{ maxWidth: "1380px", margin: "0 auto", padding: "0 8px" }}>
             <Link href="/" style={{ textDecoration: "none", display: "inline-block" }}>
@@ -74,10 +74,10 @@ export default function RootLayout({ children }) {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "2rem", lineHeight: 1 }} aria-hidden="true">🚐</span>
                 <h1 style={{
-                  fontFamily: "var(--font-outfit), system-ui, sans-serif",
+                  fontFamily: "var(--font-heading), Georgia, serif",
                   fontSize: "clamp(1.2rem, 4vw, 2.1rem)",
-                  fontWeight: 800,
-                  color: "#f59e0b",
+                  fontWeight: 700,
+                  color: "#faf6ee",
                   letterSpacing: "0.3px",
                   margin: 0,
                   lineHeight: 1.2,
@@ -89,10 +89,10 @@ export default function RootLayout({ children }) {
             </Link>
             <div style={{
               fontSize: "clamp(0.78rem, 2vw, 1rem)",
-              color: "#cbd5e1",
+              color: "#cfe0d3",
               fontStyle: "italic",
               marginTop: "4px",
-              fontFamily: "Georgia, serif",
+              fontFamily: "var(--font-heading), Georgia, serif",
             }}>
               20+ summers of RV road trip travels across the USA and Canada
             </div>
@@ -119,17 +119,17 @@ export default function RootLayout({ children }) {
         <footer style={{
           textAlign: "center",
           padding: "28px 16px",
-          borderTop: "1px solid rgba(255,255,255,0.1)",
-          color: "#94a3b8",
+          borderTop: "1px solid rgba(193,89,58,0.3)",
+          color: "#cfe0d3",
           fontSize: "0.82rem",
           marginTop: "48px",
-          background: "#06100b",
+          background: "#33493c",
         }}>
           <div style={{ maxWidth: "1380px", margin: "0 auto" }}>
             <p style={{ margin: 0 }}>
               Copyright © 1998–{new Date().getFullYear()}, Lorraine E. &amp; Herbert H. Gaidus — All Rights Reserved.
             </p>
-            <p style={{ margin: "6px 0 0", fontSize: "0.72rem", color: "#475569" }}>
+            <p style={{ margin: "6px 0 0", fontSize: "0.72rem", color: "#9fb6a2" }}>
               Preserved &amp; modernized from Drupal 6 · Powered by Next.js
             </p>
           </div>

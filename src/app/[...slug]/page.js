@@ -88,7 +88,7 @@ function getTripMapUrl(trip, photoTitles = []) {
   if (slug.includes("carmel") || slug.includes("big-sur")) return "/photos/8k/2021-Carmel.gif";
   if (slug.includes("mojave")) return "/photos/7k/20181016-mojave.gif";
   if (slug.includes("totality") || slug.includes("eclipse")) return "/photos/8k/oregon.gif";
-  
+
   // Specific multi-trip years
   if (slug === "2013-cross-country-road-trip") return "/photos/4k/cc2013a.gif";
   if (slug.includes("2013-yosemite")) return "/photos/5k/cc2013b.gif";
@@ -269,49 +269,49 @@ export default async function CatchAllPage({ params }) {
 
     return (
       <div className="w-full max-w-6xl mx-auto min-w-0 py-6 px-4 sm:px-6 font-sans">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-[#d97706] mb-6 font-sans">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-[#c1593a] mb-6 font-sans">
           {displayItem.title}
         </h1>
-        <div className="glass-panel overflow-hidden border border-amber-500/30 rounded-lg shadow-xl">
+        <div className="glass-panel overflow-hidden border border-[#c1593a]/25 rounded-lg shadow-xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm border-collapse font-sans">
               <thead>
-                <tr className="bg-[#14532d] text-white border-b border-amber-500/30">
+                <tr className="bg-[#3f5c4c] text-[#faf6ee] border-b border-[#c1593a]/30">
                   <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs whitespace-nowrap">Stop Name</th>
                   <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs whitespace-nowrap">Trip Name</th>
                   <th className="py-3.5 px-3 text-center font-bold uppercase tracking-wider text-xs whitespace-nowrap w-20">State</th>
                   <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-xs whitespace-nowrap">Stop Type</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10 bg-[#07130d]/80">
+              <tbody className="divide-y divide-[#e4dcc8] bg-white/70">
                 {matchingStops.length > 0 ? (
                   matchingStops.map((stop, idx) => {
                     const parentTrip = trips.find(t => String(t.nid) === String(stop.parent_trip_nid));
                     const catSlug = stop.category ? slugifyCategory(stop.category) : '';
                     return (
-                      <tr key={stop.nid || idx} className={idx % 2 === 0 ? "bg-white/5 hover:bg-white/10 transition-colors" : "bg-transparent hover:bg-white/10 transition-colors"}>
+                      <tr key={stop.nid || idx} className={idx % 2 === 0 ? "bg-black/[0.02] hover:bg-[#c1593a]/5 transition-colors" : "bg-transparent hover:bg-[#c1593a]/5 transition-colors"}>
                         <td className="py-3 px-4 font-semibold">
-                          <Link href={`/${stop.slug}`} className="text-[#38bdf8] hover:text-sky-300 hover:underline">
+                          <Link href={`/${stop.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline">
                             {cleanTitle(stop.title)}
                           </Link>
                         </td>
                         <td className="py-3 px-4">
                           {parentTrip ? (
-                            <Link href={`/${parentTrip.slug}`} className="text-[#38bdf8] hover:text-sky-300 hover:underline">
+                            <Link href={`/${parentTrip.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline">
                               {cleanTitle(parentTrip.title)}
                             </Link>
                           ) : '--'}
                         </td>
                         <td className="py-3 px-3 text-center font-bold whitespace-nowrap">
                           {stop.state ? (
-                            <Link href={`/state/${stop.state.toLowerCase()}`} className="text-[#38bdf8] hover:text-sky-300 hover:underline">
+                            <Link href={`/state/${stop.state.toLowerCase()}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline">
                               {stop.state}
                             </Link>
                           ) : '--'}
                         </td>
                         <td className="py-3 px-4 font-medium">
                           {stop.category ? (
-                            <Link href={`/category/${catSlug}`} className="text-[#38bdf8] hover:text-sky-300 hover:underline">
+                            <Link href={`/category/${catSlug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline">
                               {stop.category}
                             </Link>
                           ) : '--'}
@@ -321,7 +321,7 @@ export default async function CatchAllPage({ params }) {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="4" className="py-8 text-center text-gray-400">No stops found.</td>
+                    <td colSpan="4" className="py-8 text-center text-[#8a8272]">No stops found.</td>
                   </tr>
                 )}
               </tbody>
@@ -337,7 +337,7 @@ export default async function CatchAllPage({ params }) {
   if (displayItem.itemType === 'trip') {
     rawText = displayItem.travelogue || displayItem.body || (String(displayItem.year || "").length > 10 ? displayItem.year : "") || displayItem.summary || "";
   } else if (displayItem.description && displayItem.travelogue && displayItem.description !== displayItem.travelogue) {
-    rawText = displayItem.travelogue + `\n\n<hr />\n\n<div class="trip-description-box bg-[#0c1d15]/80 border-l-4 border-amber-500 rounded text-amber-200/90 italic font-medium leading-relaxed">${displayItem.description}</div>`;
+    rawText = displayItem.travelogue + `\n\n<hr />\n\n<div class="trip-description-box bg-[#c1593a]/[0.07] border-l-4 border-[#c1593a] rounded text-[#4a4437] italic font-medium leading-relaxed">${displayItem.description}</div>`;
   } else {
     rawText = displayItem.travelogue || displayItem.description || displayItem.summary || displayItem.body || "";
   }
@@ -378,24 +378,24 @@ export default async function CatchAllPage({ params }) {
 
 
   // Safely extract 4-digit year
-  const yr = (displayTitle || "").match(/\b(19\d\d|20\d\d)\b/)?.[1] || 
+  const yr = (displayTitle || "").match(/\b(19\d\d|20\d\d)\b/)?.[1] ||
              (/^\d{4}$/.test(String(displayItem.year || "")) ? String(displayItem.year) : (currentTrip ? (currentTrip.title || "").match(/\b(19\d\d|20\d\d)\b/)?.[1] : null));
 
   return (
     <div className="w-full">
       {/* Navigation Breadcrumb */}
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
-        <Link href="/" className="text-amber-400 font-semibold hover:underline">Home</Link>
-        <span className="text-gray-500">/</span>
+        <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+        <span className="text-[#a89e8a]">/</span>
         {currentTrip && displayItem.itemType === 'stop' && (
           <>
-            <Link href={`/${currentTrip.slug}`} className="text-amber-400 font-semibold hover:underline">
+            <Link href={`/${currentTrip.slug}`} className="text-[#c1593a] font-semibold hover:underline">
               {cleanTitle(currentTrip.title)}
             </Link>
-            <span className="text-gray-500">/</span>
+            <span className="text-[#a89e8a]">/</span>
           </>
         )}
-        <span className="text-gray-300 font-medium truncate">{displayTitle}</span>
+        <span className="text-[#5c5648] font-medium truncate">{displayTitle}</span>
       </div>
 
       {/* Unified 3-Column Layout: Fixed Left & Right Sidebars, Fluid Center Content */}
@@ -408,26 +408,26 @@ export default async function CatchAllPage({ params }) {
             <div>
               {/* About Lolo & Herb Sidebar Photo per Original Drupal Site */}
               {(displayItem.slug === 'about-lolo-and-herb' || String(displayItem.nid) === '2') ? (
-                <div className="trip-sidebar-map-box text-center bg-[#0a1c13] p-3 rounded-lg border border-amber-500/30 font-sans mb-4">
+                <div className="trip-sidebar-map-box text-center bg-white p-3 rounded-lg border border-[#c1593a]/25 font-sans mb-4">
                   <img
                     src="/photos/HL_Yosemite.jpg"
                     alt="Herb and Lolo Backpacking in Yosemite circa 1986"
                     title="Herb and Lolo Backpacking in Yosemite circa 1986"
-                    className="w-full h-auto rounded shadow-md border border-white/10 mx-auto"
+                    className="w-full h-auto rounded shadow-md border border-black/10 mx-auto"
                   />
-                  <div className="mt-2.5 text-xs text-amber-200/90 font-medium leading-relaxed">
+                  <div className="mt-2.5 text-xs text-[#5c5648] font-medium leading-relaxed">
                     <strong>Herb and Lolo Backpacking in Yosemite circa 1986</strong>
                   </div>
                 </div>
               ) : displayItem.slug === 'contact-us' ? (
-                <div className="trip-sidebar-map-box text-center bg-[#0a1c13] p-3 rounded-lg border border-amber-500/30 font-sans mb-4">
+                <div className="trip-sidebar-map-box text-center bg-white p-3 rounded-lg border border-[#c1593a]/25 font-sans mb-4">
                   <img
                     src="/photos/family_yellowstone_1992.jpg"
                     alt="The Gaidus family in Yellowstone, 1992"
                     title="The Gaidus family in Yellowstone, 1992"
-                    className="w-full h-auto rounded shadow-md border border-white/10 mx-auto"
+                    className="w-full h-auto rounded shadow-md border border-black/10 mx-auto"
                   />
-                  <div className="mt-2.5 text-xs text-amber-200/90 font-medium leading-relaxed">
+                  <div className="mt-2.5 text-xs text-[#5c5648] font-medium leading-relaxed">
                     <strong>The Gaidus family in Yellowstone, 1992</strong>
                   </div>
                 </div>
@@ -436,9 +436,9 @@ export default async function CatchAllPage({ params }) {
                   {/* Route Map Image - ONLY ON TRIP OVERVIEWS THAT HAVE A ROUTE MAP */}
                   {displayItem.itemType === 'trip' && getTripMapUrl(displayItem, photoTitles) && (
                     <div className="trip-sidebar-map-box">
-                      <img 
-                        src={getTripMapUrl(displayItem, photoTitles)} 
-                        alt={`Route Map for ${displayTitle}`} 
+                      <img
+                        src={getTripMapUrl(displayItem, photoTitles)}
+                        alt={`Route Map for ${displayTitle}`}
                         width="450"
                         height="300"
                         className="trip-sidebar-map-img"
@@ -449,20 +449,20 @@ export default async function CatchAllPage({ params }) {
                   {/* Drupal Green & White Striped Itinerary Table - ONLY ON TRIPS & STOPS */}
                   {(displayItem.itemType === 'trip' || displayItem.itemType === 'stop') && (
                     <div className="trip-sidebar-table-box">
-                      <div className="bg-[#14532d] text-white font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-amber-500/30">
+                      <div className="bg-[#3f5c4c] text-[#faf6ee] font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-[#c1593a]/30">
                         {currentTrip ? cleanTitle(currentTrip.title) : displayTitle} Itinerary
                       </div>
                       <div className="overflow-x-auto">
                         {isStop ? (
                           <table className="w-full text-left text-xs border-collapse font-sans">
-                            <tbody className="divide-y divide-white/5">
+                            <tbody className="divide-y divide-[#e4dcc8]">
                               {tripStops.length > 0 ? (
                                 tripStops.map((stop, idx) => {
                                   const isCurrentStop = String(stop.nid) === String(displayItem.nid);
                                   return (
-                                    <tr key={stop.nid || idx} className={isCurrentStop ? "bg-amber-500/25 font-bold text-amber-300" : (idx % 2 === 0 ? "bg-white/5 hover:bg-white/10 transition-colors" : "bg-transparent hover:bg-white/10 transition-colors")}>
+                                    <tr key={stop.nid || idx} className={isCurrentStop ? "bg-[#7c9880]/25 font-bold text-[#3f5c4c]" : (idx % 2 === 0 ? "bg-black/[0.02] hover:bg-[#c1593a]/5 transition-colors" : "bg-transparent hover:bg-[#c1593a]/5 transition-colors")}>
                                       <td className="py-2.5 px-3 font-medium">
-                                        <Link href={`/${stop.slug}`} className={`${isCurrentStop ? 'text-amber-300 font-extrabold underline' : 'text-[#38bdf8] hover:underline no-underline'} block truncate`}>
+                                        <Link href={`/${stop.slug}`} className={`${isCurrentStop ? 'text-[#3f5c4c] font-extrabold underline' : 'text-[#3f5c4c] hover:text-[#c1593a] hover:underline no-underline'} block truncate`}>
                                           {cleanTitle(stop.title)}
                                         </Link>
                                       </td>
@@ -471,7 +471,7 @@ export default async function CatchAllPage({ params }) {
                                 })
                               ) : (
                                 <tr>
-                                  <td className="py-6 text-center text-gray-400">No stops logged.</td>
+                                  <td className="py-6 text-center text-[#8a8272]">No stops logged.</td>
                                 </tr>
                               )}
                             </tbody>
@@ -479,7 +479,7 @@ export default async function CatchAllPage({ params }) {
                         ) : (
                           <table className="w-full text-left text-xs border-collapse font-sans table-fixed">
                             <thead>
-                              <tr className="bg-[#0a1c13] text-amber-400 border-b border-white/10">
+                              <tr className="bg-[#7c9880]/20 text-[#3f5c4c] border-b border-[#c1593a]/25">
                                 <th className="py-2.5 px-2 text-center w-[26px] font-bold whitespace-nowrap">#</th>
                                 <th className="py-2.5 px-2 font-bold">Itinerary</th>
                                 <th className="py-2.5 px-1 text-center w-[38px] font-bold whitespace-nowrap">State</th>
@@ -487,38 +487,38 @@ export default async function CatchAllPage({ params }) {
                                 <th className="py-2.5 px-2 text-right w-[46px] font-bold whitespace-nowrap">Hours</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5">
+                            <tbody className="divide-y divide-[#e4dcc8]">
                               {tripStops.length > 0 ? (
                                 tripStops.map((stop, idx) => {
                                   return (
-                                    <tr key={stop.nid || idx} className={idx % 2 === 0 ? "bg-white/5 hover:bg-white/10 transition-colors" : "bg-transparent hover:bg-white/10 transition-colors"}>
-                                      <td className="py-2.5 px-2 text-center font-bold text-gray-400 whitespace-nowrap">{idx + 1}</td>
+                                    <tr key={stop.nid || idx} className={idx % 2 === 0 ? "bg-black/[0.02] hover:bg-[#c1593a]/5 transition-colors" : "bg-transparent hover:bg-[#c1593a]/5 transition-colors"}>
+                                      <td className="py-2.5 px-2 text-center font-bold text-[#8a8272] whitespace-nowrap">{idx + 1}</td>
                                       <td className="py-2.5 px-2 font-medium">
-                                        <Link href={`/${stop.slug}`} className="text-[#38bdf8] hover:underline no-underline block truncate max-w-[240px]">
+                                        <Link href={`/${stop.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline no-underline block truncate max-w-[240px]">
                                           {cleanTitle(stop.title)}
                                         </Link>
                                       </td>
-                                      <td className="py-2.5 px-1 text-center font-semibold text-gray-300 whitespace-nowrap">{stop.state || '--'}</td>
-                                      <td className="py-2.5 px-1 text-right text-gray-300 whitespace-nowrap">{stop.miles ?? '--'}</td>
-                                      <td className="py-2.5 px-2 text-right text-gray-300 whitespace-nowrap">{stop.hours ?? '--'}</td>
+                                      <td className="py-2.5 px-1 text-center font-semibold text-[#5c5648] whitespace-nowrap">{stop.state || '--'}</td>
+                                      <td className="py-2.5 px-1 text-right text-[#5c5648] whitespace-nowrap">{stop.miles ?? '--'}</td>
+                                      <td className="py-2.5 px-2 text-right text-[#5c5648] whitespace-nowrap">{stop.hours ?? '--'}</td>
                                     </tr>
                                   );
                                 })
                               ) : (
                                 <tr>
-                                  <td colSpan="5" className="py-6 text-center text-gray-400">No stops logged.</td>
+                                  <td colSpan="5" className="py-6 text-center text-[#8a8272]">No stops logged.</td>
                                 </tr>
                               )}
                             </tbody>
                             {tripStops.length > 0 && (
                               <tfoot>
-                                <tr className="bg-[#14532d]/90 text-white font-bold border-t border-amber-500/30">
+                                <tr className="bg-[#3f5c4c]/95 text-[#faf6ee] font-bold border-t border-[#c1593a]/30">
                                   <td colSpan="2" className="py-2.5 px-2 text-right uppercase tracking-wider text-[11px] whitespace-nowrap">Total: {tripStops.length} Stops</td>
                                   <td className="py-2.5 px-1 text-center whitespace-nowrap">--</td>
-                                  <td className="py-2.5 px-1 text-right text-amber-300 whitespace-nowrap">
+                                  <td className="py-2.5 px-1 text-right text-[#f0b49a] whitespace-nowrap">
                                     {tripStops.reduce((acc, s) => acc + (Number(s.miles) || 0), 0)}
                                   </td>
-                                  <td className="py-2.5 px-2 text-right text-amber-300 whitespace-nowrap">
+                                  <td className="py-2.5 px-2 text-right text-[#f0b49a] whitespace-nowrap">
                                     {tripStops.reduce((acc, s) => acc + (Number(s.hours) || 0), 0)}
                                   </td>
                                 </tr>
@@ -538,40 +538,40 @@ export default async function CatchAllPage({ params }) {
         {/* CENTER COLUMN: Road Trip Article (Fluid Width - Expands/Contracts as needed) */}
         <main className="trip-main-column flex-1 min-w-0">
           <article className="glass-panel p-6 md:p-8 mb-8">
-            <div className="border-b border-white/10 pb-5 mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold text-white m-0">
+            <div className="border-b border-black/10 pb-5 mb-6">
+              <h1 className="text-2xl md:text-3xl font-bold text-[#2e2c26] m-0">
                 {displayTitle}{isStop && displayItem.state && !displayTitle.includes(displayItem.state) ? `, ${displayItem.state}` : ''}
               </h1>
               {!isStop ? (
                 <div className="mt-3 font-sans">
-                  <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-gray-400 border-t border-white/5 pt-3">
+                  <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272] border-t border-black/5 pt-3">
                     <div>
                       {tripStops.length > 0 ? `${formatStopDateOnly(tripStops[0].arrival_date || tripStops[0].created)} to ${formatStopDateOnly(tripStops[tripStops.length-1].arrival_date || tripStops[tripStops.length-1].created)} by Lolo` : (yr ? `${yr} by Lolo` : 'by Lolo')}
                     </div>
-                    <Link href="/cross-country-road-trip" className="text-sky-400 hover:text-sky-300 hover:underline font-medium transition-colors">
+                    <Link href="/cross-country-road-trip" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-medium transition-colors">
                       Cross Country Road Trip
                     </Link>
                   </div>
                 </div>
               ) : (
                 <div className="mt-3 font-sans">
-                  <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-gray-400">
+                  <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272]">
                     <div>
                       {formatStopDate(displayItem.arrival_date || displayItem.created)}
                       {displayItem.author ? ` by ${displayItem.author}` : ' by Lolo'}
                     </div>
                     {(displayItem.state || displayItem.category) && (
-                      <div className="flex items-center gap-2 text-[#38bdf8] font-medium">
+                      <div className="flex items-center gap-2 text-[#c1593a] font-medium">
                         {displayItem.state && (
-                          <Link href={`/state/${displayItem.state.toLowerCase()}`} className="hover:text-sky-300 hover:underline transition-colors">
+                          <Link href={`/state/${displayItem.state.toLowerCase()}`} className="hover:text-[#a54a2f] hover:underline transition-colors">
                             {displayItem.state}
                           </Link>
                         )}
                         {displayItem.state && displayItem.category && (
-                          <span className="text-gray-500">|</span>
+                          <span className="text-[#a89e8a]">|</span>
                         )}
                         {displayItem.category && (
-                          <Link href={`/category/${slugifyCategory(displayItem.category)}`} className="hover:text-sky-300 hover:underline transition-colors">
+                          <Link href={`/category/${slugifyCategory(displayItem.category)}`} className="hover:text-[#a54a2f] hover:underline transition-colors">
                             {displayItem.category}
                           </Link>
                         )}
@@ -593,12 +593,12 @@ export default async function CatchAllPage({ params }) {
 
             {/* Prev/Next Navigation at Bottom of Trip Stop Page per User Request */}
             {isStop && tripStops.length > 0 && (
-              <div className="mt-12 pt-8 border-t border-white/10 flex items-center justify-between text-base font-normal clear-both font-sans">
+              <div className="mt-12 pt-8 border-t border-black/10 flex items-center justify-between text-base font-normal clear-both font-sans">
                 <div>
                   {prevStop ? (
                     <Link
                       href={`/${prevStop.slug}`}
-                      className="text-[#38bdf8] hover:underline transition-colors no-underline font-medium"
+                      className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline transition-colors no-underline font-medium"
                     >
                       &lt; previous
                     </Link>
@@ -606,12 +606,12 @@ export default async function CatchAllPage({ params }) {
                     <span className="invisible">&lt; previous</span>
                   )}
                 </div>
-                <div className="text-gray-200 font-medium text-base"></div>
+                <div className="text-[#5c5648] font-medium text-base"></div>
                 <div>
                   {nextStop ? (
                     <Link
                       href={`/${nextStop.slug}`}
-                      className="text-[#38bdf8] hover:underline transition-colors no-underline font-medium"
+                      className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline transition-colors no-underline font-medium"
                     >
                       next &gt;
                     </Link>
@@ -627,11 +627,11 @@ export default async function CatchAllPage({ params }) {
         {/* RIGHT SIDEBAR: What We Did Activity Log (Fixed Width) */}
         {relevantActivities.length > 0 && (
           <aside className="trip-right-sidebar-column shrink-0 glass-sidebar p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin">
-            <div className="border-b border-amber-500/30 pb-3 mb-4">
-              <span className="text-[11px] uppercase tracking-wider text-amber-400 font-extrabold block">
+            <div className="border-b border-[#c1593a]/30 pb-3 mb-4">
+              <span className="text-[11px] uppercase tracking-wider text-[#c1593a] font-extrabold block">
                 ⭐ Activity Log
               </span>
-              <h3 className="text-base font-bold text-white mt-1 m-0">
+              <h3 className="text-base font-bold text-[#2e2c26] mt-1 m-0">
                 What we did...
               </h3>
             </div>
@@ -645,26 +645,26 @@ export default async function CatchAllPage({ params }) {
                 const rating = act.rating || "";
 
                 return (
-                  <div key={act.nid || idx} className="glass-card p-3.5 border-l-4 border-l-amber-500/80">
+                  <div key={act.nid || idx} className="glass-card p-3.5 border-l-4 border-l-[#c1593a]/80">
                     <div className="flex items-center justify-between mb-1">
                       <Link
                         href={`/activities/${actSlug}`}
-                        className="text-xs font-extrabold uppercase tracking-wider text-amber-400 hover:text-amber-300 hover:underline transition-colors"
+                        className="text-xs font-extrabold uppercase tracking-wider text-[#c1593a] hover:text-[#a54a2f] hover:underline transition-colors"
                       >
                         {actType}
                       </Link>
                       {rating && (
-                        <span className="text-xs text-amber-300 font-bold tracking-widest" title={`Rating: ${rating}`}>
+                        <span className="text-xs text-[#c1593a] font-bold tracking-widest" title={`Rating: ${rating}`}>
                           {rating}
                         </span>
                       )}
                     </div>
-                    <h4 className="font-bold text-white text-sm mt-1 mb-1.5 m-0 leading-snug">
+                    <h4 className="font-bold text-[#2e2c26] text-sm mt-1 mb-1.5 m-0 leading-snug">
                       {actTitle}
                     </h4>
                     {actText && (
-                      <div 
-                        className="text-xs text-gray-200 leading-relaxed mt-1.5 border-t border-white/10 pt-1.5"
+                      <div
+                        className="text-xs text-[#5c5648] leading-relaxed mt-1.5 border-t border-black/10 pt-1.5"
                         dangerouslySetInnerHTML={{ __html: cleanDrupalContent(actText, photoTitles) }}
                       />
                     )}

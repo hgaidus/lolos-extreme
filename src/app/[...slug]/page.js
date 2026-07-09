@@ -66,100 +66,123 @@ function formatStopStats(miles, hours, nights) {
   return str;
 }
 
-function getTripMapUrl(trip, photoTitles = []) {
+// Verified against every trip's actual page on the original Drupal site
+// (cross-country-trips.com) rather than guessed from slug keywords, since
+// no trip-overview-map reference exists anywhere in the migrated data.
+// null means the original site shows no overview map for that trip at all.
+// Where the exact original file wasn't migrated (only a lower-res variant
+// exists, or the file is missing entirely), the closest available
+// substitute is used instead.
+const TRIP_MAP_BY_SLUG = {
+  "1998-road-trip-virginia-and-north-carolina": "/photos/ccalltrips_0.gif",
+  "1999-cross-country-road-trip": "/photos/cc1999s.gif",
+  "1999-road-trip-first-landing-state-park-virginia": "/photos/ccalltrips_0.gif",
+  "1999-road-trip-niagara-falls": "/photos/ccalltrips_0.gif",
+  "1999-road-trip-boston-suburbs": "/photos/ccalltrips_0.gif",
+  "2000-cross-country-road-trip": "/photos/cc2000s.gif",
+  "2000-winter-road-trip-acadia": "/photos/ccalltrips_0.gif",
+  "2000-spring-break-hunting-island": "/photos/ccalltrips_0.gif",
+  "2000-columbus-day-provincetown": "/photos/ccalltrips_0.gif",
+  "2000-chesapeake-rv-road-trip": "/photos/ccalltrips_0.gif",
+  "2001-cross-country-road-trip": "/photos/cc2001s.gif",
+  "2001-spring-break-hunting-island": "/photos/ccalltrips_0.gif",
+  "2001-winter-trip-lake-placid": "/photos/ccalltrips_0.gif",
+  "2002-cross-country-road-trip": "/photos/cc2002s.gif",
+  "2002-winter-trip-stowe-vermont": "/photos/ccalltrips_0.gif",
+  "2002-spring-break-hunting-island": "/photos/ccalltrips_0.gif",
+  "2002-rv-trip-delaware-and-virginia-beach": "/photos/ccalltrips_0.gif",
+  "2003-cross-country-road-trip": "/photos/cc2003s.gif",
+  "2003-spring-break-edisto-island": "/photos/ccalltrips_0.gif",
+  "2004-maritime-provinces-road-trip": "/photos/cc2004s.gif",
+  "2004-spring-break-ocracoke-island": "/photos/ccalltrips_0.gif",
+  "2005-cross-country-road-trip": "/photos/cc2005s.gif",
+  "2006-alaska-rv-road-trip": "/photos/cc2006s.gif",
+  "2007-cross-country-road-trip": "/photos/cc2007s.gif",
+  "2008-marthas-vineyard-rv-vacation": "/photos/4k/cc2008.gif",
+  "2009-cross-country-camping-trip": "/photos/4k/cc20b9s.gif",
+  "2009-white-mountains-backpacking-trip": "/photos/4k/AJG-White-Mountains-Map-01-450_0.jpg",
+  "2009-southeast-coast-trip": "/photos/4k/cc2009s.gif",
+  "2010-rv-trip-quebec": "/photos/4k/cc2010s.gif",
+  "2011-cross-country-road-trip": "/photos/4k/cc2011s.gif",
+  "2012-northern-california-road-trip": "/photos/4k/cc2012.gif",
+  "2013-cross-country-road-trip": "/photos/4k/cc2013a.gif",
+  "2013-pacific-northwest": "/photos/5k/cc2013b.gif",
+  "2013-yosemite-thanksgiving": "/photos/5k/cc2013c_0.gif",
+  "2014-pacific-northwest": "/photos/5k/cc2014a.gif",
+  "2014-yosemite-and-eastern-sierra": "/photos/5k/cc2014b.gif",
+  "2014-southwest-deserts-and-yosemite": "/photos/5k/cc2014c.gif",
+  "2015-seattle-san-francisco-and-sierra": "/photos/6k/cc2015b.gif",
+  "2015-solo-cross-country-motorcycle-trip": "/photos/8k/2015-solo-motorcycle.gif",
+  "2015-yosemite-and-northern-california": "/photos/6k/cc2015c.gif",
+  "2015-herb-and-lolos-migration-west": "/photos/6k/cc2015d.gif",
+  "2015-yosemite-thanksgiving-and-san-diego": "/photos/6k/cc2015e.gif",
+  "2015-christmas-yosemite": "/photos/6k/cc2015f.gif",
+  "2016-yosemite-eastern-sierra": "/photos/6k/cc2016b.gif",
+  "2016-bringing-boat-west": "/photos/6k/cc2016c.gif",
+  "2016-yosemite-and-pinnacles": "/photos/6k/cc2016d.gif",
+  "2016-christmas-tahoe": "/photos/6k/cc2016e.gif",
+  "2017-southern-california-deserts": "/photos/6k/cc2017a.gif",
+  "2017-death-valley-and-eastern-sierra-4wd": "/photos/6k/cc2017b.gif",
+  "2017-european-vacation": "/photos/7k/germany.gif",
+  "2017-4wd-eastern-sierra-and-death-valley-adventure": "/photos/6k/cc2017b.gif",
+  "totality": "/photos/7k/cc2017d.gif",
+  "2018-hawaii-big-island-maui": "/photos/8k/Hawaii-real.gif",
+  "2018-thailand-trip": "/photos/7k/Thailand-Route.gif",
+  "2018-eastern-sierra": "/photos/7k/20180529-sierra.gif",
+  "2018-lake-powell-boat-camping": "/photos/7k/20180701-powell.gif",
+  "2018-tuolumne-meadows": "/photos/7k/20180822-tuolumne.gif",
+  "2018-trinity-alps": "/photos/7k/20180925-trinity.gif",
+  "2018-eastern-sierra-outlaws": "/photos/7k/20181007-outlaws.gif",
+  "2018-mojave-road-indian-wells": "/photos/7k/20181016-mojave.gif",
+  "2018-yosemite-winter": "/photos/7k/20180220-yosemite.gif",
+  "2018-yosemite-winter-wonderland": null,
+  "2019-spain": "/photos/8k/Spain.gif",
+  "2019-baja-adventure": "/photos/8k/baja_map.gif",
+  "2019-superbloom": "/photos/8k/north_america_map_2019-04_final_.gif",
+  "2019-central-and-se-oregon": "/photos/8k/oregon.gif",
+  "2019-bishop-andrews-30th-birthday-bash": "/photos/8k/2019-05-03-Bishop-Bday.gif",
+  "2019-boating-shasta-lake": "/photos/8k/2019-07-07-Shasta.gif",
+  "2019-august-yosemite-valley": "/photos/8k/2019-08-14-yosemite.gif",
+  "2019-fall-trip-eastern-sierra": "/photos/8k/north_america_map_2019-10_final_.gif",
+  "2020-yosemite-during-covid": "/photos/8k/2020-yosemite_0.gif",
+  "2020-lake-powell-during-covid": "/photos/8k/cc2020-powell.gif",
+  "2020-eastern-sierra-during-covid": "/photos/8k/2020-east-sierra-covid.gif",
+  "2020-bishop-and-death-valley": "/photos/8k/2020-bishop-death.gif",
+  "2021-california-surf-and-turf": "/photos/8k/2021-surfturf.gif",
+  "2021-pacific-northwest-escaping-smoke": "/photos/8k/2021-Oregon.gif",
+  "2021-yosemite-fall": "/photos/8k/2021-10-26-yosemite.gif",
+  "2021-death-valley-fall": "/photos/8k/cc2017b.gif",
+  "2021-carmel": "/photos/8k/2021-Carmel.gif",
+  "2021-utah-roading": "/photos/8k/2023-9-9-UtahOffRoad.gif",
+  "2022-san-diego-anza-borrego-joshua-tree": "/photos/8k/2022-sandiego-anza.gif",
+  "2022-bishop-and-death-valley": "/photos/8k/2020-bishop-death.gif",
+  "2022-pescadero-capitola": "/photos/8k/2022-capitola.gif",
+  "2022-arizona-and-new-mexico": "/photos/8k/north_america_map_2022bisti_.gif",
+  "2022-greece-and-islands": "/photos/8k/International-greece.gif",
+  "2022-yosemite-valley": "/photos/8k/2020-yosemite_0.gif",
+  "2023-galapagos-islands": "/photos/8k/galapagos-map.gif",
+  "2023-iceland": "/photos/8k/Iceland.gif",
+  "2023-lost-coast": "/photos/8k/Lost-Coast.gif",
+  "2023-vancouver-island": "/photos/8k/2023-8-14-Vancouver.gif",
+  "2023-utah-road": "/photos/8k/2023-9-9-UtahOffRoad.gif",
+  "2023-yosemite-fall": "/photos/8k/2020-yosemite_0.gif",
+  "2024-kauai": "/photos/8k/Hawaii-2024.gif",
+  "2024-bishop-and-death-valley": "/photos/8k/cc2017b.gif",
+  "2024-colorado-river-rafting": "/photos/8k/cc2020-powell.gif",
+  "2024-maui": "/photos/8k/Hawaii-real.gif",
+  "mojave-4wd-course-and-more": null,
+  "2025-new-zealand-north-island": "/photos/8k/New-Zealand-North.gif",
+  "2025-new-zealand-south-island": "/photos/8k/New-Zealand.gif",
+  "2025-marthas-vineyard-vermont": "/photos/4k/cc2008.gif",
+  "2025-utah-roading": "/photos/8k/2023-9-9-UtahOffRoad.gif",
+  "2025-burning-man": "/photos/8k/cc2017b.gif",
+  "2026-carmel": null,
+};
+
+function getTripMapUrl(trip) {
   if (!trip) return null;
   const slug = (trip.slug || "").toLowerCase();
-  const yr = (trip.title || trip.slug || "").match(/\b(19\d\d|20\d\d)\b/)?.[1] || String(trip.year || "");
-
-  // Exact / special keyword matches first
-  if (slug.includes("galapagos")) return "/photos/8k/galapagos-map.gif";
-  if (slug.includes("iceland")) return "/photos/8k/Iceland.gif";
-  if (slug.includes("lost-coast")) return "/photos/8k/Lost-Coast.gif";
-  if (slug.includes("new-zealand")) return "/photos/8k/New-Zealand.gif";
-  if (slug.includes("spain")) return "/photos/8k/Spain.gif";
-  if (slug.includes("baja")) return "/photos/8k/baja_map.gif";
-  if (slug.includes("greece")) return "/photos/8k/International-greece.gif";
-  if (slug.includes("oregon")) return "/photos/8k/oregon.gif";
-  if (slug.includes("thailand")) return "/photos/7k/Thailand-Route.gif";
-  if (slug.includes("kauai") || slug.includes("maui") || slug.includes("hawaii") || slug.includes("colorado-river-rafting")) return "/photos/8k/Hawaii-2024.gif";
-  if (slug.includes("vancouver") || slug.includes("utah-road") || slug.includes("yosemite-fall-2023")) return "/photos/8k/2023-8-14-Vancouver.gif";
-  if (slug.includes("martha") || slug.includes("vineyard") || slug.includes("vermont") || yr === "1998") return "/photos/4k/cc2008.gif";
-  if (slug.includes("burning")) return "/photos/8k/BRC map.png";
-  if (slug.includes("carmel") || slug.includes("big-sur")) return "/photos/8k/2021-Carmel.gif";
-  if (slug.includes("mojave")) return "/photos/7k/20181016-mojave.gif";
-  if (slug.includes("totality") || slug.includes("eclipse")) return "/photos/8k/oregon.gif";
-
-  // Specific multi-trip years
-  if (slug === "2013-cross-country-road-trip") return "/photos/4k/cc2013a.gif";
-  if (slug.includes("2013-yosemite")) return "/photos/5k/cc2013b.gif";
-  if (slug.includes("2013-pacific-northwest")) return "/photos/5k/cc2013c.gif";
-
-  if (slug.includes("2014-pacific-northwest")) return "/photos/5k/cc2014a.gif";
-  if (slug.includes("2014-yosemite")) return "/photos/5k/cc2014b.gif";
-  if (slug.includes("2014-southwest")) return "/photos/5k/cc2014c.gif";
-
-  if (slug.includes("2015-seattle")) return "/photos/6k/cc2015b.gif";
-  if (slug.includes("2015-yosemite-and-northern")) return "/photos/6k/cc2015c.gif";
-  if (slug.includes("2015-yosemite-thanksgiving")) return "/photos/6k/cc2015d.gif";
-  if (slug.includes("2015-christmas")) return "/photos/6k/cc2015e.gif";
-  if (slug.includes("2015-herb") || slug.includes("2015-solo")) return "/photos/6k/cc2015f.gif";
-
-  if (slug.includes("2016-yosemite-eastern") || slug.includes("2016-yosemite-and-pinnacles")) return "/photos/6k/cc2016b.gif";
-  if (slug.includes("2016-christmas")) return "/photos/6k/cc2016d.gif";
-  if (slug.includes("2016-bringing-boat")) return "/photos/6k/cc2016e.gif";
-
-  if (slug.includes("2017-death-valley") || slug.includes("2017-southern-california")) return "/photos/6k/cc2017a.gif";
-  if (slug.includes("2017-european") || slug.includes("2017-4wd")) return "/photos/6k/cc2017b.gif";
-
-  if (slug.includes("2018-tuolumne") || slug.includes("2018-yosemite")) return "/photos/7k/20180822-tuolumne.gif";
-  if (slug.includes("2018-trinity")) return "/photos/7k/20180925-trinity.gif";
-  if (slug.includes("2018-outlaws") || slug.includes("2018-eastern-sierra")) return "/photos/7k/20181007-outlaws.gif";
-  if (slug.includes("2018-mojave")) return "/photos/7k/20181016-mojave.gif";
-  if (slug.includes("2018-lake-powell")) return "/photos/7k/20180701-powell.gif";
-
-  if (slug.includes("2019-baja")) return "/photos/8k/baja_map.gif";
-  if (slug.includes("2019-spain")) return "/photos/8k/Spain.gif";
-  if (slug.includes("2019-central")) return "/photos/8k/oregon.gif";
-  if (slug.includes("2019-shasta")) return "/photos/8k/2019-07-07-Shasta.gif";
-  if (slug.includes("2019-yosemite")) return "/photos/8k/2019-08-14-yosemite.gif";
-  if (slug.includes("2019")) return "/photos/8k/north_america_map_2019-04_final_.gif";
-
-  if (slug.includes("2020-powell") || slug.includes("2020-eastern-sierra") || slug.includes("2020-bishop")) return "/photos/8k/cc2020-powell.gif";
-  if (slug.includes("2020-yosemite")) return "/photos/8k/2020-yosemite_0.gif";
-
-  if (slug.includes("2021")) return "/photos/8k/2021-10-26-yosemite.gif";
-
-  // 2022 specific matches
-  if (slug.includes("capitola") || slug.includes("pescadero")) return "/photos/8k/2022-capitola.gif";
-  if (slug.includes("san-diego") || slug.includes("anza") || slug.includes("joshua")) return "/photos/8k/2022-sandiego-anza.gif";
-  if (slug.includes("arizona") || slug.includes("new-mexico") || slug.includes("bisti")) return "/photos/8k/north_america_map_2022bisti_.gif";
-
-  // Standard single year cross country maps
-  if (yr === "1999") return "/photos/cc1999s.gif";
-  if (yr === "2000") return "/photos/cc2000s.gif";
-  if (yr === "2001") return "/photos/cc2001s.gif";
-  if (yr === "2002") return "/photos/cc2002s.gif";
-  if (yr === "2003") return "/photos/cc2003s.gif";
-  if (yr === "2004") return "/photos/cc2004s.gif";
-  if (yr === "2005") return "/photos/cc2005s.gif";
-  if (yr === "2006") return "/photos/cc2006s.gif";
-  if (yr === "2007") return "/photos/cc2007s.gif";
-  if (yr === "2008") return "/photos/4k/cc2008.gif";
-  if (yr === "2009") return "/photos/4k/cc2009s.gif";
-  if (yr === "2010") return "/photos/4k/cc2010s.gif";
-  if (yr === "2011") return "/photos/4k/cc2011s.gif";
-  if (yr === "2012") return "/photos/4k/cc2012.gif";
-
-  // Dynamic fallback for any other year/trip match in photoTitles
-  if (yr && photoTitles && photoTitles.length > 0) {
-    const found = photoTitles.filter(p => (p.filename || "").toLowerCase().endsWith(".gif") && (p.filename || "").includes(yr));
-    if (found.length > 0) {
-      found.sort((a, b) => (a.filename || "").localeCompare(b.filename || ""));
-      return `/photos/${found[0].filename}`;
-    }
-  }
-
-  return "/photos/8k/north_america_map_2019-04_final_.gif";
+  return TRIP_MAP_BY_SLUG[slug] ?? null;
 }
 
 function formatStopDateOnly(ts) {
@@ -359,14 +382,23 @@ export default async function CatchAllPage({ params }) {
   let tripStops = [];
   let relevantActivities = [];
 
+  // Stops must render in chronological trip order, not the order they happen to
+  // appear in the source data (which reflects when each stop was added to the
+  // CMS, not when it occurred on the trip).
+  const byArrivalOrder = (a, b) => {
+    const ta = Number(a.arrival_date) || Number(a.created) || 0;
+    const tb = Number(b.arrival_date) || Number(b.created) || 0;
+    return ta - tb;
+  };
+
   if (displayItem.itemType === 'trip') {
     currentTrip = displayItem;
-    tripStops = stops.filter(s => String(s.parent_trip_nid) === String(displayItem.nid));
+    tripStops = stops.filter(s => String(s.parent_trip_nid) === String(displayItem.nid)).sort(byArrivalOrder);
     relevantActivities = [];
   } else if (displayItem.itemType === 'stop') {
     currentTrip = trips.find(t => String(t.nid) === String(displayItem.parent_trip_nid));
     if (currentTrip) {
-      tripStops = stops.filter(s => String(s.parent_trip_nid) === String(currentTrip.nid));
+      tripStops = stops.filter(s => String(s.parent_trip_nid) === String(currentTrip.nid)).sort(byArrivalOrder);
     }
     relevantActivities = activities.filter(a => String(a.parent_stop_nid) === String(displayItem.nid));
   }
@@ -380,6 +412,8 @@ export default async function CatchAllPage({ params }) {
   // Safely extract 4-digit year
   const yr = (displayTitle || "").match(/\b(19\d\d|20\d\d)\b/)?.[1] ||
              (/^\d{4}$/.test(String(displayItem.year || "")) ? String(displayItem.year) : (currentTrip ? (currentTrip.title || "").match(/\b(19\d\d|20\d\d)\b/)?.[1] : null));
+
+  const tripMapUrl = displayItem.itemType === 'trip' ? getTripMapUrl(displayItem) : null;
 
   return (
     <div className="w-full">
@@ -434,10 +468,10 @@ export default async function CatchAllPage({ params }) {
               ) : (
                 <>
                   {/* Route Map Image - ONLY ON TRIP OVERVIEWS THAT HAVE A ROUTE MAP */}
-                  {displayItem.itemType === 'trip' && getTripMapUrl(displayItem, photoTitles) && (
+                  {displayItem.itemType === 'trip' && tripMapUrl && (
                     <div className="trip-sidebar-map-box">
                       <img
-                        src={getTripMapUrl(displayItem, photoTitles)}
+                        src={tripMapUrl}
                         alt={`Route Map for ${displayTitle}`}
                         width="450"
                         height="300"

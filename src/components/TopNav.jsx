@@ -180,7 +180,7 @@ export default function TopNav({ tripTitles = {} }) {
                   )}
                   {m.items.map((item, i) => (
                     <li key={i}>
-                      <Link href={item.href} onClick={close} title={tripTitles[item.href.replace(/^\//, "")] || item.title} style={linkStyle}>
+                      <Link href={item.href} onClick={close} title={item.hover || tripTitles[item.href.replace(/^\//, "")] || item.title} style={linkStyle}>
                         {item.title}
                       </Link>
                     </li>
@@ -268,7 +268,7 @@ export default function TopNav({ tripTitles = {} }) {
                     </Link>
                   )}
                   {m.items.map((item, i) => (
-                    <Link key={i} href={item.href} onClick={close} title={tripTitles[item.href.replace(/^\//, "")] || item.title} style={{
+                    <Link key={i} href={item.href} onClick={close} title={item.hover || tripTitles[item.href.replace(/^\//, "")] || item.title} style={{
                       display: "block",
                       padding: "12px 28px",
                       color: "#d7e3d9",

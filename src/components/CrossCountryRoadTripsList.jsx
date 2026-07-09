@@ -22,8 +22,8 @@ function getAllTrips(region) {
       list = list.filter(t => getTripRegion(t.slug) === region);
     }
     return list.sort((a, b) => {
-      const yearDiff = yearOf(a) - yearOf(b);
-      return yearDiff !== 0 ? yearDiff : (Number(a.created) || 0) - (Number(b.created) || 0);
+      const yearDiff = yearOf(b) - yearOf(a);
+      return yearDiff !== 0 ? yearDiff : (Number(b.created) || 0) - (Number(a.created) || 0);
     }).map(t => ({ ...t, displayYear: yearOf(t) || null }));
   } catch {
     return [];

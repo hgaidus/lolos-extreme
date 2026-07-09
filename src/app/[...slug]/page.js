@@ -497,7 +497,7 @@ export default async function CatchAllPage({ params }) {
                                   return (
                                     <tr key={stop.nid || idx} className={isCurrentStop ? "bg-[#7c9880]/25 font-bold text-[#3f5c4c]" : (idx % 2 === 0 ? "bg-black/[0.02] hover:bg-[#c1593a]/5 transition-colors" : "bg-transparent hover:bg-[#c1593a]/5 transition-colors")}>
                                       <td className="py-2.5 px-3 font-medium">
-                                        <Link href={`/${stop.slug}`} className={`${isCurrentStop ? 'text-[#3f5c4c] font-extrabold underline' : 'text-[#3f5c4c] hover:text-[#c1593a] hover:underline no-underline'} block truncate`}>
+                                        <Link href={`/${stop.slug}`} className={`${isCurrentStop ? 'text-[#3f5c4c] font-extrabold underline' : 'text-[#3f5c4c] hover:text-[#c1593a] hover:underline no-underline'} block whitespace-normal break-words`}>
                                           {cleanTitle(stop.title)}
                                         </Link>
                                       </td>
@@ -529,7 +529,7 @@ export default async function CatchAllPage({ params }) {
                                     <tr key={stop.nid || idx} className={idx % 2 === 0 ? "bg-black/[0.02] hover:bg-[#c1593a]/5 transition-colors" : "bg-transparent hover:bg-[#c1593a]/5 transition-colors"}>
                                       <td className="py-2.5 px-2 text-center font-bold text-[#8a8272] whitespace-nowrap">{idx + 1}</td>
                                       <td className="py-2.5 px-2 font-medium">
-                                        <Link href={`/${stop.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline no-underline block truncate max-w-[240px]">
+                                        <Link href={`/${stop.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline no-underline block whitespace-normal break-words">
                                           {cleanTitle(stop.title)}
                                         </Link>
                                       </td>
@@ -663,10 +663,7 @@ export default async function CatchAllPage({ params }) {
         {relevantActivities.length > 0 && (
           <aside className="trip-right-sidebar-column shrink-0 glass-sidebar p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin">
             <div className="border-b border-[#c1593a]/30 pb-3 mb-4">
-              <span className="text-[11px] uppercase tracking-wider text-[#c1593a] font-extrabold block">
-                ⭐ Activity Log
-              </span>
-              <h3 className="text-base font-bold text-[#2e2c26] mt-1 m-0">
+              <h3 className="text-lg font-bold text-[#3f5c4c] m-0">
                 What we did...
               </h3>
             </div>

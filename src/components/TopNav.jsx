@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { menuTrips } from "@/data/menuTrips";
 
 const MENUS = [
-  { key: "trips", label: "Cross Country Trips", items: menuTrips.crossCountry, top: { href: "/travel-itineraries", label: "All Routes & Itineraries" } },
+  { key: "trips", label: "Cross Country Trips", items: menuTrips.crossCountry },
   { key: "east",  label: "East Coast",          items: menuTrips.eastCoast },
   { key: "west",  label: "West Coast",           items: menuTrips.westCoast },
   { key: "intl",  label: "International",        items: menuTrips.international },

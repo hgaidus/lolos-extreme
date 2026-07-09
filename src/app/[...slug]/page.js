@@ -6,30 +6,7 @@ import InteractiveTravelogue from '@/components/InteractiveTravelogue';
 import { cleanDrupalContent } from '@/utils/cleanContent';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { photoFileExists } from '@/lib/photoExists';
-import { menuTrips } from '@/data/menuTrips';
-
-// Region label/link shown top-right of a trip page, matched to the original
-// site's per-region "trip type" tag (e.g. "West Coast Road Trip"). Derived
-// from the same crossCountry/eastCoast/westCoast/international grouping
-// already used for the nav dropdowns, since no region field exists in the
-// migrated trip data itself.
-const REGION_INFO = {
-  crossCountry: { label: "Cross Country Road Trip", href: "/cross-country-road-trip" },
-  eastCoast: { label: "East Coast Road Trip", href: "/cross-country-road-trip" },
-  westCoast: { label: "West Coast Road Trip", href: "/cross-country-road-trip" },
-  international: { label: "International", href: "/cross-country-road-trip" },
-};
-
-const REGION_BY_SLUG = Object.fromEntries(
-  Object.entries(menuTrips).flatMap(([region, items]) =>
-    items.map(item => [item.href.replace(/^\//, ''), region])
-  )
-);
-
-function getTripRegionInfo(slug) {
-  const region = REGION_BY_SLUG[(slug || '').replace(/^\//, '')];
-  return REGION_INFO[region] || REGION_INFO.crossCountry;
-}
+import { getTripRegionInfo } from '@/lib/tripRegions';
 
 function isExcludedSlug(slugStr) {
   const s = slugStr.toLowerCase();

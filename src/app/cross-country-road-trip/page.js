@@ -7,5 +7,5 @@ export const metadata = {
 };
 
 export default function CrossCountryRoadTripPage() {
-  return <CrossCountryRoadTripsList />;
+  return <CrossCountryRoadTripsList region="crossCountry" />;
 }

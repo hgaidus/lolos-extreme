@@ -58,23 +58,28 @@ export function getCleanAlbums() {
   });
 }
 
-export function getPhotosForAlbum(albumOrSlug) {
+export function findAlbumBySlug(albumOrSlug) {
   const albums = getCleanAlbums();
-  
-  let album = null;
+
   if (typeof albumOrSlug === 'object' && albumOrSlug !== null) {
-    album = albumOrSlug;
-  } else if (typeof albumOrSlug === 'string') {
+    return albumOrSlug;
+  }
+  if (typeof albumOrSlug === 'string') {
     const cleanSlug = albumOrSlug.replace(/^\/|\/$/g, '');
     const tail = cleanSlug.split('/').pop().toLowerCase();
-    
-    album = albums.find(a => {
+
+    return albums.find(a => {
       const aSlug = (a.slug || '').replace(/^\/|\/$/g, '').toLowerCase();
       const aTail = aSlug.split('/').pop();
       const aTitle = (a.title || '').toLowerCase();
       return aSlug === cleanSlug || aTail === tail || aTitle === albumOrSlug.toLowerCase() || String(a.tid) === String(albumOrSlug);
-    });
+    }) || null;
   }
+  return null;
+}
+
+export function getPhotosForAlbum(albumOrSlug) {
+  const album = findAlbumBySlug(albumOrSlug);
 
   if (album && Array.isArray(album.images) && album.images.length > 0) {
     return album.images

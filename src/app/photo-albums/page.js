@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import SlideCard from '@/components/SlideCard';
 import { getCleanAlbums, getAlbumPreviewPhoto } from '@/utils/albumPhotos';
 
@@ -11,13 +12,15 @@ export default function PhotoAlbumsIndexPage() {
 
   return (
     <div style={{ width: "100%" }}>
+      <div className="mb-4 flex gap-2 items-center text-sm flex-wrap">
+        <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+        <span className="text-[#a89e8a]">/</span>
+        <span className="text-[#5c5648] font-medium">Photo Albums</span>
+      </div>
       <div style={{ marginBottom: "20px", paddingBottom: "14px", borderBottom: "1px solid rgba(62,50,30,0.12)" }}>
         <h1 style={{ fontSize: "clamp(1.4rem,4vw,2rem)", fontWeight: 700, color: "#2e2c26", margin: 0 }}>
           Photo Albums
         </h1>
-        <p style={{ color: "#6b6459", fontSize: "0.88rem", margin: "6px 0 0" }}>
-          {albums.length} collections — browse 20+ years of family RV travel photography
-        </p>
       </div>
 
       <div className="photo-album-grid">

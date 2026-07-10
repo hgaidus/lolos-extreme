@@ -25,8 +25,9 @@ export async function generateStaticParams() {
   return Array.from(typesSet).map(type => ({ type }));
 }
 
-export default async function ActivityTypePage({ params }) {
+export default async function ActivityTypePage({ params, searchParams }) {
   const { type } = await params;
+  const { from } = await searchParams;
   const activities = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "activities.json"), "utf-8"));
   const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
   const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
@@ -63,8 +64,25 @@ export default async function ActivityTypePage({ params }) {
 
   const displayTypeName = typeNames[type.toLowerCase()] || type.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 
+  // If we arrived here from a stop's activity badge, show that stop as a
+  // middle breadcrumb segment so it's easy to navigate back to it.
+  const originStop = from ? stops.find(s => s.slug === from) : null;
+
   return (
     <div className="w-full pb-16">
+      <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
+        <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+        <span className="text-[#a89e8a]">/</span>
+        {originStop && (
+          <>
+            <Link href={`/${originStop.slug}`} className="text-[#c1593a] font-semibold hover:underline">
+              {cleanTitle(originStop.title)}
+            </Link>
+            <span className="text-[#a89e8a]">/</span>
+          </>
+        )}
+        <span className="text-[#5c5648] font-medium truncate">{displayTypeName} Activities</span>
+      </div>
       {/* Header Banner */}
       <section className="relative overflow-hidden py-12 px-6 rounded-3xl mb-8 text-center bg-gradient-to-r from-[#7c9880]/20 via-[#faf6ee] to-[#c1593a]/15 border border-[#c1593a]/30 shadow-xl">
         <div className="max-w-4xl mx-auto relative z-10">
@@ -163,7 +181,7 @@ export default async function ActivityTypePage({ params }) {
               return (
                 <Link
                   key={slug}
-                  href={`/activities/${slug}`}
+                  href={originStop ? `/activities/${slug}?from=${originStop.slug}` : `/activities/${slug}`}
                   className={`flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                     isCurrent
                       ? "bg-[#7c9880] text-white shadow-md shadow-[#7c9880]/25"

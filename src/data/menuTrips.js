@@ -91,7 +91,7 @@ export const menuTrips = {
     { title: "Southern CA Deserts", href: "/2017-southern-california-deserts", hover: "2017 Southern California Deserts" },
     { title: "Christmas in Tahoe", href: "/2016-christmas-tahoe", hover: "2016 Christmas in Tahoe" },
     { title: "Yosemite & Pinnacles", href: "/2016-yosemite-and-pinnacles", hover: "2016 Yosemite and Pinnacles" },
-    { title: "Totality", href: "/totality", hover: "2017 Total Solar Eclipse in Madras, Oregon" },
+    { title: "Total Solar Eclipse", href: "/totality", hover: "2017 Total Solar Eclipse in Madras, Oregon" },
     { title: "Yosemite & Sierra", href: "/2016-yosemite-eastern-sierra", hover: "2016 Yosemite, Tuolumne, and Eastern Sierras" },
     { title: "Yosemite Christmas", href: "/2015-christmas-yosemite", hover: "2015 Cross Country and Downhill Skiing in Yosemite" },
     { title: "Yosemite, San Diego", href: "/2015-yosemite-thanksgiving-and-san-diego", hover: "2015 Yosemite Thanksgiving and San Diego" },

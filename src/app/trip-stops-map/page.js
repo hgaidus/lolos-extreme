@@ -39,6 +39,7 @@ function getMapData() {
   }
 }
 
+import Link from 'next/link';
 import InteractiveMapWrapper from '../../components/InteractiveMapWrapper';
 
 export default function InteractiveMapPage() {
@@ -46,6 +47,11 @@ export default function InteractiveMapPage() {
 
   return (
     <div>
+      <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
+        <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+        <span className="text-[#a89e8a]">/</span>
+        <span className="text-[#5c5648] font-medium">Interactive Trip Stops Map</span>
+      </div>
       <div style={{ textAlign: "center", maxWidth: "800px", margin: "0 auto 36px auto" }}>
         <span style={{ fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "2px", color: "var(--color-gold-primary)", fontWeight: "700" }}>
           🛰️ 66,800+ Miles • North America &amp; Worldwide Adventures

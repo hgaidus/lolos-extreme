@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import LightboxViewer from '@/components/LightboxViewer';
-import { getPhotosForAlbum } from '@/utils/albumPhotos';
+import { getPhotosForAlbum, findAlbumBySlug } from '@/utils/albumPhotos';
+
+function fallbackTitle(slug) {
+  return slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()).replace(/Photos$/i, '').replace(/Rv/g, 'RV').trim();
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const title = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const album = findAlbumBySlug(slug);
+  const title = album?.title || fallbackTitle(slug);
   return {
     title: `${title} | 35mm Photo Album`,
     description: `View historical 35mm slides and travel photography from the ${title}.`,
@@ -13,21 +18,23 @@ export async function generateMetadata({ params }) {
 
 export default async function AlbumDetailPage({ params }) {
   const { slug } = await params;
-  const title = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()).replace(/Photos$/i, '').replace(/Rv/g, 'RV').trim();
+  const album = findAlbumBySlug(slug);
+  const title = album?.title || fallbackTitle(slug);
   const photos = getPhotosForAlbum(slug);
 
   return (
     <div className="w-full">
       <div className="mb-6 pb-4 border-b border-black/10">
-        <Link href="/photo-albums" className="text-[#c1593a] hover:underline font-semibold text-sm inline-flex items-center gap-1.5 mb-3">
-          &larr; Back to All 35mm Albums
-        </Link>
+        <div className="mb-3 flex gap-2 items-center text-sm flex-wrap">
+          <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+          <span className="text-[#a89e8a]">/</span>
+          <Link href="/photo-albums" className="text-[#c1593a] font-semibold hover:underline">Photo Albums</Link>
+          <span className="text-[#a89e8a]">/</span>
+          <span className="text-[#5c5648] font-medium truncate">{title}</span>
+        </div>
         <h1 className="text-2xl md:text-3xl font-bold text-[#2e2c26] m-0">
           {title}
         </h1>
-        <p className="text-base md:text-lg text-[#6b6459] mt-2 m-0">
-          Preserved Kodak &amp; Fujifilm 35mm Slide Archive ({photos.length} photos) — Click any slide below to launch the interactive slideshow.
-        </p>
       </div>
 
       <div className="glass-panel p-6 md:p-8">

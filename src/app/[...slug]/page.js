@@ -279,8 +279,9 @@ function lookupItem(slugStr) {
   return null;
 }
 
-export default async function CatchAllPage({ params }) {
+export default async function CatchAllPage({ params, searchParams }) {
   const { slug } = await params;
+  const { from } = await searchParams;
   const slugStr = slug.join('/');
   if (isExcludedSlug(slugStr)) {
     notFound();
@@ -299,8 +300,25 @@ export default async function CatchAllPage({ params }) {
       ? stops.filter(s => s.state && (s.state.toUpperCase() === displayItem.stateCode || s.state === displayItem.stateCode)).sort((a, b) => cleanTitle(a.title).localeCompare(cleanTitle(b.title)))
       : stops.filter(s => s.category && s.category === displayItem.categoryName).sort((a, b) => cleanTitle(a.title).localeCompare(cleanTitle(b.title)));
 
+    // If we arrived here from a stop's state/category tag, show that stop as a
+    // middle breadcrumb segment so it's easy to navigate back to it.
+    const originStop = from ? stops.find(s => s.slug === from) : null;
+
     return (
       <div className="w-full max-w-6xl mx-auto min-w-0 py-6 px-4 sm:px-6 font-sans">
+        <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
+          <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+          <span className="text-[#a89e8a]">/</span>
+          {originStop && (
+            <>
+              <Link href={`/${originStop.slug}`} className="text-[#c1593a] font-semibold hover:underline">
+                {cleanTitle(originStop.title)}
+              </Link>
+              <span className="text-[#a89e8a]">/</span>
+            </>
+          )}
+          <span className="text-[#5c5648] font-medium truncate">{displayItem.title}</span>
+        </div>
         <h1 className="text-3xl md:text-4xl font-extrabold text-[#c1593a] mb-6 font-sans">
           {displayItem.title}
         </h1>
@@ -624,7 +642,7 @@ export default async function CatchAllPage({ params }) {
                     {(displayItem.state || displayItem.category) && (
                       <div className="flex items-center gap-2 text-[#c1593a] font-medium">
                         {displayItem.state && (
-                          <Link href={`/state/${displayItem.state.toLowerCase()}`} className="hover:text-[#a54a2f] hover:underline transition-colors">
+                          <Link href={`/state/${displayItem.state.toLowerCase()}?from=${displayItem.slug}`} className="hover:text-[#a54a2f] hover:underline transition-colors">
                             {displayItem.state}
                           </Link>
                         )}
@@ -632,7 +650,7 @@ export default async function CatchAllPage({ params }) {
                           <span className="text-[#a89e8a]">|</span>
                         )}
                         {displayItem.category && (
-                          <Link href={`/category/${slugifyCategory(displayItem.category)}`} className="hover:text-[#a54a2f] hover:underline transition-colors">
+                          <Link href={`/category/${slugifyCategory(displayItem.category)}?from=${displayItem.slug}`} className="hover:text-[#a54a2f] hover:underline transition-colors">
                             {displayItem.category}
                           </Link>
                         )}
@@ -706,7 +724,7 @@ export default async function CatchAllPage({ params }) {
                   <div key={act.nid || idx} className="glass-card p-3.5 border-l-4 border-l-[#c1593a]/80">
                     <div className="flex items-center justify-between mb-1">
                       <Link
-                        href={`/activities/${actSlug}`}
+                        href={`/activities/${actSlug}?from=${displayItem.slug}`}
                         className="text-xs font-extrabold uppercase tracking-wider text-[#c1593a] hover:text-[#a54a2f] hover:underline transition-colors"
                       >
                         {actType}

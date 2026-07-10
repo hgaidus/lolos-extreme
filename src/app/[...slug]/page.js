@@ -193,6 +193,22 @@ function getTripMapUrl(trip) {
   return TRIP_MAP_BY_SLUG[slug] ?? null;
 }
 
+// Trips have no per-record author field in the migrated data (unlike stops,
+// which do), so authorship was hardcoded to "Lolo" for every trip. Verified
+// against the live site's byline for all 103 trips; these are the only ones
+// not written by Lolo.
+const TRIP_AUTHOR_BY_SLUG = {
+  "2009-cross-country-camping-trip": "Tommy",
+  "2009-white-mountains-backpacking-trip": "Andrew",
+  "2015-solo-cross-country-motorcycle-trip": "Herb",
+};
+
+function getTripAuthor(trip) {
+  if (!trip) return "Lolo";
+  const slug = (trip.slug || "").toLowerCase();
+  return TRIP_AUTHOR_BY_SLUG[slug] ?? "Lolo";
+}
+
 function formatStopDateOnly(ts) {
   if (!ts) return "";
   const d = new Date(ts * 1000);
@@ -625,7 +641,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                 <div className="mt-3 font-sans">
                   <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272] border-t border-black/5 pt-3">
                     <div>
-                      {tripStops.length > 0 ? `${formatStopDateOnly(tripStops[0].arrival_date || tripStops[0].created)} to ${formatStopDateOnly(tripStops[tripStops.length-1].arrival_date || tripStops[tripStops.length-1].created)} by Lolo` : (yr ? `${yr} by Lolo` : 'by Lolo')}
+                      {tripStops.length > 0 ? `${formatStopDateOnly(tripStops[0].arrival_date || tripStops[0].created)} to ${formatStopDateOnly(tripStops[tripStops.length-1].arrival_date || tripStops[tripStops.length-1].created)} by ${getTripAuthor(displayItem)}` : (yr ? `${yr} by ${getTripAuthor(displayItem)}` : `by ${getTripAuthor(displayItem)}`)}
                     </div>
                     <Link href={getTripRegionInfo(displayItem.slug).href} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-medium transition-colors">
                       {getTripRegionInfo(displayItem.slug).label}

@@ -109,7 +109,6 @@ export default async function ActivityTypePage({ params, searchParams }) {
               const trip = stop ? tripMap[String(stop.parent_trip_nid)] : null;
               const actTitle = cleanTitle(act.title || displayTypeName);
               const actText = act.narrative || "";
-              const rating = act.rating || "";
 
               return (
                 <div key={act.nid || idx} className="glass-card p-6 border-l-4 border-l-[#c1593a]/80 hover:border-l-[#a54a2f] transition-all shadow-lg">
@@ -117,11 +116,6 @@ export default async function ActivityTypePage({ params, searchParams }) {
                     <span className="text-xs font-extrabold uppercase tracking-wider text-[#c1593a]">
                       🎯 {displayTypeName}
                     </span>
-                    {rating && (
-                      <span className="text-sm text-[#c1593a] font-bold tracking-widest bg-[#c1593a]/10 px-2.5 py-0.5 rounded border border-[#c1593a]/30" title={`Rating: ${rating}`}>
-                        {rating}
-                      </span>
-                    )}
                   </div>
 
                   <h3 className="text-lg md:text-xl font-bold text-[#2e2c26] mb-2 m-0 leading-snug">
@@ -163,7 +157,7 @@ export default async function ActivityTypePage({ params, searchParams }) {
         </div>
 
         {/* Right Sidebar: All Activity Categories */}
-        <aside className="w-full lg:w-80 glass-sidebar p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin shrink-0">
+        <aside className="w-full lg:w-80 glass-sidebar p-5 sticky top-20 shrink-0">
           <div className="border-b border-[#c1593a]/30 pb-3 mb-4">
             <span className="text-[11px] uppercase tracking-wider text-[#c1593a] font-extrabold block">
               🏷️ Filter by Type

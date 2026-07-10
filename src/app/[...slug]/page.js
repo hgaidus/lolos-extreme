@@ -386,7 +386,7 @@ export default async function CatchAllPage({ params, searchParams }) {
   let rawText = "";
   if (displayItem.itemType === 'trip') {
     rawText = displayItem.travelogue || displayItem.body || (String(displayItem.year || "").length > 10 ? displayItem.year : "") || displayItem.summary || "";
-  } else if (displayItem.description && displayItem.travelogue && displayItem.description !== displayItem.travelogue) {
+  } else if (displayItem.description && displayItem.description.trim() && displayItem.travelogue && displayItem.description !== displayItem.travelogue) {
     rawText = displayItem.travelogue + `\n\n<hr />\n\n<div class="trip-description-box bg-[#c1593a]/[0.07] border-l-4 border-[#c1593a] rounded text-[#4a4437] italic font-medium leading-relaxed">${displayItem.description}</div>`;
   } else {
     rawText = displayItem.travelogue || displayItem.description || displayItem.summary || displayItem.body || "";
@@ -466,7 +466,7 @@ export default async function CatchAllPage({ params, searchParams }) {
           <aside
             className={`${
               displayItem.itemType === 'trip'
-                ? 'trip-overview-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin'
+                ? 'trip-overview-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20'
                 : displayItem.slug === 'about-lolo-and-herb' || String(displayItem.nid) === '2' || displayItem.slug === 'contact-us'
                   ? 'photo-sidebar-column shrink-0 glass-sidebar'
                   : 'trip-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20'
@@ -705,7 +705,7 @@ export default async function CatchAllPage({ params, searchParams }) {
 
         {/* RIGHT SIDEBAR: What We Did Activity Log (Fixed Width) */}
         {relevantActivities.length > 0 && (
-          <aside className="trip-right-sidebar-column shrink-0 glass-sidebar p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin">
+          <aside className="trip-right-sidebar-column shrink-0 glass-sidebar p-5 sticky top-20">
             <div className="border-b border-[#c1593a]/30 pb-3 mb-4">
               <h3 className="text-lg font-bold text-[#3f5c4c] m-0">
                 What we did...
@@ -718,7 +718,6 @@ export default async function CatchAllPage({ params, searchParams }) {
                 const actText = act.narrative || "";
                 const actType = act.activity_type || "Highlight";
                 const actSlug = actType.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-                const rating = act.rating || "";
 
                 return (
                   <div key={act.nid || idx} className="glass-card p-3.5 border-l-4 border-l-[#c1593a]/80">
@@ -729,11 +728,6 @@ export default async function CatchAllPage({ params, searchParams }) {
                       >
                         {actType}
                       </Link>
-                      {rating && (
-                        <span className="text-xs text-[#c1593a] font-bold tracking-widest" title={`Rating: ${rating}`}>
-                          {rating}
-                        </span>
-                      )}
                     </div>
                     <h4 className="font-bold text-[#2e2c26] text-sm mt-1 mb-1.5 m-0 leading-snug">
                       {actTitle}

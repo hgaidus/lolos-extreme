@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import Link from "next/link";
-import { cleanDrupalContent } from "@/utils/cleanContent";
+import { cleanDrupalContent, unescapeDrupalText } from "@/utils/cleanContent";
 import { DATA_DIR } from "@/lib/dataPaths";
 
 function cleanTitle(str = "") {
@@ -32,6 +32,7 @@ export default async function ActivityTypePage({ params }) {
   const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
   const photoTitles = fs.existsSync(path.join(DATA_DIR, "photo_titles.json"))
     ? JSON.parse(fs.readFileSync(path.join(DATA_DIR, "photo_titles.json"), "utf-8"))
+        .map(p => ({ ...p, title: unescapeDrupalText(p.title) }))
     : [];
 
   // Build lookup maps

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { photoFileExists } from '@/lib/photoExists';
+import { unescapeDrupalText } from '@/utils/cleanContent';
 
 let cachedData = null;
 
@@ -11,9 +12,18 @@ function loadData() {
     const albumsObj = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "albums.json"), "utf-8"));
     const titlesObj = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "photo_titles.json"), "utf-8"));
 
+    const albums = (Array.isArray(albumsObj) ? albumsObj : Object.values(albumsObj)).map(a => ({
+      ...a,
+      images: Array.isArray(a.images) ? a.images.map(img => ({ ...img, title: unescapeDrupalText(img.title) })) : a.images
+    }));
+    const titles = (Array.isArray(titlesObj) ? titlesObj : Object.values(titlesObj)).map(t => ({
+      ...t,
+      title: unescapeDrupalText(t.title)
+    }));
+
     cachedData = {
-      albumsObj: Array.isArray(albumsObj) ? albumsObj : Object.values(albumsObj),
-      titlesObj: Array.isArray(titlesObj) ? titlesObj : Object.values(titlesObj)
+      albumsObj: albums,
+      titlesObj: titles
     };
   } catch (err) {
     console.error("Error loading photo album dataset:", err);

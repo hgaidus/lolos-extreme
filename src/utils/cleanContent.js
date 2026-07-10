@@ -29,6 +29,27 @@ function getNidMap() {
 }
 
 /**
+ * Unescapes literal database escape sequences (e.g. \r\n, \n, \', \") left over
+ * from the Drupal export process. Used both for full HTML/text bodies and for
+ * standalone fields like photo titles, which go through the same export path
+ * but aren't otherwise passed through cleanDrupalContent.
+ * @param {string} str - Raw string from the Drupal export
+ * @returns {string} - Unescaped plain text
+ */
+export function unescapeDrupalText(str) {
+  if (!str || typeof str !== "string") return str;
+  return str
+    .replace(/\\r\\n/g, "\n")
+    .replace(/\\r/g, "\n")
+    .replace(/\\n/g, "\n")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/\\'/g, "'")
+    .replace(/\\"/g, '"')
+    .replace(/\\\\/g, "\\");
+}
+
+/**
  * Cleans raw Drupal text, parsing [img_assist|nid=...] shortcodes and formatting HTML safely.
  * Implements a robust Drupal _filter_autop line-break filter to ensure clean paragraph formatting.
  * @param {string} text - Raw content string from Drupal database
@@ -39,15 +60,7 @@ export function cleanDrupalContent(text, photoTitles = []) {
   if (!text || typeof text !== "string") return "";
 
   // 0. Unescape any database string escape sequences (e.g. literal \r\n, \n, \', \")
-  let cleaned = text
-    .replace(/\\r\\n/g, "\n")
-    .replace(/\\r/g, "\n")
-    .replace(/\\n/g, "\n")
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n")
-    .replace(/\\'/g, "'")
-    .replace(/\\"/g, '"')
-    .replace(/\\\\/g, "\\");
+  let cleaned = unescapeDrupalText(text);
 
   // 1. Remove <!--break--> and Drupal internal comments
   cleaned = cleaned.replace(/<!--\s*break\s*-->/gi, "");
@@ -94,8 +107,9 @@ export function cleanDrupalContent(text, photoTitles = []) {
             : align === "center"
             ? "mx-auto block my-4 clear-both"
             : "float-right ml-6 mb-4 clear-right";
+        const caption = title || unescapeDrupalText(imgData.title) || "";
 
-        return `\n\n<figure class="drupal-figure ${floatClass} max-w-xs w-80 bg-[#0c1d15] p-2.5 rounded-lg border border-amber-500/30 shadow-lg">\n  <img src="/photos/${cleanFilename}" alt="${title || imgData.title}" class="w-full h-auto rounded" onerror="this.style.display='none'" />\n  ${title || imgData.title ? `<figcaption class="text-xs text-gray-300 italic text-center mt-2 leading-tight">${title || imgData.title}</figcaption>` : ""}\n</figure>\n\n`;
+        return `\n\n<figure class="drupal-figure ${floatClass} max-w-xs w-80 bg-[#0c1d15] p-2.5 rounded-lg border border-amber-500/30 shadow-lg">\n  <img src="/photos/${cleanFilename}" alt="${caption}" class="w-full h-auto rounded" onerror="this.style.display='none'" />\n  ${caption ? `<figcaption class="text-xs text-gray-300 italic text-center mt-2 leading-tight">${caption}</figcaption>` : ""}\n</figure>\n\n`;
       }
     }
 

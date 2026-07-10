@@ -450,18 +450,19 @@ export default async function CatchAllPage({ params }) {
               displayItem.itemType === 'trip'
                 ? 'trip-overview-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin'
                 : displayItem.slug === 'about-lolo-and-herb' || String(displayItem.nid) === '2' || displayItem.slug === 'contact-us'
-                  ? 'trip-sidebar-column shrink-0 glass-sidebar sticky top-20'
+                  ? 'photo-sidebar-column shrink-0 glass-sidebar'
                   : 'trip-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20'
             }`}
           >
             <div>
               {/* About Lolo & Herb Sidebar Photo per Original Drupal Site */}
               {(displayItem.slug === 'about-lolo-and-herb' || String(displayItem.nid) === '2') ? (
-                <div className="trip-sidebar-map-box text-center bg-white p-3 rounded-lg border border-[#c1593a]/25 font-sans mb-4">
+                <div className="trip-sidebar-map-box standalone-photo-box text-center bg-white p-3 rounded-lg border border-[#c1593a]/25 font-sans">
                   <img
                     src="/photos/HL_Yosemite.jpg"
                     alt="Herb and Lolo Backpacking in Yosemite circa 1986"
                     title="Herb and Lolo Backpacking in Yosemite circa 1986"
+                    style={{ maxWidth: "241px" }}
                     className="w-full h-auto rounded shadow-md border border-black/10 mx-auto"
                   />
                   <div className="mt-2.5 text-xs text-[#5c5648] font-medium leading-relaxed">
@@ -469,11 +470,12 @@ export default async function CatchAllPage({ params }) {
                   </div>
                 </div>
               ) : displayItem.slug === 'contact-us' ? (
-                <div className="trip-sidebar-map-box text-center bg-white p-3 rounded-lg border border-[#c1593a]/25 font-sans mb-4">
+                <div className="trip-sidebar-map-box standalone-photo-box text-center bg-white p-3 rounded-lg border border-[#c1593a]/25 font-sans">
                   <img
                     src="/photos/family_yellowstone_1992.jpg"
                     alt="The Gaidus family in Yellowstone, 1992"
                     title="The Gaidus family in Yellowstone, 1992"
+                    style={{ maxWidth: "372px" }}
                     className="w-full h-auto rounded shadow-md border border-black/10 mx-auto"
                   />
                   <div className="mt-2.5 text-xs text-[#5c5648] font-medium leading-relaxed">

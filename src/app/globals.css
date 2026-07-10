@@ -468,6 +468,16 @@ figure.drupal-figure figcaption {
   overflow-x: hidden !important;
 }
 
+/* Wider sidebar for standalone single-photo pages (About, Contact, Search) —
+   these aren't sharing width with an itinerary table, so they can afford to
+   run larger than the standard trip-sidebar-column. */
+.photo-sidebar-column {
+  width: 320px !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box;
+  overflow-x: hidden !important;
+}
+
 @media (min-width: 1280px) {
   .trip-page-layout {
     gap: 2rem !important;
@@ -480,6 +490,9 @@ figure.drupal-figure figcaption {
   }
   .trip-right-sidebar-column {
     width: 270px !important;
+  }
+  .photo-sidebar-column {
+    width: 340px !important;
   }
 }
 
@@ -500,6 +513,13 @@ figure.drupal-figure figcaption {
   border-radius: 0.5rem !important;
   overflow: hidden !important;
   box-shadow: 0 4px 10px -2px rgba(62, 50, 30, 0.14) !important;
+}
+
+/* Standalone single-photo sidebars (About, Contact, Search) have nothing
+   below them, so the map-box's usual bottom margin just leaves an
+   asymmetric gap before the card's own border. */
+.trip-sidebar-map-box.standalone-photo-box {
+  margin-bottom: 0;
 }
 
 .trip-sidebar-map-img {
@@ -536,6 +556,7 @@ table { word-break: break-word; }
   .trip-sidebar-column { width: 220px !important; }
   .trip-overview-sidebar-column { width: 340px !important; }
   .trip-right-sidebar-column { display: none !important; }
+  .photo-sidebar-column { width: 260px !important; }
   .nav-link { padding: 12px 10px !important; font-size: 0.9rem !important; }
   .sidebar-item { padding: 12px 14px; }
   button, .btn-gold { min-height: 44px; }
@@ -550,7 +571,8 @@ table { word-break: break-word; }
   }
   .trip-sidebar-column,
   .trip-overview-sidebar-column,
-  .trip-right-sidebar-column {
+  .trip-right-sidebar-column,
+  .photo-sidebar-column {
     width: 100% !important;
     position: static !important;
     max-height: none !important;

@@ -48,6 +48,13 @@ function formatStopDate(ts) {
   return `${datePart} - ${timePart}`;
 }
 
+function formatPageDate(ts) {
+  if (!ts) return "";
+  const d = new Date(Number(ts) * 1000);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { timeZone: "America/Los_Angeles", weekday: "long", year: "numeric", month: "long", day: "numeric" });
+}
+
 function formatStopStats(miles, hours, nights) {
   const parts = [];
   if (miles !== null && miles !== undefined && Number(miles) > 0) parts.push(`${miles} miles`);
@@ -439,7 +446,13 @@ export default async function CatchAllPage({ params }) {
         {/* LEFT SIDEBAR: Route Map & Itinerary Table (Fixed Width) - ONLY FOR TRIPS, STOPS, AND ABOUT US */}
         {(displayItem.itemType === 'trip' || displayItem.itemType === 'stop' || displayItem.slug === 'about-lolo-and-herb' || String(displayItem.nid) === '2' || displayItem.slug === 'contact-us') && (
           <aside
-            className={`${displayItem.itemType === 'trip' ? 'trip-overview-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin' : 'trip-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20'}`}
+            className={`${
+              displayItem.itemType === 'trip'
+                ? 'trip-overview-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin'
+                : displayItem.slug === 'about-lolo-and-herb' || String(displayItem.nid) === '2' || displayItem.slug === 'contact-us'
+                  ? 'trip-sidebar-column shrink-0 glass-sidebar sticky top-20'
+                  : 'trip-sidebar-column shrink-0 glass-sidebar p-3 sm:p-4 md:p-5 sticky top-20'
+            }`}
           >
             <div>
               {/* About Lolo & Herb Sidebar Photo per Original Drupal Site */}
@@ -578,7 +591,17 @@ export default async function CatchAllPage({ params }) {
               <h1 className="text-2xl md:text-3xl font-bold text-[#2e2c26] m-0">
                 {displayTitle}{isStop && displayItem.state && !displayTitle.includes(displayItem.state) ? `, ${displayItem.state}` : ''}
               </h1>
-              {!isStop ? (
+              {displayItem.itemType === 'page' ? (
+                displayItem.type === 'story' && (
+                  <div className="mt-3 font-sans">
+                    <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272] border-t border-black/5 pt-3">
+                      <div>
+                        {formatPageDate(displayItem.created)} by Herb
+                      </div>
+                    </div>
+                  </div>
+                )
+              ) : !isStop ? (
                 <div className="mt-3 font-sans">
                   <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272] border-t border-black/5 pt-3">
                     <div>

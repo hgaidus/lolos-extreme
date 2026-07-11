@@ -71,7 +71,7 @@ export default function TopNav({ tripTitles = {} }) {
     alignItems: "center",
     gap: "4px",
     padding: "10px 12px",
-    color: "#2c4436",
+    color: "#fff",
     fontWeight: 600,
     fontSize: "0.92rem",
     textDecoration: "none",
@@ -87,11 +87,12 @@ export default function TopNav({ tripTitles = {} }) {
     <nav
       ref={navRef}
       style={{
-        background: "#9fb6a2",
+        background: "rgba(63,92,76,0.97)",
         borderBottom: "2px solid #c1593a",
         position: "sticky",
         top: 0,
         zIndex: 200,
+        backdropFilter: "blur(8px)",
       }}
     >
       <div style={{
@@ -106,7 +107,7 @@ export default function TopNav({ tripTitles = {} }) {
 
         {/* Mobile: site name + hamburger */}
         <Link href="/" onClick={close} style={{
-          color: "#2c4436",
+          color: "#faf6ee",
           fontWeight: 700,
           fontSize: "0.95rem",
           textDecoration: "none",
@@ -122,8 +123,8 @@ export default function TopNav({ tripTitles = {} }) {
           className="hamburger-btn"
           style={{
             background: "transparent",
-            border: "1px solid rgba(165,74,47,0.7)",
-            color: "#a54a2f",
+            border: "1px solid rgba(193,89,58,0.7)",
+            color: "#d1704f",
             padding: "8px 14px",
             borderRadius: "6px",
             cursor: "pointer",
@@ -167,7 +168,7 @@ export default function TopNav({ tripTitles = {} }) {
                 onClick={(e) => toggle(m.key, e)}
                 style={{ ...navLinkStyle, background: openMenu === m.key ? "rgba(193,89,58,0.18)" : "none" }}
               >
-                {m.label} <span style={{ fontSize: "0.65rem", color: "#a54a2f", marginLeft: "2px" }}>▼</span>
+                {m.label} <span style={{ fontSize: "0.65rem", color: "#d1704f", marginLeft: "2px" }}>▼</span>
               </button>
               {openMenu === m.key && (
                 <ul style={ddStyle}
@@ -193,7 +194,7 @@ export default function TopNav({ tripTitles = {} }) {
           <li><Link href="/trip-stops-map" onClick={close} style={navLinkStyle}>Map</Link></li>
           <li><Link href="/search"         onClick={close} style={navLinkStyle}>Search</Link></li>
           <li><Link href="/contact-us"     onClick={close} style={navLinkStyle}>Contact</Link></li>
-          <li><Link href="/admin"          onClick={close} style={{ ...navLinkStyle, color: "#a54a2f" }}>CMS Admin</Link></li>
+          <li><Link href="/admin"          onClick={close} style={{ ...navLinkStyle, color: "#d1704f" }}>CMS Admin</Link></li>
         </ul>
       </div>
 

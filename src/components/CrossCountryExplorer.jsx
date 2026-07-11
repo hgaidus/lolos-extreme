@@ -71,7 +71,7 @@ export default function CrossCountryExplorer({ trips }) {
           <span className="font-extrabold text-[0.78rem] text-[#a54a2f]">{trip.miles.toLocaleString()}</span>
           <span className="text-[0.58rem] uppercase tracking-wide text-[#8a8272]">miles</span>
         </div>
-        <Link href={`/${trip.href}`} className="ml-auto font-bold text-[0.76rem] text-[#3f5c4c] whitespace-nowrap hover:underline">
+        <Link href={`/${trip.href}`} className="ml-auto font-bold text-[0.76rem] text-[#3f5c4c] hover:text-[#c1593a] whitespace-nowrap hover:underline">
           View full trip →
         </Link>
       </div>

@@ -597,13 +597,13 @@ export default async function CatchAllPage({ params, searchParams }) {
                             </tbody>
                             {tripStops.length > 0 && (
                               <tfoot>
-                                <tr className="bg-[#3f5c4c]/95 text-[#faf6ee] font-bold border-t border-[#c1593a]/30">
+                                <tr className="bg-[#58B195] text-[#faf6ee] font-bold border-t border-[#c1593a]/30">
                                   <td colSpan="2" className="py-2.5 px-2 text-right uppercase tracking-wider text-[11px] whitespace-nowrap">Total: {tripStops.length} Stops</td>
                                   <td className="py-2.5 px-1 text-center whitespace-nowrap">--</td>
-                                  <td className="py-2.5 px-1 text-right text-[#f0b49a] whitespace-nowrap">
+                                  <td className="py-2.5 px-1 text-right text-[#a54a2f] whitespace-nowrap">
                                     {tripStops.reduce((acc, s) => acc + (Number(s.miles) || 0), 0)}
                                   </td>
-                                  <td className="py-2.5 px-2 text-right text-[#f0b49a] whitespace-nowrap">
+                                  <td className="py-2.5 px-2 text-right text-[#a54a2f] whitespace-nowrap">
                                     {tripStops.reduce((acc, s) => acc + (Number(s.hours) || 0), 0)}
                                   </td>
                                 </tr>

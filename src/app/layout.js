@@ -127,7 +127,7 @@ export default function RootLayout({ children }) {
         {/* ── Footer ── */}
         <footer style={{
           textAlign: "center",
-          padding: "28px 16px",
+          padding: "16px 16px",
           borderTop: "1px solid rgba(193,89,58,0.3)",
           color: "#ffffff",
           fontSize: "0.82rem",
@@ -137,9 +137,6 @@ export default function RootLayout({ children }) {
           <div style={{ maxWidth: "1380px", margin: "0 auto" }}>
             <p style={{ margin: 0 }}>
               Copyright © 1998–{new Date().getFullYear()}, Lorraine E. &amp; Herbert H. Gaidus — All Rights Reserved.
-            </p>
-            <p style={{ margin: "6px 0 0", fontSize: "0.72rem", color: "rgba(255,255,255,0.75)" }}>
-              Preserved &amp; modernized from Drupal 6 · Powered by Next.js
             </p>
           </div>
         </footer>

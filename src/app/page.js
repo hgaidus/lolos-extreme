@@ -1,8 +1,74 @@
 import fs from 'fs';
 import path from 'path';
 import Link from 'next/link';
-import TripMapExplorer from '@/components/TripMapExplorer';
+import CrossCountryExplorer from '@/components/CrossCountryExplorer';
 import { DATA_DIR } from '@/lib/dataPaths';
+import { menuTrips } from '@/data/menuTrips';
+
+// Route-map GIFs only exist for the trips that had one in the original
+// Drupal theme; newer Cross Country trips fall back to a plain tile.
+const GIF_BY_HREF = {
+  "/1999-cross-country-road-trip": "cc1999s.gif",
+  "/2000-cross-country-road-trip": "cc2000s.gif",
+  "/2001-cross-country-road-trip": "cc2001s.gif",
+  "/2002-cross-country-road-trip": "cc2002s.gif",
+  "/2003-cross-country-road-trip": "cc2003s.gif",
+  "/2005-cross-country-road-trip": "cc2005s.gif",
+  "/2007-cross-country-road-trip": "cc2007s.gif",
+  "/2009-cross-country-camping-trip": "cc20b9s.gif",
+  "/2011-cross-country-road-trip": "cc2011s.gif",
+  "/2013-cross-country-road-trip": "cc2013a.gif",
+  "/2015-herb-and-lolos-migration-west": "cc2015b.gif",
+};
+
+// Short editorial blurbs, one per trip — grounded in each trip's real stops,
+// not auto-generated. Maintained by hand alongside menuTrips.js.
+const TEASER_BY_HREF = {
+  "/1999-cross-country-road-trip": "Our maiden voyage, and the trip that started it all. Los Angeles to New York by way of Las Vegas, Hoover Dam, Lake Mead, Zion, the Grand Canyon's North Rim, and Bryce Canyon. We had no idea yet that this would become an annual tradition – by the time we got home we were already planning next year's route.",
+  "/2000-cross-country-road-trip": "A sweep through the upper Midwest and northern plains: Sleeping Bear Dunes, Mackinac Island, Pictured Rocks, and Apostle Islands National Lakeshores, then west into the Dakotas. More lakeshore stops than any other cross-country trip we've run.",
+  "/2001-cross-country-road-trip": "Our longest cross-country trip by mileage. Rocky Mountain National Park anchored the outbound leg, with Dinosaur National Monument, Flaming Gorge, Zion, Bryce, and the Grand Canyon's South Rim on the way to a finish at Olympic National Park on the Washington coast.",
+  "/2002-cross-country-road-trip": "A trip through the Deep South and Southwest: Mammoth Cave, the Natchez Trace Parkway, Vicksburg, and on to Carlsbad Caverns, White Sands, Big Bend, and Saguaro. The longest itinerary of any of our cross-country trips.",
+  "/2003-cross-country-road-trip": "A trip built entirely around Utah's red rock country: Flaming Gorge, Bryce Canyon, Cedar Breaks, and Zion, with stops at Kodachrome Basin and Moab in between. If you only have three weeks and want maximum scenery per mile driven, this is close to the ideal Utah loop.",
+  "/2005-cross-country-road-trip": "Cuyahoga Valley National Park on the way out, then Colorado's Garden of the Gods, Black Canyon of the Gunnison, Mesa Verde, Arches, and Canyonlands, with a stop in Telluride and a night in Moab.",
+  "/2007-cross-country-road-trip": "Goblin Valley and Capitol Reef set up a run through Lake Mead and Death Valley before a grand finale in Sequoia and Yosemite. Death Valley ran hotter than we expected even for a summer trip – worth checking the forecast if you're following this route.",
+  "/2009-cross-country-camping-trip": "A trip to celebrate the boys' graduations: Indiana Dunes, Badlands, the Beartooth Highway, and Yellowstone and Grand Teton back-to-back – one of the best wildlife-watching stretches of any trip we've taken.",
+  "/2011-cross-country-road-trip": "A trip centered on Colorado's Front Range: Boulder, Golden Gate Canyon State Park, Rocky Mountain National Park, and the Peak to Peak Highway, with Tommy showing us around Boulder where he was living at the time.",
+  "/2013-cross-country-road-trip": "Our last cross-country trip together before the boys were off on their own: Rocky Mountain, Mount Rainier, Crater Lake, Olympic, North Cascades, Glacier, and Theodore Roosevelt National Parks. Seven parks in one trip is more than we'd usually attempt, but we wanted to make it count.",
+  "/2015-solo-cross-country-motorcycle-trip": "A different kind of cross-country trip – just Herb, solo, on two wheels. Skyline Drive, the Blue Ridge Parkway, the Great Smoky Mountains, and Cades Cove, before heading west across the rest of the country.",
+  "/2015-herb-and-lolos-migration-west": "The trip that moved us out to the West Coast for good – nine days, seven stops, and not much sightseeing along the way. Practical business, not a vacation: this is the trip that ended our cross-country era and started our West Coast one.",
+  "/2016-bringing-boat-west": "Towing the boat trailer behind the Suburban, retracing much of our old cross-country route from New Jersey through the Midwest to the Southwest. Our last full cross-country drive – after this one, our trips shifted to flying out and renting or already having a vehicle in place.",
+};
+
+function getYear(trip) {
+  const m = (trip.hover || trip.title || "").match(/^(\d{4})/);
+  return m ? m[1] : "";
+}
+
+function getCrossCountryTrips() {
+  try {
+    const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
+    const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
+
+    return [...menuTrips.crossCountry].reverse().map(t => {
+      const slug = t.href.replace(/^\//, "");
+      const trip = trips.find(tr => tr.slug === slug);
+      const tripStops = trip ? stops.filter(s => s.parent_trip_nid === trip.nid) : [];
+      const miles = tripStops.reduce((a, s) => a + (Number(s.miles) || 0), 0);
+      const nights = tripStops.reduce((a, s) => a + (Number(s.nights) || 0), 0);
+      return {
+        yr: getYear(t),
+        name: t.title,
+        href: slug,
+        miles,
+        days: nights + 1,
+        gif: GIF_BY_HREF[t.href] || null,
+        teaser: TEASER_BY_HREF[t.href] || "",
+      };
+    });
+  } catch {
+    return [];
+  }
+}
 
 function getHomeBody() {
   try {
@@ -18,205 +84,57 @@ function cleanBody(html) {
     .replace(/href="internal:node\/(\d+)"/g, 'href="#"')
     .replace(/href="internal:([^"]+)"/g, 'href="/$1"')
     .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
-    .replace(/<h2>/g, '<h2 style="color:#f59e0b;font-size:1.2rem;font-weight:700;margin:24px 0 10px">')
-    .replace(/<h3>/g, '<h3 style="color:#34d399;font-size:1rem;font-weight:700;margin:18px 0 8px">')
-    .replace(/<ul>/g, '<ul style="margin:0 0 12px 18px;line-height:1.9">')
+    .replace(/<h2>/g, '<h2 style="color:#3f5c4c;font-size:1.05rem;font-weight:700;margin:22px 0 10px">')
+    .replace(/<h3>/g, '<h3 style="color:#3f5c4c;font-size:0.95rem;font-weight:700;margin:16px 0 8px">')
+    .replace(/<ul>/g, '<ul style="margin:0 0 12px 18px;line-height:1.8">')
     .replace(/<li>/g, '<li style="margin-bottom:4px">')
-    .replace(/<a /g, '<a style="color:#60a5fa;text-decoration:underline" ')
-    .replace(/<strong>/g, '<strong style="color:#e2e8f0">');
+    .replace(/<a /g, '<a style="color:#a54a2f;text-decoration:underline" ')
+    .replace(/<strong>/g, '<strong style="color:#2e2c26">');
 }
 
 export default function HomePage() {
+  const ccTrips = getCrossCountryTrips();
   const rawBody = getHomeBody();
   const cleanedBody = cleanBody(rawBody);
 
-  const updateIdx = cleanedBody.indexOf('<h2 style="color:#f59e0b;font-size:1.2rem;font-weight:700;margin:24px 0 10px">January 2026 Update');
-  const introPart = updateIdx > 0 ? cleanedBody.substring(0, updateIdx) : cleanedBody;
+  // The raw body has its own "Contents of this site" list between the intro
+  // and the news update — we render that section ourselves below (deduped
+  // list, no Index item), so it's cut out here rather than shown twice.
+  const contentsIdx = cleanedBody.indexOf('<h2 style="color:#3f5c4c;font-size:1.05rem;font-weight:700;margin:22px 0 10px">Contents of this');
+  const updateIdx = cleanedBody.indexOf('<h2 style="color:#3f5c4c;font-size:1.05rem;font-weight:700;margin:22px 0 10px">January 2026 Update');
+  const introPart = contentsIdx > 0 ? cleanedBody.substring(0, contentsIdx) : cleanedBody;
   const newsPart  = updateIdx > 0 ? cleanedBody.substring(updateIdx) : "";
 
   return (
-    <div style={{ color: "#e2e8f0", lineHeight: 1.7 }}>
+    <div>
+      <h1 className="font-serif text-[1.5rem] mb-4" style={{ color: "#2e2c26" }}>
+        Cross Country RV Road Trip Planner
+      </h1>
 
-      {/* ── Hero Banner ── */}
-      <div style={{
-        position: "relative",
-        width: "100%",
-        borderRadius: "12px",
-        overflow: "hidden",
-        marginBottom: "28px",
-        minHeight: "180px",
-        background: "linear-gradient(135deg, #0a1f12 0%, #122a18 40%, #1a3a20 100%)",
-        display: "flex",
-        alignItems: "center",
-        padding: "28px 32px",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-        border: "1px solid rgba(245,158,11,0.25)",
-      }}>
-        {/* Background texture overlay */}
-        <div style={{
-          position: "absolute", inset: 0,
-          backgroundImage: "radial-gradient(circle at 70% 50%, rgba(245,158,11,0.08) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(52,211,153,0.05) 0%, transparent 50%)",
-          pointerEvents: "none",
-        }} />
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "700px" }}>
-          <div style={{ fontSize: "clamp(0.7rem,1.8vw,0.82rem)", color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "8px" }}>
-            🚐 Our RV Adventures — 1998 to Present
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <CrossCountryExplorer trips={ccTrips} />
+
+        <div>
+          <div dangerouslySetInnerHTML={{ __html: introPart }} />
+
+          <h2 style={{ color: "#3f5c4c", fontSize: "1.05rem", fontWeight: 700, margin: "20px 0 10px" }}>
+            Contents of this 2,000+ page site include&hellip;
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5 text-sm mb-2" style={{ color: "#3d3a30" }}>
+            <div>&bull; <Link href="/travel-itineraries" style={{ color: "#2e2c26", fontWeight: 600 }}>Best Driving Routes &amp; Itineraries</Link> &mdash; stops &amp; mileages</div>
+            <div>&bull; <Link href="/travel-itineraries" style={{ color: "#2e2c26", fontWeight: 600 }}>Travelogues</Link> &mdash; personal experiences at each stop</div>
+            <div>&bull; <Link href="/trip-stops-map" style={{ color: "#2e2c26", fontWeight: 600 }}>Overview Map</Link> &mdash; 809+ push-pin GPS stops</div>
+            <div>&bull; Activities &mdash; hikes, mountain biking, fishing &amp; rafting</div>
+            <div>&bull; <Link href="/photo-albums" style={{ color: "#2e2c26", fontWeight: 600 }}>Photographs</Link> &mdash; 85 collections of 35mm slides</div>
+            <div>&bull; <Link href="/about-lolo-and-herb" style={{ color: "#2e2c26", fontWeight: 600 }}>About Lolo &amp; Herb</Link> &mdash; our story &amp; the Lazy Daze</div>
+            <div>&bull; <Link href="/activities/highlight" style={{ color: "#2e2c26", fontWeight: 600 }}>Top Highlights</Link> &mdash; places not to be missed</div>
           </div>
-          <h1 style={{
-            fontFamily: "var(--font-outfit), system-ui, sans-serif",
-            fontSize: "clamp(1.2rem,4vw,2rem)",
-            fontWeight: 800,
-            color: "#ffffff",
-            margin: "0 0 10px",
-            lineHeight: 1.2,
-            letterSpacing: "-0.01em",
-          }}>
-            Cross Country RV Road Trip Planner
-          </h1>
-          <p style={{ color: "#94a3b8", fontSize: "clamp(0.85rem,2vw,1rem)", margin: "0 0 16px", lineHeight: 1.6 }}>
-            20+ summers driving 114,000+ miles across the USA and Canada in our Lazy Daze motorhome.
-          </p>
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <Link href="/travel-itineraries" style={{
-              background: "linear-gradient(135deg,#d97706,#92400e)",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: "0.85rem",
-              padding: "9px 18px",
-              borderRadius: "8px",
-              textDecoration: "none",
-              display: "inline-block",
-              minHeight: "38px",
-              lineHeight: "20px",
-            }}>
-              Browse All Trips →
-            </Link>
-            <Link href="/photo-albums" style={{
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              color: "#e2e8f0",
-              fontWeight: 600,
-              fontSize: "0.85rem",
-              padding: "9px 18px",
-              borderRadius: "8px",
-              textDecoration: "none",
-              display: "inline-block",
-              minHeight: "38px",
-              lineHeight: "20px",
-            }}>
-              📸 Photo Albums
-            </Link>
-          </div>
-        </div>
-        {/* Decorative emoji RV on right — hidden on very small screens via inline media-less trick */}
-        <div style={{
-          position: "absolute",
-          right: "5%",
-          top: "50%",
-          transform: "translateY(-50%)",
-          fontSize: "clamp(3rem,10vw,6.5rem)",
-          opacity: 0.12,
-          pointerEvents: "none",
-          userSelect: "none",
-        }} aria-hidden="true">🏕️</div>
-      </div>
 
-      {/* ── Stats strip ── */}
-      <div className="stats-grid-4" style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(4, 1fr)",
-        gap: "12px",
-        marginBottom: "28px",
-        textAlign: "center",
-      }}>
-        {[
-          { value: "114,000+", label: "Miles Traveled",    icon: "🛣️" },
-          { value: "49",       label: "US States",         icon: "🗺️" },
-          { value: "61",       label: "National Parks",    icon: "🏔" },
-          { value: "2,000+",   label: "Pages of Content",  icon: "📄" },
-        ].map(s => (
-          <div key={s.label} style={{
-            background: "rgba(10,25,18,0.85)",
-            borderRadius: "10px",
-            border: "1px solid rgba(245,158,11,0.25)",
-            padding: "12px 6px",
-            backdropFilter: "blur(8px)",
-          }}>
-            <div style={{ fontSize: "1.35rem", marginBottom: "2px" }}>{s.icon}</div>
-            <div style={{ color: "#f59e0b", fontWeight: 800, fontSize: "clamp(1rem,3vw,1.4rem)" }}>{s.value}</div>
-            <div style={{ color: "#64748b", fontSize: "0.72rem", marginTop: "2px" }}>{s.label}</div>
-          </div>
-        ))}
-      </div>
+          <hr style={{ border: "none", borderTop: "1px solid rgba(90,74,50,0.15)", margin: "18px 0" }} />
 
-      {/* ── Two-column body: Map Explorer | Content ── */}
-      <div className="home-grid" style={{
-        display: "grid",
-        gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)",
-        gap: "24px",
-        alignItems: "start",
-        marginBottom: "32px",
-      }}>
-
-        {/* LEFT: Interactive trip map */}
-        <TripMapExplorer />
-
-        {/* RIGHT: Intro + News */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <section style={{
-            background: "rgba(14,35,25,0.7)",
-            borderRadius: "12px",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderLeft: "4px solid #f59e0b",
-            padding: "18px 20px",
-            fontSize: "0.92rem",
-          }}>
-            <div dangerouslySetInnerHTML={{ __html: introPart }} />
-          </section>
-
-          {newsPart && (
-            <section style={{
-              background: "rgba(6,18,12,0.85)",
-              borderRadius: "12px",
-              border: "1px solid rgba(255,255,255,0.08)",
-              padding: "18px 20px",
-              fontSize: "0.9rem",
-              lineHeight: 1.85,
-              maxHeight: "520px",
-              overflowY: "auto",
-            }}>
-              <div dangerouslySetInnerHTML={{ __html: newsPart }} />
-            </section>
-          )}
+          {newsPart && <div dangerouslySetInnerHTML={{ __html: newsPart }} />}
         </div>
       </div>
-
-      {/* ── Site contents quick-links ── */}
-      <section style={{
-        padding: "18px 22px",
-        background: "#091711",
-        borderRadius: "12px",
-        border: "1px solid rgba(255,255,255,0.08)",
-      }}>
-        <h3 style={{ color: "#f59e0b", fontSize: "1rem", fontWeight: 700, margin: "0 0 12px" }}>
-          📚 Contents of this 2,000+ page site include:
-        </h3>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          gap: "8px",
-          fontSize: "0.88rem",
-          color: "#cbd5e1",
-        }}>
-          <div>• <Link href="/travel-itineraries" style={{ color: "#fff", fontWeight: 600 }}>Best Driving Routes &amp; Itineraries</Link> — stops &amp; mileages</div>
-          <div>• <Link href="/travel-itineraries" style={{ color: "#fff", fontWeight: 600 }}>Travelogues</Link> — personal experiences at each stop</div>
-          <div>• <Link href="/trip-stops-map"     style={{ color: "#fff", fontWeight: 600 }}>Overview Map</Link> — 809+ push-pin GPS stops</div>
-          <div>• Activities — hikes, mountain biking, fishing &amp; rafting</div>
-          <div>• <Link href="/photo-albums"        style={{ color: "#fff", fontWeight: 600 }}>Photographs</Link> — 85 collections of 35mm slides</div>
-          <div>• <Link href="/about-lolo-and-herb" style={{ color: "#fff", fontWeight: 600 }}>About Lolo &amp; Herb</Link> — our story &amp; the Lazy Daze</div>
-          <div>• <Link href="/activities/highlight" style={{ color: "#fff", fontWeight: 600 }}>Top Highlights</Link> — places not to be missed</div>
-        </div>
-      </section>
     </div>
   );
 }

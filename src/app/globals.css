@@ -586,12 +586,6 @@ table { word-break: break-word; }
   /* Main padding */
   main { padding: 12px 10px !important; }
 
-  /* Home grid */
-  .home-grid { grid-template-columns: 1fr !important; }
-
-  /* Stats grid 2-col on mobile */
-  .stats-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
-
   /* Float images: no floats on mobile */
   figure.drupal-figure.float-right,
   figure.drupal-figure.float-left {
@@ -638,7 +632,6 @@ table { word-break: break-word; }
 @media (max-width: 480px) {
   header h1 { font-size: 1.1rem !important; }
   .slide-mount { padding: 6px 6px 14px !important; }
-  .stats-grid-4 { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
   main { padding: 10px 8px !important; }
 }
 
@@ -652,49 +645,6 @@ table { word-break: break-word; }
 @media (max-width: 1024px) { .photo-album-grid { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 768px)  { .photo-album-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
 @media (max-width: 480px)  { .photo-album-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
-
-/* ── Trip Map Explorer (TripMapExplorer.jsx) ── */
-.tme-outer {
-  display: flex;
-  flex-direction: row;
-  min-height: 500px;
-}
-@media (max-width: 900px) {
-  .tme-outer {
-    flex-direction: column !important;
-    min-height: unset !important;
-  }
-  .tme-year-list {
-    width: 100% !important;
-    max-height: 100px !important;
-    display: flex !important;
-    flex-direction: row !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    border-right: none !important;
-    border-bottom: 1px solid rgba(245,158,11,0.2) !important;
-    scrollbar-width: thin;
-    -webkit-overflow-scrolling: touch;
-  }
-  .tme-year-btn {
-    flex-shrink: 0 !important;
-    width: auto !important;
-    padding: 8px 14px !important;
-    border-left-color: transparent !important;
-    border-bottom: 3px solid transparent !important;
-    white-space: nowrap !important;
-    font-size: 0.82rem !important;
-  }
-  .tme-year-btn.tme-active {
-    border-bottom-color: #f59e0b !important;
-    border-left-color: transparent !important;
-    background: rgba(245,158,11,0.15) !important;
-  }
-  .tme-highlights-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .tme-map-img-wrap { min-height: 200px !important; }
-}
 
 /* Lightbox on mobile */
 @media (max-width: 768px) {

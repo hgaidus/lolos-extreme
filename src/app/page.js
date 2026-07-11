@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import Link from 'next/link';
-import TripMapExplorer from '@/components/TripMapExplorer';
+import CrossCountryTimeline from '@/components/CrossCountryTimeline';
 import { DATA_DIR } from '@/lib/dataPaths';
 
 function getHomeBody() {
@@ -18,205 +18,108 @@ function cleanBody(html) {
     .replace(/href="internal:node\/(\d+)"/g, 'href="#"')
     .replace(/href="internal:([^"]+)"/g, 'href="/$1"')
     .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
-    .replace(/<h2>/g, '<h2 style="color:#f59e0b;font-size:1.2rem;font-weight:700;margin:24px 0 10px">')
-    .replace(/<h3>/g, '<h3 style="color:#34d399;font-size:1rem;font-weight:700;margin:18px 0 8px">')
-    .replace(/<ul>/g, '<ul style="margin:0 0 12px 18px;line-height:1.9">')
+    .replace(/<h2>/g, '<h2 style="color:#3f5c4c;font-size:1.05rem;font-weight:700;margin:22px 0 10px">')
+    .replace(/<h3>/g, '<h3 style="color:#3f5c4c;font-size:0.95rem;font-weight:700;margin:16px 0 8px">')
+    .replace(/<ul>/g, '<ul style="margin:0 0 12px 18px;line-height:1.8">')
     .replace(/<li>/g, '<li style="margin-bottom:4px">')
-    .replace(/<a /g, '<a style="color:#60a5fa;text-decoration:underline" ')
-    .replace(/<strong>/g, '<strong style="color:#e2e8f0">');
+    .replace(/<a /g, '<a style="color:#a54a2f;text-decoration:underline" ')
+    .replace(/<strong>/g, '<strong style="color:#2e2c26">');
 }
 
 export default function HomePage() {
   const rawBody = getHomeBody();
   const cleanedBody = cleanBody(rawBody);
 
-  const updateIdx = cleanedBody.indexOf('<h2 style="color:#f59e0b;font-size:1.2rem;font-weight:700;margin:24px 0 10px">January 2026 Update');
-  const introPart = updateIdx > 0 ? cleanedBody.substring(0, updateIdx) : cleanedBody;
+  // The raw body has its own "Contents of this site" list between the intro
+  // and the news update — we render that section ourselves below (deduped
+  // list + themed card), so it's cut out here rather than shown twice.
+  const contentsIdx = cleanedBody.indexOf('<h2 style="color:#3f5c4c;font-size:1.05rem;font-weight:700;margin:22px 0 10px">Contents of this');
+  const updateIdx = cleanedBody.indexOf('<h2 style="color:#3f5c4c;font-size:1.05rem;font-weight:700;margin:22px 0 10px">January 2026 Update');
+  const introPart = contentsIdx > 0 ? cleanedBody.substring(0, contentsIdx) : cleanedBody;
   const newsPart  = updateIdx > 0 ? cleanedBody.substring(updateIdx) : "";
 
   return (
-    <div style={{ color: "#e2e8f0", lineHeight: 1.7 }}>
-
-      {/* ── Hero Banner ── */}
+    <div>
+      {/* ── Hero ribbon ── */}
       <div style={{
         position: "relative",
-        width: "100%",
-        borderRadius: "12px",
         overflow: "hidden",
-        marginBottom: "28px",
-        minHeight: "180px",
-        background: "linear-gradient(135deg, #0a1f12 0%, #122a18 40%, #1a3a20 100%)",
+        background: "linear-gradient(160deg, #3f5c4c 0%, #34705D 55%, #2a5c4b 100%)",
+        borderRadius: "12px",
+        padding: "14px 22px",
+        marginBottom: "24px",
         display: "flex",
         alignItems: "center",
-        padding: "28px 32px",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-        border: "1px solid rgba(245,158,11,0.25)",
+        justifyContent: "space-between",
+        gap: "16px",
+        flexWrap: "wrap",
+        boxShadow: "0 4px 20px rgba(30,25,15,0.2)",
       }}>
-        {/* Background texture overlay */}
         <div style={{
           position: "absolute", inset: 0,
-          backgroundImage: "radial-gradient(circle at 70% 50%, rgba(245,158,11,0.08) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(52,211,153,0.05) 0%, transparent 50%)",
+          backgroundImage: "radial-gradient(circle at 78% 30%, rgba(193,89,58,0.16) 0%, transparent 45%)",
           pointerEvents: "none",
         }} />
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "700px" }}>
-          <div style={{ fontSize: "clamp(0.7rem,1.8vw,0.82rem)", color: "#f59e0b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "8px" }}>
-            🚐 Our RV Adventures — 1998 to Present
+        <div style={{ position: "relative" }}>
+          <div style={{ fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.09em", color: "#DAA795", fontWeight: 700, marginBottom: "2px" }}>
+            1998–2026
           </div>
           <h1 style={{
-            fontFamily: "var(--font-outfit), system-ui, sans-serif",
-            fontSize: "clamp(1.2rem,4vw,2rem)",
-            fontWeight: 800,
-            color: "#ffffff",
-            margin: "0 0 10px",
+            fontFamily: "var(--font-heading), Georgia, serif",
+            fontSize: "clamp(1.05rem, 3vw, 1.4rem)",
+            fontWeight: 700,
+            color: "#faf6ee",
+            margin: 0,
             lineHeight: 1.2,
-            letterSpacing: "-0.01em",
           }}>
-            Cross Country RV Road Trip Planner
+            20+ Summers on the Road
           </h1>
-          <p style={{ color: "#94a3b8", fontSize: "clamp(0.85rem,2vw,1rem)", margin: "0 0 16px", lineHeight: 1.6 }}>
-            20+ summers driving 114,000+ miles across the USA and Canada in our Lazy Daze motorhome.
-          </p>
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <Link href="/travel-itineraries" style={{
-              background: "linear-gradient(135deg,#d97706,#92400e)",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: "0.85rem",
-              padding: "9px 18px",
-              borderRadius: "8px",
-              textDecoration: "none",
-              display: "inline-block",
-              minHeight: "38px",
-              lineHeight: "20px",
-            }}>
-              Browse All Trips →
-            </Link>
-            <Link href="/photo-albums" style={{
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              color: "#e2e8f0",
-              fontWeight: 600,
-              fontSize: "0.85rem",
-              padding: "9px 18px",
-              borderRadius: "8px",
-              textDecoration: "none",
-              display: "inline-block",
-              minHeight: "38px",
-              lineHeight: "20px",
-            }}>
-              📸 Photo Albums
-            </Link>
-          </div>
         </div>
-        {/* Decorative emoji RV on right — hidden on very small screens via inline media-less trick */}
-        <div style={{
-          position: "absolute",
-          right: "5%",
-          top: "50%",
-          transform: "translateY(-50%)",
-          fontSize: "clamp(3rem,10vw,6.5rem)",
-          opacity: 0.12,
-          pointerEvents: "none",
-          userSelect: "none",
-        }} aria-hidden="true">🏕️</div>
-      </div>
-
-      {/* ── Stats strip ── */}
-      <div className="stats-grid-4" style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(4, 1fr)",
-        gap: "12px",
-        marginBottom: "28px",
-        textAlign: "center",
-      }}>
-        {[
-          { value: "114,000+", label: "Miles Traveled",    icon: "🛣️" },
-          { value: "49",       label: "US States",         icon: "🗺️" },
-          { value: "61",       label: "National Parks",    icon: "🏔" },
-          { value: "2,000+",   label: "Pages of Content",  icon: "📄" },
-        ].map(s => (
-          <div key={s.label} style={{
-            background: "rgba(10,25,18,0.85)",
-            borderRadius: "10px",
-            border: "1px solid rgba(245,158,11,0.25)",
-            padding: "12px 6px",
-            backdropFilter: "blur(8px)",
-          }}>
-            <div style={{ fontSize: "1.35rem", marginBottom: "2px" }}>{s.icon}</div>
-            <div style={{ color: "#f59e0b", fontWeight: 800, fontSize: "clamp(1rem,3vw,1.4rem)" }}>{s.value}</div>
-            <div style={{ color: "#64748b", fontSize: "0.72rem", marginTop: "2px" }}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Two-column body: Map Explorer | Content ── */}
-      <div className="home-grid" style={{
-        display: "grid",
-        gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)",
-        gap: "24px",
-        alignItems: "start",
-        marginBottom: "32px",
-      }}>
-
-        {/* LEFT: Interactive trip map */}
-        <TripMapExplorer />
-
-        {/* RIGHT: Intro + News */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <section style={{
-            background: "rgba(14,35,25,0.7)",
-            borderRadius: "12px",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderLeft: "4px solid #f59e0b",
-            padding: "18px 20px",
-            fontSize: "0.92rem",
-          }}>
-            <div dangerouslySetInnerHTML={{ __html: introPart }} />
-          </section>
-
-          {newsPart && (
-            <section style={{
-              background: "rgba(6,18,12,0.85)",
-              borderRadius: "12px",
-              border: "1px solid rgba(255,255,255,0.08)",
-              padding: "18px 20px",
-              fontSize: "0.9rem",
-              lineHeight: 1.85,
-              maxHeight: "520px",
-              overflowY: "auto",
-            }}>
-              <div dangerouslySetInnerHTML={{ __html: newsPart }} />
-            </section>
-          )}
+        <div style={{ position: "relative", display: "flex", gap: "22px", flexWrap: "wrap" }}>
+          {[
+            { v: "49", l: "States" },
+            { v: "61", l: "Parks" },
+            { v: "2,000+", l: "Pages" },
+          ].map(s => (
+            <div key={s.l} style={{ textAlign: "center" }}>
+              <div style={{ color: "#faf6ee", fontWeight: 800, fontSize: "1rem", fontFamily: "var(--font-heading), Georgia, serif" }}>{s.v}</div>
+              <div style={{ color: "rgba(250,246,238,0.65)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>{s.l}</div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* ── Site contents quick-links ── */}
-      <section style={{
-        padding: "18px 22px",
-        background: "#091711",
-        borderRadius: "12px",
-        border: "1px solid rgba(255,255,255,0.08)",
-      }}>
-        <h3 style={{ color: "#f59e0b", fontSize: "1rem", fontWeight: 700, margin: "0 0 12px" }}>
-          📚 Contents of this 2,000+ page site include:
-        </h3>
+      {/* ── Cross Country trip timeline ── */}
+      <CrossCountryTimeline />
+
+      <hr style={{ border: "none", borderTop: "1px solid rgba(90,74,50,0.15)", margin: "20px 0" }} />
+
+      {/* ── Intro ── */}
+      <div dangerouslySetInnerHTML={{ __html: introPart }} />
+
+      {/* ── Contents of site ── */}
+      <div className="glass-card" style={{ marginTop: "18px", overflow: "hidden" }}>
         <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          gap: "8px",
-          fontSize: "0.88rem",
-          color: "#cbd5e1",
+          background: "#3f5c4c", color: "#faf6ee", fontWeight: 700, fontSize: "0.78rem",
+          letterSpacing: "0.04em", textTransform: "uppercase", padding: "10px 16px",
         }}>
-          <div>• <Link href="/travel-itineraries" style={{ color: "#fff", fontWeight: 600 }}>Best Driving Routes &amp; Itineraries</Link> — stops &amp; mileages</div>
-          <div>• <Link href="/travel-itineraries" style={{ color: "#fff", fontWeight: 600 }}>Travelogues</Link> — personal experiences at each stop</div>
-          <div>• <Link href="/trip-stops-map"     style={{ color: "#fff", fontWeight: 600 }}>Overview Map</Link> — 809+ push-pin GPS stops</div>
-          <div>• Activities — hikes, mountain biking, fishing &amp; rafting</div>
-          <div>• <Link href="/photo-albums"        style={{ color: "#fff", fontWeight: 600 }}>Photographs</Link> — 85 collections of 35mm slides</div>
-          <div>• <Link href="/about-lolo-and-herb" style={{ color: "#fff", fontWeight: 600 }}>About Lolo &amp; Herb</Link> — our story &amp; the Lazy Daze</div>
-          <div>• <Link href="/activities/highlight" style={{ color: "#fff", fontWeight: 600 }}>Top Highlights</Link> — places not to be missed</div>
+          Contents of this 2,000+ page site
         </div>
-      </section>
+        <div style={{ padding: "14px 18px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "8px 20px", fontSize: "0.88rem", color: "#3d3a30" }}>
+          <div>• <Link href="/travel-itineraries" style={{ color: "#3f5c4c", fontWeight: 600 }}>Best Driving Routes &amp; Itineraries</Link> — stops &amp; mileages</div>
+          <div>• <Link href="/travel-itineraries" style={{ color: "#3f5c4c", fontWeight: 600 }}>Travelogues</Link> — personal experiences at each stop</div>
+          <div>• <Link href="/trip-stops-map" style={{ color: "#3f5c4c", fontWeight: 600 }}>Overview Map</Link> — 809+ push-pin GPS stops</div>
+          <div>• Activities — hikes, mountain biking, fishing &amp; rafting</div>
+          <div>• <Link href="/photo-albums" style={{ color: "#3f5c4c", fontWeight: 600 }}>Photographs</Link> — 85 collections of 35mm slides</div>
+          <div>• <Link href="/about-lolo-and-herb" style={{ color: "#3f5c4c", fontWeight: 600 }}>About Lolo &amp; Herb</Link> — our story &amp; the Lazy Daze</div>
+          <div>• <Link href="/activities/highlight" style={{ color: "#3f5c4c", fontWeight: 600 }}>Top Highlights</Link> — places not to be missed</div>
+        </div>
+      </div>
+
+      {/* ── News journal ── */}
+      {newsPart && (
+        <div style={{ marginTop: "20px" }} dangerouslySetInnerHTML={{ __html: newsPart }} />
+      )}
     </div>
   );
 }

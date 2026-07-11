@@ -17,13 +17,15 @@ export default function CrossCountryExplorer({ trips }) {
         </p>
       </div>
 
-      <div className="mx-3.5 rounded-md overflow-hidden relative" style={{ height: "220px" }}>
+      <div className="mx-3.5 rounded-md overflow-hidden relative" style={{ maxWidth: "450px", aspectRatio: "3 / 2" }}>
         {trip.gif ? (
           <img
             key={trip.gif}
             src={`/maps/${trip.gif}`}
             alt={`${trip.name} route map`}
-            className="w-full h-full object-cover"
+            width={450}
+            height={300}
+            className="w-full h-full object-contain bg-white"
           />
         ) : (
           <div

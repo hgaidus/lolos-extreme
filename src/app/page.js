@@ -78,12 +78,31 @@ function getHomeBody() {
   } catch { return ""; }
 }
 
-function cleanBody(html) {
+// Drupal's "line break converter" filter normally wraps blank-line-separated
+// plain text in <p> tags at render time, but the raw stored body field (what
+// we exported) never had that applied — it's just prose with blank lines
+// between paragraphs. Recreate that here so paragraph breaks survive.
+function autoParagraphs(html) {
   return html
-    .replace(/<li>\s*<strong>Tips<\/strong>[\s\S]*?<\/li>/i, "")
-    .replace(/href="internal:node\/(\d+)"/g, 'href="#"')
-    .replace(/href="internal:([^"]+)"/g, 'href="/$1"')
-    .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
+    .split(/\n\s*\n+/)
+    .map(block => {
+      const trimmed = block.trim();
+      if (!trimmed) return "";
+      if (/^<(h2|h3|ul|p|iframe|div)/i.test(trimmed)) return trimmed;
+      return `<p style="margin:0 0 14px;line-height:1.7">${trimmed}</p>`;
+    })
+    .join("\n");
+}
+
+function cleanBody(html) {
+  const withParagraphs = autoParagraphs(
+    html
+      .replace(/<li>\s*<strong>Tips<\/strong>[\s\S]*?<\/li>/i, "")
+      .replace(/href="internal:node\/(\d+)"/g, 'href="#"')
+      .replace(/href="internal:([^"]+)"/g, 'href="/$1"')
+      .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
+  );
+  return withParagraphs
     .replace(/<h2>/g, '<h2 style="color:#3f5c4c;font-size:1.05rem;font-weight:700;margin:22px 0 10px">')
     .replace(/<h3>/g, '<h3 style="color:#3f5c4c;font-size:0.95rem;font-weight:700;margin:16px 0 8px">')
     .replace(/<ul>/g, '<ul style="margin:0 0 12px 18px;line-height:1.8">')
@@ -111,7 +130,7 @@ export default function HomePage() {
         Cross Country RV Road Trip Planner
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[480px_1fr] gap-6 items-start">
         <CrossCountryExplorer trips={ccTrips} />
 
         <div>

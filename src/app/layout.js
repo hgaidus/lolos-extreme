@@ -62,7 +62,7 @@ export default function RootLayout({ children }) {
 
         {/* ── Classic Header Banner ── */}
         <header style={{
-          background: "linear-gradient(180deg, #3f5c4c 0%, #33493c 100%)",
+          background: "linear-gradient(180deg, #34705D 0%, #2a5c4b 100%)",
           borderBottom: "2px solid rgba(193,89,58,0.55)",
           padding: "16px 16px",
           textAlign: "center",
@@ -120,16 +120,16 @@ export default function RootLayout({ children }) {
           textAlign: "center",
           padding: "28px 16px",
           borderTop: "1px solid rgba(193,89,58,0.3)",
-          color: "#cfe0d3",
+          color: "#ffffff",
           fontSize: "0.82rem",
           marginTop: "48px",
-          background: "#33493c",
+          background: "#58B195",
         }}>
           <div style={{ maxWidth: "1380px", margin: "0 auto" }}>
             <p style={{ margin: 0 }}>
               Copyright © 1998–{new Date().getFullYear()}, Lorraine E. &amp; Herbert H. Gaidus — All Rights Reserved.
             </p>
-            <p style={{ margin: "6px 0 0", fontSize: "0.72rem", color: "#9fb6a2" }}>
+            <p style={{ margin: "6px 0 0", fontSize: "0.72rem", color: "rgba(255,255,255,0.75)" }}>
               Preserved &amp; modernized from Drupal 6 · Powered by Next.js
             </p>
           </div>

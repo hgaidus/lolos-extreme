@@ -534,7 +534,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                   {/* Drupal Green & White Striped Itinerary Table - ONLY ON TRIPS & STOPS */}
                   {(displayItem.itemType === 'trip' || displayItem.itemType === 'stop') && (
                     <div className="trip-sidebar-table-box">
-                      <div className="bg-[#3f5c4c] text-[#faf6ee] font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-[#c1593a]/30">
+                      <div className="bg-[#58B195] text-[#faf6ee] font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-[#c1593a]/30">
                         {currentTrip ? cleanTitle(currentTrip.title) : displayTitle} Itinerary
                       </div>
                       <div className="overflow-x-auto">

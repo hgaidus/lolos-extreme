@@ -87,12 +87,11 @@ export default function TopNav({ tripTitles = {} }) {
     <nav
       ref={navRef}
       style={{
-        background: "rgba(63,92,76,0.97)",
+        background: "#58B195",
         borderBottom: "2px solid #c1593a",
         position: "sticky",
         top: 0,
         zIndex: 200,
-        backdropFilter: "blur(8px)",
       }}
     >
       <div style={{

@@ -7,6 +7,13 @@ import { menuTrips } from '@/data/menuTrips';
 
 // Route-map GIFs only exist for the trips that had one in the original
 // Drupal theme; newer Cross Country trips fall back to a plain tile.
+//
+// "2015-herb-and-lolos-migration-west" deliberately has no entry: the only
+// "2015"-named file in the archive, cc2015b.gif, doesn't depict this trip's
+// actual New Jersey-to-California route (it's a short, unrelated CA/NV
+// squiggle with no numbered stops, unlike every other map here). The "b"
+// suffix with no "a" file present suggests the real map was lost from the
+// archive. Showing the wrong route would be worse than the fallback tile.
 const GIF_BY_HREF = {
   "/1999-cross-country-road-trip": "cc1999s.gif",
   "/2000-cross-country-road-trip": "cc2000s.gif",
@@ -18,7 +25,6 @@ const GIF_BY_HREF = {
   "/2009-cross-country-camping-trip": "cc20b9s.gif",
   "/2011-cross-country-road-trip": "cc2011s.gif",
   "/2013-cross-country-road-trip": "cc2013a.gif",
-  "/2015-herb-and-lolos-migration-west": "cc2015b.gif",
 };
 
 // Short editorial blurbs, one per trip — grounded in each trip's real stops,

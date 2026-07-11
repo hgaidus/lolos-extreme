@@ -36,14 +36,17 @@ export default function InteractiveTravelogue({
     
     // 1. First extract all img tags from HTML string in exact chronological story sequence
     if (htmlContent) {
-      const imgRegex = /<img\s+[^>]*src=["']([^"']+)["'][^>]*>/gi;
+      const imgRegex = /<img\s+[^>]*src=(["'])([^]*?)\1[^>]*>/gi;
       let match;
       while ((match = imgRegex.exec(htmlContent)) !== null) {
         const fullTag = match[0];
-        const src = match[1];
-        const mAlt = fullTag.match(/alt=["']([^"']*)["']/i);
-        const mTitle = fullTag.match(/title=["']([^"']*)["']/i);
-        const label = (mAlt && mAlt[1]) || (mTitle && mTitle[1]) || "";
+        const src = match[2];
+        // Backreference (\1) matches the same quote character that opened the
+        // attribute, so an apostrophe inside a double-quoted value (e.g.
+        // alt="There's nothing like old friends") no longer truncates the match.
+        const mAlt = fullTag.match(/alt=(["'])([^]*?)\1/i);
+        const mTitle = fullTag.match(/title=(["'])([^]*?)\1/i);
+        const label = (mAlt && mAlt[2]) || (mTitle && mTitle[2]) || "";
         
         const key = getNormalizeKey(src);
         if (!seenKeys.has(key) && src) {

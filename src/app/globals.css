@@ -581,7 +581,7 @@ table { word-break: break-word; }
 
   /* Header */
   header h1 { font-size: 1.35rem !important; }
-  header p, header div[style*="italic"] { font-size: 0.8rem !important; }
+  header p, header .site-tagline { font-size: 0.8rem !important; }
 
   /* Main padding */
   main { padding: 12px 10px !important; }

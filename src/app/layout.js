@@ -64,39 +64,48 @@ export default function RootLayout({ children }) {
         <header style={{
           background: "linear-gradient(180deg, #34705D 0%, #2a5c4b 100%)",
           borderBottom: "2px solid rgba(193,89,58,0.55)",
-          padding: "16px 16px",
-          textAlign: "center",
+          padding: "16px 20px",
           boxShadow: "0 4px 20px rgba(30,25,15,0.25)",
         }}>
-          <div style={{ maxWidth: "1380px", margin: "0 auto", padding: "0 8px" }}>
-            <Link href="/" style={{ textDecoration: "none", display: "inline-block" }}>
-              {/* RV icon + title */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
-                <span style={{ fontSize: "2rem", lineHeight: 1 }} aria-hidden="true">🚐</span>
-                <h1 style={{
-                  fontFamily: "var(--font-heading), Georgia, serif",
-                  fontSize: "clamp(1.2rem, 4vw, 2.1rem)",
-                  fontWeight: 700,
-                  color: "#faf6ee",
-                  letterSpacing: "0.3px",
-                  margin: 0,
-                  lineHeight: 1.2,
-                  textAlign: "left",
-                }}>
-                  Lolo&apos;s Extreme Cross Country RV Trips
-                </h1>
+          <Link href="/" style={{
+            maxWidth: "1380px",
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "20px",
+            textDecoration: "none",
+          }}>
+            <div>
+              <h1 style={{
+                fontFamily: "var(--font-inter), Helvetica, Arial, sans-serif",
+                fontSize: "clamp(1.2rem, 4vw, 2.1rem)",
+                fontWeight: 700,
+                color: "#faf6ee",
+                letterSpacing: "0.3px",
+                margin: 0,
+                lineHeight: 1.2,
+              }}>
+                Lolo&apos;s Extreme Cross Country RV Trips
+              </h1>
+              <div className="site-tagline" style={{
+                fontSize: "clamp(0.8rem, 2vw, 1.05rem)",
+                color: "#d1704f",
+                fontWeight: 700,
+                marginTop: "4px",
+                fontFamily: "var(--font-inter), Helvetica, Arial, sans-serif",
+              }}>
+                20+ summers of RV road trip travels across the USA and Canada
               </div>
-            </Link>
-            <div style={{
-              fontSize: "clamp(0.78rem, 2vw, 1rem)",
-              color: "#cfe0d3",
-              fontStyle: "italic",
-              marginTop: "4px",
-              fontFamily: "var(--font-heading), Georgia, serif",
-            }}>
-              20+ summers of RV road trip travels across the USA and Canada
             </div>
-          </div>
+            <img
+              src="/photos/logo.gif"
+              alt="Lolo's Extreme Cross Country RV Trips logo"
+              width="186"
+              height="100"
+              style={{ height: "clamp(44px, 9vw, 64px)", width: "auto", flexShrink: 0 }}
+            />
+          </Link>
         </header>
 
         {/* ── Sticky Navigation Bar ── */}

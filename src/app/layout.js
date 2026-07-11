@@ -90,7 +90,7 @@ export default function RootLayout({ children }) {
               </h1>
               <div className="site-tagline" style={{
                 fontSize: "clamp(0.8rem, 2vw, 1.05rem)",
-                color: "#d1704f",
+                color: "#DAA795",
                 fontWeight: 700,
                 marginTop: "4px",
                 fontFamily: "var(--font-inter), Helvetica, Arial, sans-serif",

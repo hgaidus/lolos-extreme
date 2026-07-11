@@ -64,7 +64,7 @@ export default function RootLayout({ children }) {
         <header style={{
           background: "linear-gradient(180deg, #34705D 0%, #2a5c4b 100%)",
           borderBottom: "2px solid rgba(193,89,58,0.55)",
-          padding: "16px 20px",
+          padding: "12px 20px",
           boxShadow: "0 4px 20px rgba(30,25,15,0.25)",
         }}>
           <Link href="/" style={{
@@ -92,7 +92,7 @@ export default function RootLayout({ children }) {
                 fontSize: "clamp(0.8rem, 2vw, 1.05rem)",
                 color: "#DAA795",
                 fontWeight: 700,
-                marginTop: "4px",
+                marginTop: "3px",
                 fontFamily: "var(--font-inter), Helvetica, Arial, sans-serif",
               }}>
                 20+ summers of RV road trip travels across the USA and Canada
@@ -103,7 +103,7 @@ export default function RootLayout({ children }) {
               alt="Lolo's Extreme Cross Country RV Trips logo"
               width="186"
               height="100"
-              style={{ height: "clamp(44px, 9vw, 64px)", width: "auto", flexShrink: 0 }}
+              style={{ height: "clamp(44px, 9vw, 70px)", width: "auto", flexShrink: 0 }}
             />
           </Link>
         </header>

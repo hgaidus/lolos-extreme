@@ -70,7 +70,7 @@ export default function TopNav({ tripTitles = {} }) {
     display: "flex",
     alignItems: "center",
     gap: "4px",
-    padding: "10px 12px",
+    padding: "7px 12px",
     color: "#fff",
     fontWeight: 600,
     fontSize: "0.92rem",
@@ -79,7 +79,7 @@ export default function TopNav({ tripTitles = {} }) {
     background: "none",
     border: "none",
     borderRadius: "4px",
-    minHeight: "44px",
+    minHeight: "36px",
     whiteSpace: "nowrap",
   };
 
@@ -101,7 +101,7 @@ export default function TopNav({ tripTitles = {} }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        minHeight: "48px",
+        minHeight: "40px",
       }}>
 
         {/* Mobile: site name + hamburger */}

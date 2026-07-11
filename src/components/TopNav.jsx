@@ -193,7 +193,6 @@ export default function TopNav({ tripTitles = {} }) {
           <li><Link href="/trip-stops-map" onClick={close} style={navLinkStyle}>Map</Link></li>
           <li><Link href="/search"         onClick={close} style={navLinkStyle}>Search</Link></li>
           <li><Link href="/contact-us"     onClick={close} style={navLinkStyle}>Contact</Link></li>
-          <li><Link href="/admin"          onClick={close} style={{ ...navLinkStyle, color: "#d1704f" }}>CMS Admin</Link></li>
         </ul>
       </div>
 

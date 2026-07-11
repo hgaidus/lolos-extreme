@@ -5,15 +5,15 @@ import CrossCountryExplorer from '@/components/CrossCountryExplorer';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { menuTrips } from '@/data/menuTrips';
 
-// Route-map GIFs only exist for the trips that had one in the original
-// Drupal theme; newer Cross Country trips fall back to a plain tile.
-//
-// "2015-herb-and-lolos-migration-west" deliberately has no entry: the only
-// "2015"-named file in the archive, cc2015b.gif, doesn't depict this trip's
-// actual New Jersey-to-California route (it's a short, unrelated CA/NV
-// squiggle with no numbered stops, unlike every other map here). The "b"
-// suffix with no "a" file present suggests the real map was lost from the
-// archive. Showing the wrong route would be worse than the fallback tile.
+// Route-map GIFs for each trip. Most were already in the exported archive
+// under their original Drupal filenames. The three newest trips (2015
+// Migration West, 2015 Solo Motorcycle, 2016 Boat West) turned out to have
+// real maps too, but under different filenames/paths than the rest
+// (sites/default/files/images/6k or 8k, not the flat maps/ folder) — found
+// by checking the still-live original site directly and pulling the correct
+// files from the Drupal export, copied into public/maps/ under clearer
+// names. (cc2015b.gif, previously guessed for Migration West, was wrong —
+// it belongs to an unrelated trip and showed a completely different route.)
 const GIF_BY_HREF = {
   "/1999-cross-country-road-trip": "cc1999s.gif",
   "/2000-cross-country-road-trip": "cc2000s.gif",
@@ -25,6 +25,9 @@ const GIF_BY_HREF = {
   "/2009-cross-country-camping-trip": "cc20b9s.gif",
   "/2011-cross-country-road-trip": "cc2011s.gif",
   "/2013-cross-country-road-trip": "cc2013a.gif",
+  "/2015-herb-and-lolos-migration-west": "cc2015d.gif",
+  "/2015-solo-cross-country-motorcycle-trip": "2015-solo-motorcycle.gif",
+  "/2016-bringing-boat-west": "cc2016c.gif",
 };
 
 // Short editorial blurbs, one per trip — grounded in each trip's real stops,

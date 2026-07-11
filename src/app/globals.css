@@ -81,16 +81,15 @@
 
   --border-gold: rgba(193, 89, 58, 0.35);
   --border-light: rgba(90, 74, 50, 0.16);
+  --border-card: #e4dcc8;
 }
 
-/* Glassmorphism Panel Utilities */
+/* Crisp Editorial Card Utilities — solid white, no blur, warm hairline border */
 .glass-panel {
-  background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-light);
+  background: #ffffff;
+  border: 1px solid var(--border-card);
   border-radius: 12px;
-  box-shadow: 0 8px 28px 0 rgba(62, 50, 30, 0.10);
+  box-shadow: 0 2px 8px rgba(40, 30, 15, 0.06);
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
@@ -98,14 +97,12 @@
   border-color: var(--border-gold);
 }
 
-/* Enhanced Glass Sidebars & Cards */
+/* Content Sidebars & Cards */
 .glass-sidebar {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(193, 89, 58, 0.22);
+  background: #ffffff;
+  border: 1px solid var(--border-card);
   border-radius: 12px;
-  box-shadow: 0 10px 30px 0 rgba(62, 50, 30, 0.12);
+  box-shadow: 0 2px 8px rgba(40, 30, 15, 0.06);
   transition: all 0.25s ease;
 }
 
@@ -114,18 +111,18 @@
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(62, 50, 30, 0.08);
-  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(40, 30, 15, 0.06);
   transition: all 0.2s ease;
 }
 
 .glass-card:hover {
-  background: rgba(255, 255, 255, 0.94);
+  background: #fffdf9;
   border-color: rgba(193, 89, 58, 0.35);
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(62, 50, 30, 0.14);
+  box-shadow: 0 4px 14px rgba(40, 30, 15, 0.08);
 }
 
 /* Classic Button Accents */

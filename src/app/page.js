@@ -157,6 +157,7 @@ export default function HomePage() {
             <div>&bull; <Link href="/activities/hike" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-semibold">Activities</Link> &mdash; hikes, mountain biking, fishing &amp; rafting</div>
             <div>&bull; <Link href="/photo-albums" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-semibold">Photographs</Link> &mdash; photo albums from each trip</div>
             <div>&bull; <Link href="/about-lolo-and-herb" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-semibold">About Lolo &amp; Herb</Link> &mdash; our story &amp; the Lazy Daze</div>
+            <div>&bull; <Link href="/motorhome-rentals" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-semibold">Motorhome Rentals</Link> &mdash; tips on renting an RV</div>
           </div>
 
           <hr style={{ border: "none", borderTop: "1px solid rgba(90,74,50,0.15)", margin: "18px 0" }} />

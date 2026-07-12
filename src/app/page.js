@@ -112,8 +112,8 @@ function cleanBody(html) {
       .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
   );
   return withParagraphs
-    .replace(/<h2>/g, '<h2 style="color:#3f5c4c;font-size:1.05rem;font-weight:700;margin:22px 0 10px">')
-    .replace(/<h3>/g, '<h3 style="color:#3f5c4c;font-size:0.95rem;font-weight:700;margin:16px 0 8px">')
+    .replace(/<h2>/g, '<h2 style="color:#c1593a;font-size:1.05rem;font-weight:700;margin:22px 0 10px">')
+    .replace(/<h3>/g, '<h3 style="color:#c1593a;font-size:0.95rem;font-weight:700;margin:16px 0 8px">')
     .replace(/<ul>/g, '<ul style="margin:0 0 12px 18px;line-height:1.8">')
     .replace(/<li>/g, '<li style="margin-bottom:4px">')
     .replace(/<strong>/g, '<strong style="color:#2e2c26">');
@@ -131,8 +131,8 @@ export default function HomePage() {
   // The raw body has its own "Contents of this site" list between the intro
   // and the news update — we render that section ourselves below (deduped
   // list, no Index item), so it's cut out here rather than shown twice.
-  const contentsIdx = cleanedBody.indexOf('<h2 style="color:#3f5c4c;font-size:1.05rem;font-weight:700;margin:22px 0 10px">Contents of this');
-  const updateIdx = cleanedBody.indexOf('<h2 style="color:#3f5c4c;font-size:1.05rem;font-weight:700;margin:22px 0 10px">January 2026 Update');
+  const contentsIdx = cleanedBody.indexOf('<h2 style="color:#c1593a;font-size:1.05rem;font-weight:700;margin:22px 0 10px">Contents of this');
+  const updateIdx = cleanedBody.indexOf('<h2 style="color:#c1593a;font-size:1.05rem;font-weight:700;margin:22px 0 10px">January 2026 Update');
   const introPart = contentsIdx > 0 ? cleanedBody.substring(0, contentsIdx) : cleanedBody;
   const newsPart  = updateIdx > 0 ? cleanedBody.substring(updateIdx) : "";
 
@@ -148,7 +148,7 @@ export default function HomePage() {
         <div>
           <div dangerouslySetInnerHTML={{ __html: introPart }} />
 
-          <h2 style={{ color: "#3f5c4c", fontSize: "1.05rem", fontWeight: 700, margin: "20px 0 10px" }}>
+          <h2 style={{ color: "#c1593a", fontSize: "1.05rem", fontWeight: 700, margin: "20px 0 10px" }}>
             Contents of this 2,000+ page site include&hellip;
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5 text-sm mb-2" style={{ color: "#3d3a30" }}>

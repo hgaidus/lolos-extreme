@@ -175,11 +175,11 @@ export default function TopNav({ tripTitles = {} }) {
                   onMouseLeave={leave}
                 >
                   {m.top && (
-                    <li><Link href={m.top.href} onClick={close} style={{ ...linkStyle, color: "#c1593a", fontWeight: 700 }}>{m.top.label}</Link></li>
+                    <li><Link href={m.top.href} onClick={close} className="nav-dropdown-link" style={{ ...linkStyle, color: "#c1593a", fontWeight: 700 }}>{m.top.label}</Link></li>
                   )}
                   {m.items.map((item, i) => (
                     <li key={i}>
-                      <Link href={item.href} onClick={close} title={item.hover || tripTitles[item.href.replace(/^\//, "")] || item.title} style={linkStyle}>
+                      <Link href={item.href} onClick={close} title={item.hover || tripTitles[item.href.replace(/^\//, "")] || item.title} className="nav-dropdown-link" style={linkStyle}>
                         {item.title}
                       </Link>
                     </li>
@@ -252,7 +252,7 @@ export default function TopNav({ tripTitles = {} }) {
               {mobileExpanded === m.key && (
                 <div style={{ background: "#2b3d31" }}>
                   {m.top && (
-                    <Link href={m.top.href} onClick={close} style={{
+                    <Link href={m.top.href} onClick={close} className="nav-mobile-link" style={{
                       display: "block",
                       padding: "12px 28px",
                       color: "#d1704f",
@@ -266,7 +266,7 @@ export default function TopNav({ tripTitles = {} }) {
                     </Link>
                   )}
                   {m.items.map((item, i) => (
-                    <Link key={i} href={item.href} onClick={close} title={item.hover || tripTitles[item.href.replace(/^\//, "")] || item.title} style={{
+                    <Link key={i} href={item.href} onClick={close} title={item.hover || tripTitles[item.href.replace(/^\//, "")] || item.title} className="nav-mobile-link" style={{
                       display: "block",
                       padding: "12px 28px",
                       color: "#d7e3d9",
@@ -309,6 +309,14 @@ export default function TopNav({ tripTitles = {} }) {
 
       {/* Responsive visibility styles */}
       <style>{`
+        .nav-dropdown-link:hover {
+          background-color: rgba(193, 89, 58, 0.12) !important;
+          color: #c1593a !important;
+        }
+        .nav-mobile-link:hover {
+          background-color: rgba(255, 255, 255, 0.08) !important;
+          color: #ffffff !important;
+        }
         @media (max-width: 900px) {
           .desktop-nav { display: none !important; }
           .hamburger-btn { display: flex !important; }

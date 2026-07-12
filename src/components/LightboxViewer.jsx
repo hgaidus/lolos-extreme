@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import SlideCard from './SlideCard';
 
 export default function LightboxViewer({ photos = [], albumTitle = "Photo Gallery", use35mmSlides = true }) {
@@ -268,6 +269,16 @@ export default function LightboxViewer({ photos = [], albumTitle = "Photo Galler
                 <div style={{ fontSize: "0.8rem", color: "#666666", fontWeight: "500" }}>
                   Image {selectedIndex + 1} of {photos.length}
                 </div>
+                {currentPhoto.stopSlug && (
+                  <Link
+                    href={`/${currentPhoto.stopSlug}`}
+                    style={{ display: "inline-block", marginTop: "6px", fontSize: "0.8rem", fontWeight: "600", color: "#3f5c4c" }}
+                    onMouseOver={(e) => (e.currentTarget.style.color = "#c1593a")}
+                    onMouseOut={(e) => (e.currentTarget.style.color = "#3f5c4c")}
+                  >
+                    Go to Trip Stop{currentPhoto.stopTitle ? `: ${currentPhoto.stopTitle}` : ""} &rarr;
+                  </Link>
+                )}
               </div>
 
               <button

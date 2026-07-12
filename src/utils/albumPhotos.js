@@ -11,6 +11,7 @@ function loadData() {
   try {
     const albumsObj = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "albums.json"), "utf-8"));
     const titlesObj = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "photo_titles.json"), "utf-8"));
+    const stopsObj = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
 
     const albums = (Array.isArray(albumsObj) ? albumsObj : Object.values(albumsObj)).map(a => ({
       ...a,
@@ -20,19 +21,37 @@ function loadData() {
       ...t,
       title: unescapeDrupalText(t.title)
     }));
+    const stops = Array.isArray(stopsObj) ? stopsObj : Object.values(stopsObj);
+
+    const stopByNid = new Map(stops.map(s => [String(s.nid), s]));
+    const stopNidByImageNid = new Map(titles.map(t => [String(t.image_nid), t.trip_stop_nid]));
 
     cachedData = {
       albumsObj: albums,
-      titlesObj: titles
+      titlesObj: titles,
+      stopByNid,
+      stopNidByImageNid
     };
   } catch (err) {
     console.error("Error loading photo album dataset:", err);
     cachedData = {
       albumsObj: [],
-      titlesObj: []
+      titlesObj: [],
+      stopByNid: new Map(),
+      stopNidByImageNid: new Map()
     };
   }
   return cachedData;
+}
+
+// Given an image's nid and/or a directly-known trip_stop_nid, resolve the
+// trip stop it was taken at (if any) so the lightbox can link back to it.
+function resolveStop(imageNid, tripStopNid) {
+  const { stopByNid, stopNidByImageNid } = loadData();
+  const nid = tripStopNid || (imageNid ? stopNidByImageNid.get(String(imageNid)) : null);
+  if (!nid) return null;
+  const stop = stopByNid.get(String(nid));
+  return stop ? { stopSlug: stop.slug, stopTitle: stop.title } : null;
 }
 
 function getYearFromTitle(title) {
@@ -88,7 +107,8 @@ export function getPhotosForAlbum(albumOrSlug) {
         url: img.url.startsWith('/') ? img.url : `/photos/${img.filename || img.url}`,
         title: img.title || `${album.title} Slide #${idx + 1}`,
         filename: img.filename,
-        image_nid: img.image_nid
+        image_nid: img.image_nid,
+        ...resolveStop(img.image_nid, null)
       }));
   }
 
@@ -114,7 +134,8 @@ export function getPhotosForAlbum(albumOrSlug) {
     .filter(t => t.filename && photoFileExists(t.filename))
     .map((t, idx) => ({
       url: `/photos/${t.filename}`,
-      title: t.title || `${query} Slide #${idx + 1}`
+      title: t.title || `${query} Slide #${idx + 1}`,
+      ...resolveStop(t.image_nid, t.trip_stop_nid)
     }));
 }
 

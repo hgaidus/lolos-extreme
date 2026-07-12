@@ -184,7 +184,7 @@ const TRIP_MAP_BY_SLUG = {
   "2025-marthas-vineyard-vermont": "/photos/4k/cc2008.gif",
   "2025-utah-roading": "/photos/8k/2023-9-9-UtahOffRoad.gif",
   "2025-burning-man": "/photos/8k/cc2017b.gif",
-  "2026-carmel": null,
+  "2026-carmel": "/photos/8k/2021-Carmel.gif",
 };
 
 function getTripMapUrl(trip) {

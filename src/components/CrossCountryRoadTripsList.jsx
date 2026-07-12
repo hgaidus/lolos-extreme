@@ -32,7 +32,7 @@ function getAllTrips(region) {
 
 export default function CrossCountryRoadTripsList({ region }) {
   const trips = getAllTrips(region);
-  const info = (region && REGION_INFO[region]) || REGION_INFO.crossCountry;
+  const info = (region && REGION_INFO[region]) || { label: "All Trips", href: "/travel-itineraries" };
 
   return (
     <div className="w-full max-w-4xl mx-auto min-w-0 py-6 px-4 sm:px-6 font-sans">

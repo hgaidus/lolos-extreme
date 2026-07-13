@@ -1,16 +1,73 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+
+const AUTO_ADVANCE_MS = 5000;
 
 export default function CrossCountryExplorer({ trips }) {
   const [idx, setIdx] = useState(trips.length - 1);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [hovered, setHovered] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const trip = trips[idx];
 
+  // Respect the OS/browser-level "reduce motion" preference — never
+  // auto-cycle for users who've asked for less on-screen movement.
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // Also pause while the tab is in the background, so nobody comes back
+  // to a map that's jumped years ahead while they were away.
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    const handler = () => setHidden(document.hidden);
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, []);
+
+  const paused = !autoPlay || hovered || reducedMotion || hidden;
+
+  // A plain setTimeout (re-armed whenever idx changes) rather than
+  // setInterval, so manually picking a year gives a full fresh interval
+  // before it advances again instead of jumping right away.
+  useEffect(() => {
+    if (paused) return;
+    const t = setTimeout(() => {
+      setIdx((i) => (i + 1) % trips.length);
+    }, AUTO_ADVANCE_MS);
+    return () => clearTimeout(t);
+  }, [idx, paused, trips.length]);
+
   return (
-    <div className="glass-card lg:sticky lg:top-4 overflow-hidden">
+    <div
+      className="glass-card lg:sticky lg:top-4 overflow-hidden"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
       <div className="px-3.5 pt-3.5">
-        <div className="text-[0.62rem] uppercase tracking-wide text-[#8a8272] font-bold">1999–2016</div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-[0.62rem] uppercase tracking-wide text-[#8a8272] font-bold">1999–2016</div>
+          {!reducedMotion && (
+            <button
+              type="button"
+              onClick={() => setAutoPlay((p) => !p)}
+              aria-label={autoPlay ? "Pause year auto-advance" : "Resume year auto-advance"}
+              title={autoPlay ? "Pause auto-advance" : "Resume auto-advance"}
+              className="text-[0.62rem] font-bold rounded-full px-2 py-0.5 border cursor-pointer flex items-center gap-1"
+              style={{ color: "#8a8272", borderColor: "rgba(90,74,50,0.14)", background: "rgba(0,0,0,0.03)" }}
+            >
+              {autoPlay ? "⏸" : "▶"} {autoPlay ? "Auto" : "Paused"}
+            </button>
+          )}
+        </div>
         <div className="font-serif text-[0.98rem] text-[#2e2c26] mt-0.5 mb-1.5">Cross Country Trip Archive</div>
         <p className="text-[0.72rem] text-[#6b6656] leading-relaxed mb-2.5">
           Our last full cross-country run was in 2016 &ndash; these days we stay closer to home. But if you&apos;re mapping out your own trip across the country, these routes are still a solid place to start.

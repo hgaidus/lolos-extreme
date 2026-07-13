@@ -252,7 +252,7 @@ export default function HomePage() {
   return (
     <div>
       <h1 className="font-serif text-[1.5rem] mb-4" style={{ color: "#2e2c26" }}>
-        Cross Country RV Road Trip Planner
+        Cross Country Road Trip Planner
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-[480px_1fr] gap-6 items-start">

@@ -21,6 +21,14 @@ export async function GET(request, { params }) {
       path.join(FILES_DIR, "images", "7k"),
       path.join(FILES_DIR, "images", "8k"),
       path.join(FILES_DIR, "images-old"),
+      path.join(FILES_DIR, "images-old", "1k"),
+      path.join(FILES_DIR, "images-old", "2k"),
+      path.join(FILES_DIR, "images-old", "3k"),
+      path.join(FILES_DIR, "images-old", "4k"),
+      path.join(FILES_DIR, "images-old", "5k"),
+      path.join(FILES_DIR, "images-old", "6k"),
+      path.join(FILES_DIR, "images-old", "7k"),
+      path.join(FILES_DIR, "images-old", "8k"),
       FILES_DIR
     ];
 

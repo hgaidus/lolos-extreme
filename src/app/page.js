@@ -31,21 +31,133 @@ const GIF_BY_HREF = {
 };
 
 // Short editorial blurbs, one per trip — grounded in each trip's real stops,
-// not auto-generated. Maintained by hand alongside menuTrips.js.
+// not auto-generated. Maintained by hand alongside menuTrips.js. Cross-checked
+// against stops.json for accuracy (a few parks named in earlier drafts of
+// this copy — e.g. Olympic, North Cascades, Glacier, and Theodore Roosevelt
+// for 2013 — turned out not to be on that trip's actual stop list, so those
+// were corrected here).
 const TEASER_BY_HREF = {
-  "/1999-cross-country-road-trip": "Our maiden voyage, and the trip that started it all. Los Angeles to New York by way of Las Vegas, Hoover Dam, Lake Mead, Zion, the Grand Canyon's North Rim, and Bryce Canyon. We had no idea yet that this would become an annual tradition – by the time we got home we were already planning next year's route.",
-  "/2000-cross-country-road-trip": "A sweep through the upper Midwest and northern plains: Sleeping Bear Dunes, Mackinac Island, Pictured Rocks, and Apostle Islands National Lakeshores, then west into the Dakotas. More lakeshore stops than any other cross-country trip we've run.",
-  "/2001-cross-country-road-trip": "Our longest cross-country trip by mileage. Rocky Mountain National Park anchored the outbound leg, with Dinosaur National Monument, Flaming Gorge, Zion, Bryce, and the Grand Canyon's South Rim on the way to a finish at Olympic National Park on the Washington coast.",
-  "/2002-cross-country-road-trip": "A trip through the Deep South and Southwest: Mammoth Cave, the Natchez Trace Parkway, Vicksburg, and on to Carlsbad Caverns, White Sands, Big Bend, and Saguaro. The longest itinerary of any of our cross-country trips.",
-  "/2003-cross-country-road-trip": "A trip built entirely around Utah's red rock country: Flaming Gorge, Bryce Canyon, Cedar Breaks, and Zion, with stops at Kodachrome Basin and Moab in between. If you only have three weeks and want maximum scenery per mile driven, this is close to the ideal Utah loop.",
-  "/2005-cross-country-road-trip": "Cuyahoga Valley National Park on the way out, then Colorado's Garden of the Gods, Black Canyon of the Gunnison, Mesa Verde, Arches, and Canyonlands, with a stop in Telluride and a night in Moab.",
-  "/2007-cross-country-road-trip": "Goblin Valley and Capitol Reef set up a run through Lake Mead and Death Valley before a grand finale in Sequoia and Yosemite. Death Valley ran hotter than we expected even for a summer trip – worth checking the forecast if you're following this route.",
-  "/2009-cross-country-camping-trip": "A trip to celebrate the boys' graduations: Indiana Dunes, Badlands, the Beartooth Highway, and Yellowstone and Grand Teton back-to-back – one of the best wildlife-watching stretches of any trip we've taken.",
-  "/2011-cross-country-road-trip": "A trip centered on Colorado's Front Range: Boulder, Golden Gate Canyon State Park, Rocky Mountain National Park, and the Peak to Peak Highway, with Tommy showing us around Boulder where he was living at the time.",
-  "/2013-cross-country-road-trip": "Our last cross-country trip together before the boys were off on their own: Rocky Mountain, Mount Rainier, Crater Lake, Olympic, North Cascades, Glacier, and Theodore Roosevelt National Parks. Seven parks in one trip is more than we'd usually attempt, but we wanted to make it count.",
-  "/2015-solo-cross-country-motorcycle-trip": "A different kind of cross-country trip – just Herb, solo, on two wheels. Skyline Drive, the Blue Ridge Parkway, the Great Smoky Mountains, and Cades Cove, before heading west across the rest of the country.",
-  "/2015-herb-and-lolos-migration-west": "The trip that moved us out to the West Coast for good – nine days, seven stops, and not much sightseeing along the way. Practical business, not a vacation: this is the trip that ended our cross-country era and started our West Coast one.",
-  "/2016-bringing-boat-west": "Towing the boat trailer behind the Suburban, retracing much of our old cross-country route from New Jersey through the Midwest to the Southwest. Our last full cross-country drive – after this one, our trips shifted to flying out and renting or already having a vehicle in place.",
+  "/1999-cross-country-road-trip": "Our maiden voyage, and the trip that started it all. Las Vegas to New Jersey by way of Hoover Dam and Lake Mead, then five National Parks through Utah and Arizona's canyon country – Zion, the Grand Canyon's North Rim, Bryce Canyon, Arches, and Canyonlands – with a stop at Mesa Verde's cliff dwellings before the long drive home across Kansas and Ohio. We had no idea yet that this would become an annual tradition – by the time we got home we were already planning next year's route.",
+  "/2000-cross-country-road-trip": "A sweep through the upper Midwest that turned into something much bigger: Sleeping Bear Dunes, Mackinac Island, and Pictured Rocks National Lakeshores, then all the way out to Waterton-Glacier, Yellowstone, and Grand Teton before looping back through Mount Rushmore and the Badlands. More National Lakeshores and National Parks than any other cross-country trip we've run, and our first real taste of Montana and Wyoming.",
+  "/2001-cross-country-road-trip": "Our longest cross-country trip by mileage. Rocky Mountain National Park anchored the outbound leg, with Dinosaur National Monument and Flaming Gorge on the way to a finish at Mount Rainier and Olympic National Park on the Washington coast. From there we crossed into Canada for Banff, Mt. Revelstoke, and Jasper National Parks along the Icefields Parkway, then looped home through the Canadian prairies and Minnesota.",
+  "/2002-cross-country-road-trip": "A trip through the Deep South and Southwest: Mammoth Cave, the Natchez Trace Parkway, and Vicksburg, then on to Carlsbad Caverns, White Sands, and Guadalupe Mountains, with a swing through Navajo Land at Monument Valley and Four Corners. The longest itinerary of any of our cross-country trips, with detours through Santa Fe, Sedona, and the Grand Canyon's South Rim on the way back east.",
+  "/2003-cross-country-road-trip": "A trip built entirely around Utah's red rock country: Flaming Gorge, Bryce Canyon, and Cedar Breaks, with stops at Kodachrome Basin, Lake Powell, and Arches in between. If you only have three weeks and want maximum scenery per mile driven, this is close to the ideal Utah loop – four National Parks and monuments without ever leaving the state's southern half.",
+  "/2005-cross-country-road-trip": "Cuyahoga Valley National Park on the way out, then Colorado's Garden of the Gods and Black Canyon of the Gunnison, followed by a run through Utah's Natural Bridges, Capitol Reef, and Arches, with stops in Ouray, Vail, and a night in Moab. We closed the loop with the Gateway Arch in St. Louis and Frank Lloyd Wright's Fallingwater in Pennsylvania.",
+  "/2007-cross-country-road-trip": "Goblin Valley and Capitol Reef set up a run through Lake Mead and Death Valley before a grand finale in Yosemite Valley. Death Valley ran hotter than we expected even for a summer trip – worth checking the forecast if you're following this route – and we closed the loop with a stop at the underrated Great Basin National Park in eastern Nevada.",
+  "/2009-cross-country-camping-trip": "A trip to celebrate the boys' graduations: Indiana Dunes, Badlands, the Beartooth Highway, and Yellowstone and Grand Teton back-to-back – one of the best wildlife-watching stretches of any trip we've taken. We finished with a run through Bryce Canyon, the Grand Canyon's South Rim, Monument Valley, and Arches on the way home.",
+  "/2011-cross-country-road-trip": "A trip centered on Colorado's Front Range: Boulder, Golden Gate Canyon State Park, Rocky Mountain National Park, and the Peak to Peak Highway, with Tommy showing us around Boulder where he was living at the time. A shorter, more relaxed itinerary than most of our cross-country runs – one region explored in real depth rather than a sprint coast to coast.",
+  "/2013-cross-country-road-trip": "Our last cross-country trip together before the boys were off on their own – one to start a new job in Seattle, the other in San Francisco. Rocky Mountain National Park anchored the outbound leg, with Mount Rainier, Crater Lake, and the Redwoods on the way to drop-offs on both ends of the West Coast. Towing a car behind the RV for the first time in 15 years of travel, our little caravan stretched over 60 feet long.",
+  "/2015-solo-cross-country-motorcycle-trip": "A different kind of cross-country trip – just Herb, solo, on two wheels. Skyline Drive, the Blue Ridge Parkway, the Great Smoky Mountains, and Cades Cove through the Appalachians, then Route 66 and I-40 west through Oklahoma, New Mexico, and Arizona to Las Vegas and Death Valley. The last leg climbed into the Eastern Sierra at June Lake before dropping into Sacramento and finishing at the Bay.",
+  "/2015-herb-and-lolos-migration-west": "The trip that moved us out to the West Coast for good – nine days, seven stops, and not much sightseeing along the way. We drove the I-80 corridor practically nonstop to beat our moving truck to storage in Santa Rosa, with just enough time to climb a wall in Iowa, tour Temple Square in Salt Lake City, and gawk at the Bonneville Salt Flats along the way. Practical business, not a vacation: this is the trip that ended our cross-country era and started our West Coast one.",
+  "/2016-bringing-boat-west": "Towing the boat trailer behind the Suburban, retracing much of our old cross-country route from New Jersey through the Midwest to the Southwest, with a stop at Petrified Forest National Park and Lake Mead before the boat's new home in Northern California. Our last full cross-country drive – after this one, our trips shifted to flying out and renting or already having a vehicle in place.",
+};
+
+// Real named highlights per trip, pulled from stops.json (National Parks,
+// monuments, and other landmark stops) — used for the bulleted highlights
+// list in the homepage explorer, and doubles as keyword-rich, crawlable
+// content for search. Each links to that stop's own page (slug taken
+// directly from stops.json, not guessed), so a couple of labels below use
+// friendlier text than the underlying stop's own title.
+const HIGHLIGHTS_BY_HREF = {
+  "/1999-cross-country-road-trip": [
+    { label: "Hoover Dam", slug: "hoover-dam" },
+    { label: "Zion National Park", slug: "zion-national-park" },
+    { label: "Grand Canyon National Park (North Rim)", slug: "grand-canyon-north-rim" },
+    { label: "Bryce Canyon National Park", slug: "bryce-canyon-national-park" },
+    { label: "Arches National Park", slug: "arches-national-park" },
+    { label: "Canyonlands National Park", slug: "canyonlands-national-park" },
+    { label: "Mesa Verde National Park", slug: "mesa-verde-national-park" },
+  ],
+  "/2000-cross-country-road-trip": [
+    { label: "Sleeping Bear Dunes National Lakeshore", slug: "sleeping-bear-dunes-national-lakeshore" },
+    { label: "Mackinac Island", slug: "mackinac-island" },
+    { label: "Waterton-Glacier National Park", slug: "waterton-glacier-national-park" },
+    { label: "Yellowstone National Park", slug: "yellowstone-national-park" },
+    { label: "Grand Teton National Park", slug: "grand-teton-national-park-0" },
+    { label: "Mount Rushmore", slug: "mount-rushmore" },
+    { label: "Badlands National Park", slug: "badlands-national-park" },
+  ],
+  "/2001-cross-country-road-trip": [
+    { label: "Rocky Mountain National Park", slug: "rocky-mountain-national-park" },
+    { label: "Dinosaur National Monument", slug: "dinosaur-national-monument" },
+    { label: "Flaming Gorge National Recreation Area", slug: "flaming-gorge-national-recreation-area" },
+    { label: "Mount Rainier National Park", slug: "mount-rainier-national-park" },
+    { label: "Olympic National Park", slug: "olympic-national-park" },
+    { label: "Banff National Park", slug: "banff-national-park" },
+    { label: "Jasper National Park", slug: "jasper-national-park" },
+  ],
+  "/2002-cross-country-road-trip": [
+    { label: "Mammoth Cave", slug: "mammoth-cave" },
+    { label: "Carlsbad Caverns", slug: "carlsbad-caverns" },
+    { label: "White Sands National Monument", slug: "white-sands-national-monument" },
+    { label: "Guadalupe Mountains National Park", slug: "guadalupe-mountains-national-park" },
+    { label: "Monument Valley", slug: "monument-valley" },
+    { label: "Grand Canyon National Park (South Rim)", slug: "grand-canyon-south-rim" },
+    { label: "Petrified Forest National Park", slug: "petrified-forest-national-park" },
+  ],
+  "/2003-cross-country-road-trip": [
+    { label: "Flaming Gorge National Recreation Area", slug: "flaming-gorge-national-recreation-area-fire-hole-canyon" },
+    { label: "Bryce Canyon National Park", slug: "bryce-canyon-national-park-0" },
+    { label: "Cedar Breaks National Monument", slug: "cedar-breaks-national-monument" },
+    { label: "Kodachrome Basin State Park", slug: "kodachrome-basin-state-park" },
+    { label: "Lake Powell", slug: "lake-powell-wahweap" },
+    { label: "Arches National Park", slug: "arches-national-park-0" },
+  ],
+  "/2005-cross-country-road-trip": [
+    { label: "Black Canyon of the Gunnison National Park", slug: "black-canyon-gunnison-national-park" },
+    { label: "Natural Bridges National Monument", slug: "natural-bridges-national-monument" },
+    { label: "Capitol Reef National Park", slug: "capitol-reef-national-park-0" },
+    { label: "Arches National Park", slug: "arches-national-park-1" },
+    { label: "Gateway Arch, St. Louis", slug: "gateway-arch-st-louis" },
+    { label: "Fallingwater", slug: "fallingwater" },
+  ],
+  "/2007-cross-country-road-trip": [
+    { label: "Goblin Valley State Park", slug: "goblin-valley-state-park" },
+    { label: "Capitol Reef National Park", slug: "fremont-river-waterfall-capitol-reef-national-park" },
+    { label: "Death Valley National Park", slug: "death-valley-national-park" },
+    { label: "Yosemite Valley", slug: "yosemite-valley" },
+    { label: "Great Basin National Park", slug: "great-basin-national-park" },
+  ],
+  "/2009-cross-country-camping-trip": [
+    { label: "Badlands National Park", slug: "badlands-national-park-0" },
+    { label: "Beartooth Highway", slug: "beartooth-highway" },
+    { label: "Yellowstone National Park", slug: "yellowstone-national-park-0" },
+    { label: "Grand Teton National Park", slug: "grand-teton-national-park" },
+    { label: "Bryce Canyon National Park", slug: "bryce-canyon-national-park-1" },
+    { label: "Monument Valley", slug: "monument-valley-0" },
+    { label: "Arches National Park", slug: "arches-national-park-2" },
+  ],
+  "/2011-cross-country-road-trip": [
+    { label: "Rocky Mountain National Park", slug: "rocky-mountain-national-park-1" },
+    { label: "Golden Gate Canyon State Park", slug: "golden-gate-canyon-state-park" },
+    { label: "Peak to Peak Highway", slug: "peak-peak-highway" },
+    { label: "Boulder", slug: "boulder" },
+    { label: "Breckenridge", slug: "breckenridge-1" },
+  ],
+  "/2013-cross-country-road-trip": [
+    { label: "Rocky Mountain National Park", slug: "rocky-mountain-national-park-2" },
+    { label: "Mount Rainier National Park", slug: "mount-rainier-national-park-0" },
+    { label: "Crater Lake National Park", slug: "crater-lake-national-park" },
+    { label: "Redwood National and State Parks", slug: "redwood-national-and-state-parks" },
+    { label: "Seattle", slug: "seattle" },
+  ],
+  "/2015-solo-cross-country-motorcycle-trip": [
+    { label: "Skyline Drive", slug: "skyline-drive-fancy-gap" },
+    { label: "Blue Ridge Parkway", slug: "blue-ridge-parkway-ashville" },
+    { label: "Great Smoky Mountains", slug: "great-smokies-gatlinburg" },
+    { label: "Cades Cove", slug: "cades-cove-loop-lebanon" },
+    { label: "Death Valley", slug: "nv160-death-valley" },
+    { label: "Eastern Sierra (June Lake)", slug: "us395-june-lake" },
+  ],
+  "/2015-herb-and-lolos-migration-west": [
+    { label: "Climb Iowa", slug: "iowa-nebraska" },
+    { label: "Temple Square, Salt Lake City", slug: "wyoming-utah" },
+    { label: "Bonneville Salt Flats", slug: "utah-california" },
+  ],
+  "/2016-bringing-boat-west": [
+    { label: "Petrified Forest National Park", slug: "petrified-forest-national-park-0" },
+    { label: "Lake Mead National Recreation Area", slug: "lake-mead-national-recreation-area-0" },
+  ],
 };
 
 function getYear(trip) {
@@ -72,6 +184,7 @@ function getCrossCountryTrips() {
         days: nights + 1,
         gif: GIF_BY_HREF[t.href] || null,
         teaser: TEASER_BY_HREF[t.href] || "",
+        highlights: HIGHLIGHTS_BY_HREF[t.href] || [],
       };
     });
   } catch {

@@ -50,6 +50,44 @@ export function unescapeDrupalText(str) {
 }
 
 /**
+ * Rewrites Drupal's internal href forms (internal:node/123, entity:node/123,
+ * sites/default/files/..., stop-type/..., absolute cross-country-trips.com URLs)
+ * into real site paths. Exported so pages that do their own formatting — the
+ * homepage body — resolve links exactly the same way as cleanDrupalContent,
+ * rather than keeping a second copy that can drift.
+ * @param {string} html
+ * @returns {string} html with internal links resolved
+ */
+export function resolveDrupalLinks(html) {
+  if (!html || typeof html !== "string") return "";
+  const nidMap = getNidMap();
+  let cleaned = html;
+
+  // Absolute URLs back to this domain become relative
+  cleaned = cleaned.replace(/https?:\/\/(?:www\.)?cross-country-trips\.com\//gi, "/");
+
+  // Uploaded files
+  cleaned = cleaned.replace(/href=["'](?:internal:)?(?:https?:\/\/(?:www\.)?cross-country-trips\.com\/)?sites\/default\/files\/([^"']+)["']/gi, 'href="/files/$1"');
+
+  // node/[nid] -> the node's actual slug (e.g. /white-sands-national-monument)
+  cleaned = cleaned.replace(/href=["'](?:internal:|entity:)?(?:\/)?node\/(\d+)["']/gi, (match, nid) => {
+    const target = nidMap.get(String(nid));
+    if (target) return `href="${target}"`;
+    return `href="/node/${nid}"`;
+  });
+
+  // stop-type/[slug] or category/[slug] -> /category/[slug]
+  cleaned = cleaned.replace(/href=["'](?:internal:)?(?:stop-type|category)\/([^"']+)["']/gi, 'href="/category/$1"');
+
+  // Any remaining internal:/entity: prefix on a relative link
+  cleaned = cleaned.replace(/href=["'](?:internal:|entity:)\/?([^"']*)["']/gi, (match, pathStr) => {
+    return `href="/${pathStr.replace(/^\//, '')}"`;
+  });
+
+  return cleaned;
+}
+
+/**
  * Cleans raw Drupal text, parsing [img_assist|nid=...] shortcodes and formatting HTML safely.
  * Implements a robust Drupal _filter_autop line-break filter to ensure clean paragraph formatting.
  * @param {string} text - Raw content string from Drupal database
@@ -123,28 +161,7 @@ export function cleanDrupalContent(text, photoTitles = []) {
   cleaned = cleaned.replace(/\[[a-zA-Z0-9_-]+\]/gi, "");
 
   // 3. Fix all internal Drupal href links (node nids, taxonomy categories, media files, and domain URLs)
-  const nidMap = getNidMap();
-
-  // 3a. Convert full cross-country-trips.com domain URLs to relative links
-  cleaned = cleaned.replace(/https?:\/\/(?:www\.)?cross-country-trips\.com\//gi, "/");
-
-  // 3b. Convert sites/default/files/ links to /files/
-  cleaned = cleaned.replace(/href=["'](?:internal:)?(?:https?:\/\/(?:www\.)?cross-country-trips\.com\/)?sites\/default\/files\/([^"']+)["']/gi, 'href="/files/$1"');
-
-  // 3c. Convert node/[nid] links to their actual slug (e.g., /white-sands-national-monument)
-  cleaned = cleaned.replace(/href=["'](?:internal:|entity:)?(?:\/)?node\/(\d+)["']/gi, (match, nid) => {
-    const target = nidMap.get(String(nid));
-    if (target) return `href="${target}"`;
-    return `href="/node/${nid}"`;
-  });
-
-  // 3d. Convert stop-type/[slug] or category/[slug] to /category/[slug]
-  cleaned = cleaned.replace(/href=["'](?:internal:)?(?:stop-type|category)\/([^"']+)["']/gi, 'href="/category/$1"');
-
-  // 3e. Strip any remaining internal: or entity: prefixes from relative links
-  cleaned = cleaned.replace(/href=["'](?:internal:|entity:)\/?([^"']*)["']/gi, (match, pathStr) => {
-    return `href="/${pathStr.replace(/^\//, '')}"`;
-  });
+  cleaned = resolveDrupalLinks(cleaned);
 
   // 4. Ensure block elements are isolated from paragraphs without breaking opening/closing pairs
   cleaned = cleaned.replace(/(\s*)<(ul|ol|table|blockquote|div|section|aside|header|footer)(\s|>)/gi, "\n\n<$2$3");

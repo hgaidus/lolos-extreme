@@ -4,6 +4,7 @@ import Link from 'next/link';
 import CrossCountryExplorer from '@/components/CrossCountryExplorer';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { menuTrips } from '@/data/menuTrips';
+import { resolveDrupalLinks } from '@/utils/cleanContent';
 
 // Route-map GIFs for each trip. Most were already in the exported archive
 // under their original Drupal filenames. The three newest trips (2015
@@ -217,12 +218,15 @@ function autoParagraphs(html) {
 }
 
 function cleanBody(html) {
+  // resolveDrupalLinks turns internal:node/123 into the node's real slug, the
+  // same way every other page resolves them. It previously dropped the nid and
+  // emitted href="#", which left every trip link in the news update dead.
   const withParagraphs = autoParagraphs(
-    html
-      .replace(/<li>\s*<strong>Tips<\/strong>[\s\S]*?<\/li>/i, "")
-      .replace(/href="internal:node\/(\d+)"/g, 'href="#"')
-      .replace(/href="internal:([^"]+)"/g, 'href="/$1"')
-      .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
+    resolveDrupalLinks(
+      html
+        .replace(/<li>\s*<strong>Tips<\/strong>[\s\S]*?<\/li>/i, "")
+        .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
+    )
   );
   return withParagraphs
     .replace(/<h2>/g, '<h2 style="color:#c1593a;font-size:1.05rem;font-weight:700;margin:22px 0 10px">')

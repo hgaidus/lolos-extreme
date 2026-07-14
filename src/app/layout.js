@@ -82,7 +82,10 @@ export default function RootLayout({ children }) {
             textDecoration: "none",
           }}>
             <div>
-              <h1 style={{
+              {/* Site name is a styled div, NOT an <h1>: the site-wide banner
+                  shouldn't compete with each page's own topical <h1> for SEO.
+                  Verified every page/component supplies its own <h1>. */}
+              <div style={{
                 fontFamily: "var(--font-inter), Helvetica, Arial, sans-serif",
                 fontSize: "clamp(1.2rem, 4vw, 2.1rem)",
                 fontWeight: 700,
@@ -92,7 +95,7 @@ export default function RootLayout({ children }) {
                 lineHeight: 1.2,
               }}>
                 Lolo&apos;s Extreme Cross Country RV Trips
-              </h1>
+              </div>
               <div className="site-tagline" style={{
                 fontSize: "clamp(0.8rem, 2vw, 1.05rem)",
                 color: "#DAA795",

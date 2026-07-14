@@ -52,7 +52,7 @@ export default function sitemap() {
   for (const p of [
     '/trip-index', '/photo-albums', '/trip-stops-map', '/travel-itineraries',
     '/cross-country-road-trip', '/east-coast-road-trip', '/west-coast-road-trip',
-    '/international-trips', '/search',
+    '/international-trips', '/search', '/activities',
   ]) {
     add(p, { changeFrequency: 'monthly', priority: 0.7 });
   }

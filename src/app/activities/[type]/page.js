@@ -93,6 +93,8 @@ export default async function ActivityTypePage({ params, searchParams }) {
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
         <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
         <span className="text-[#a89e8a]">/</span>
+        <Link href="/activities" className="text-[#c1593a] font-semibold hover:underline">Activities</Link>
+        <span className="text-[#a89e8a]">/</span>
         {originStop && (
           <>
             <Link href={`/${originStop.slug}`} className="text-[#c1593a] font-semibold hover:underline">
@@ -197,7 +199,11 @@ export default async function ActivityTypePage({ params, searchParams }) {
         </div>
 
         {/* Right Sidebar: All Activity Categories */}
-        <aside className="w-full lg:w-80 glass-sidebar p-5 sticky top-20 shrink-0">
+        {/* Ordered above the cards on mobile: stacked below them the type list
+            sits past every card — ~179 phone screens down on a busy type — so
+            switching activity was effectively impossible. Sticky only applies
+            once it becomes a real sidebar at lg. */}
+        <aside className="w-full lg:w-80 glass-sidebar p-5 lg:sticky lg:top-20 shrink-0 order-first lg:order-last">
           <div className="border-b border-[#c1593a]/30 pb-3 mb-4">
             <span className="text-[11px] uppercase tracking-wider text-[#c1593a] font-extrabold block">
               Filter by Type

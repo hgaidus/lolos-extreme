@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import ContentPreview from '../../../ContentPreview';
 
 function toDateInputValue(unixSeconds) {
   if (!unixSeconds) return '';
@@ -96,6 +97,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
           rows={4}
           className="w-full border border-gray-300 rounded px-3 py-2"
         />
+        <ContentPreview type="stop" travelogue={travelogue} description={description} />
       </div>
 
       <div className="grid grid-cols-3 gap-4">

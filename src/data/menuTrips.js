@@ -84,7 +84,6 @@ export const menuTrips = {
     { title: "Lake Powell Boating", href: "/2018-lake-powell-boat-camping", hover: "2018 Lake Powell Boat Camping" },
     { title: "Eastern Sierra", href: "/2018-eastern-sierra", hover: "2018 Eastern Sierra" },
     { title: "Yosemite Winter", href: "/2018-yosemite-winter", hover: "2018 Yosemite in Winter" },
-    { title: "Yosemite Winter Wonderland", href: "/2018-yosemite-winter-wonderland" },
     { title: "Hawaii", href: "/2018-hawaii-big-island-maui", hover: "2018 Hawaii Big Island & Maui" },
     { title: "4WD Eastern Sierra", href: "/2017-4wd-eastern-sierra-and-death-valley-adventure", hover: "2017 4WD Eastern Sierra and Death Valley Adventure" },
     { title: "4WD Death Valley +", href: "/2017-death-valley-and-eastern-sierra-4wd", hover: "2017 Death Valley and Eastern Sierras 4WD" },

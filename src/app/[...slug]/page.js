@@ -25,7 +25,15 @@ export async function generateMetadata({ params }) {
   }
   const title = cleanTitle(item.title);
   const fullTitle = `${title} | Lolo's Extreme Cross Country RV Trips`;
-  const canonicalPath = "/" + decodeURIComponent(slugStr).replace(/^\/+/, "");
+  // Canonicalize to the matched item's own slug, not the requested path.
+  // lookupItem() falls back to fuzzy matching for legacy Drupal URLs, so many
+  // URL variants (including any suffix on a real slug) resolve to the same
+  // item; without this each variant self-canonicalizes and Google sees
+  // duplicates. Synthetic state/category listings carry no slug, so they fall
+  // back to the request path.
+  const canonicalPath = item.slug
+    ? "/" + String(item.slug).replace(/^\/+/, "")
+    : "/" + decodeURIComponent(slugStr).replace(/^\/+/, "");
 
   // Real description from the content when available; sensible fallbacks for
   // the synthetic state/category listing pages (which have no travelogue).
@@ -190,7 +198,6 @@ const TRIP_MAP_BY_SLUG = {
   "2018-eastern-sierra-outlaws": "/photos/7k/20181007-outlaws.gif",
   "2018-mojave-road-indian-wells": "/photos/7k/20181016-mojave.gif",
   "2018-yosemite-winter": "/photos/7k/20180220-yosemite.gif",
-  "2018-yosemite-winter-wonderland": null,
   "2019-spain": "/photos/8k/Spain.gif",
   "2019-baja-adventure": "/photos/8k/baja_map.gif",
   "2019-superbloom": "/photos/8k/north_america_map_2019-04_final_.gif",
@@ -766,6 +773,24 @@ export default async function CatchAllPage({ params, searchParams }) {
               isTrip={displayItem.itemType === 'trip'}
               use35mmSlides={false}
             />
+
+            {/* Trip overviews end with a hand-off into the trip itself, so the
+                reader can start at the first stop instead of hunting for the
+                itinerary. Derived from the arrival-sorted stops, so it stays
+                correct as stops are added or reordered; omitted for the odd
+                trip that has no stops. */}
+            {displayItem.itemType === 'trip' && tripStops.length > 0 && (
+              <p className="mt-8 text-lg text-[#2e2c26] clear-both font-sans">
+                Let&apos;s hit the road to{' '}
+                <Link
+                  href={`/${tripStops[0].slug}`}
+                  className="text-[#c1593a] font-semibold hover:underline"
+                >
+                  {cleanTitle(tripStops[0].title)}
+                </Link>
+                {' '}&rarr;
+              </p>
+            )}
 
             {/* Prev/Next Navigation at Bottom of Trip Stop Page per User Request */}
             {isStop && tripStops.length > 0 && (

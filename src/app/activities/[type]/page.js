@@ -8,6 +8,16 @@ function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
 }
 
+// Prefer the trip's year field, falling back to a year in its title. One trip
+// ("2017 Total Solar Eclipse") has an empty year field but carries it in the
+// title, so between the two every trip resolves.
+function tripYear(trip) {
+  if (!trip) return null;
+  const y = String(trip.year || "");
+  if (/^(19|20)\d{2}$/.test(y)) return y;
+  return (cleanTitle(trip.title || "").match(/\b(19|20)\d{2}\b/) || [])[0] || null;
+}
+
 export async function generateStaticParams() {
   const activitiesPath = path.join(DATA_DIR, "activities.json");
   if (!fs.existsSync(activitiesPath)) return [];
@@ -104,9 +114,15 @@ export default async function ActivityTypePage({ params, searchParams }) {
               const trip = stop ? tripMap[String(stop.parent_trip_nid)] : null;
               const actTitle = cleanTitle(act.title || displayTypeName);
               const actText = act.narrative || "";
+              const year = tripYear(trip);
 
-              return (
-                <div key={act.nid || idx} className="glass-card p-6 border-l-4 border-l-[#c1593a]/80 hover:border-l-[#a54a2f] transition-all">
+              // Activity narratives carry no links or images of their own
+              // (verified across all records), so the whole card can be a
+              // single anchor — the hover lift then means what it looks like.
+              const cardClass = "glass-card block p-6 border-l-4 border-l-[#c1593a]/80 transition-all no-underline";
+
+              const body = (
+                <>
                   <div className="text-xs font-extrabold uppercase tracking-wider text-[#c1593a] mb-2">
                     {displayTypeName}
                   </div>
@@ -122,21 +138,39 @@ export default async function ActivityTypePage({ params, searchParams }) {
                     />
                   )}
 
-                  {/* Clickable Link Back to Parent Stop */}
                   {stop && (
-                    <div className="mt-4 pt-3 border-t border-black/10 flex flex-wrap items-center justify-between gap-3">
-                      <div className="text-xs text-[#8a8272]">
-                        Logged at stop: <strong className="text-[#2e2c26] font-semibold">{cleanTitle(stop.title)}</strong>
-                        {trip && <span> ({cleanTitle(trip.title)})</span>}
-                      </div>
-                      <Link
-                        href={`/${stop.slug}`}
-                        className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-bold text-xs whitespace-nowrap"
+                    <div className="mt-4 pt-3 border-t border-black/10 flex flex-wrap items-center gap-2.5">
+                      <span className="text-sm font-bold text-[#3f5c4c] group-hover:text-[#c1593a] transition-colors">
+                        {cleanTitle(stop.title)}
+                      </span>
+                      {year && (
+                        <span className="px-2 py-0.5 rounded-full bg-[#c1593a]/10 text-[#c1593a] text-[11px] font-extrabold tabular-nums">
+                          {year}
+                        </span>
+                      )}
+                      <span
+                        aria-hidden="true"
+                        className="ml-auto text-[#8a8272] group-hover:text-[#c1593a] group-hover:translate-x-0.5 transition-all"
                       >
-                        View stop &amp; photos →
-                      </Link>
+                        →
+                      </span>
                     </div>
                   )}
+                </>
+              );
+
+              return stop ? (
+                <Link
+                  key={act.nid || idx}
+                  href={`/${stop.slug}`}
+                  aria-label={`${actTitle} — view stop ${cleanTitle(stop.title)}`}
+                  className={`group ${cardClass} hover:border-l-[#a54a2f]`}
+                >
+                  {body}
+                </Link>
+              ) : (
+                <div key={act.nid || idx} className={cardClass}>
+                  {body}
                 </div>
               );
             })

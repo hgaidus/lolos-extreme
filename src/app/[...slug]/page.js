@@ -841,26 +841,31 @@ export default async function CatchAllPage({ params, searchParams }) {
                 const actType = act.activity_type || "Highlight";
                 const actSlug = actType.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
+                // The whole card is the link — it already lifts on hover, so
+                // the type label is a span rather than a nested anchor.
+                // Activity narratives carry no links of their own.
                 return (
-                  <div key={act.nid || idx} className="glass-card p-3.5 border-l-4 border-l-[#c1593a]/80">
+                  <Link
+                    key={act.nid || idx}
+                    href={`/activities/${actSlug}?from=${displayItem.slug}`}
+                    aria-label={`${actTitle} — see all ${actType} activities`}
+                    className="group glass-card block p-3.5 border-l-4 border-l-[#c1593a]/80 no-underline"
+                  >
                     <div className="flex items-center justify-between mb-1">
-                      <Link
-                        href={`/activities/${actSlug}?from=${displayItem.slug}`}
-                        className="text-xs font-extrabold uppercase tracking-wider text-[#c1593a] hover:text-[#a54a2f] hover:underline transition-colors"
-                      >
+                      <span className="text-xs font-extrabold uppercase tracking-wider text-[#c1593a] group-hover:text-[#a54a2f] transition-colors">
                         {actType}
-                      </Link>
+                      </span>
                     </div>
                     <h4 className="font-bold text-[#2e2c26] text-sm mt-1 mb-1.5 m-0 leading-snug">
                       {actTitle}
                     </h4>
                     {actText && (
                       <div
-                        className="text-xs text-[#5c5648] leading-relaxed mt-1.5 border-t border-black/10 pt-1.5"
+                        className="text-xs text-[#5c5648] leading-relaxed mt-1.5 border-t border-black/10 pt-1.5 [&>*:last-child]:mb-0"
                         dangerouslySetInnerHTML={{ __html: cleanDrupalContent(actText, photoTitles) }}
                       />
                     )}
-                  </div>
+                  </Link>
                 );
               })}
             </div>

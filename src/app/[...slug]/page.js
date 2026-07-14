@@ -24,14 +24,61 @@ export async function generateMetadata({ params }) {
     return { title: "Not Found | Lolo's Extreme Cross Country RV Trips" };
   }
   const title = cleanTitle(item.title);
+  const fullTitle = `${title} | Lolo's Extreme Cross Country RV Trips`;
+  const canonicalPath = "/" + decodeURIComponent(slugStr).replace(/^\/+/, "");
+
+  // Real description from the content when available; sensible fallbacks for
+  // the synthetic state/category listing pages (which have no travelogue).
+  let description;
+  if (item.itemType === "state_listing") {
+    description = `Every RV trip stop Lolo and Herb visited in ${title} — campsites, national parks, and highlights across 20+ years of cross-country travel.`;
+  } else if (item.itemType === "category_listing") {
+    description = `${title} stops from Lolo and Herb's cross-country RV trips — where they camped, hiked, and explored across the USA and Canada.`;
+  } else {
+    description =
+      plainExcerpt(item.travelogue || item.description || item.body || item.summary) ||
+      `Lolo and Herb's RV travelogue and photos for ${title}.`;
+  }
+
   return {
-    title: `${title} | Lolo's Extreme Cross Country RV Trips`,
-    description: `Read Lolo and Herb's historical RV travelogue for ${title}.`,
+    title: fullTitle,
+    description,
+    alternates: { canonical: canonicalPath },
+    openGraph: {
+      title: fullTitle,
+      description,
+      url: canonicalPath,
+      type: "article",
+      siteName: "Lolo's Extreme Cross Country RV Trips",
+      images: ["/photos/logo.gif"],
+    },
   };
 }
 
 function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
+}
+
+// Plain-text excerpt for meta descriptions / structured data — strips Drupal
+// [img_assist] shortcodes, HTML tags, and entities, then truncates on a word
+// boundary. (Function declaration, so it's hoisted for use in generateMetadata.)
+function plainExcerpt(raw, maxLen = 155) {
+  if (!raw) return "";
+  let text = unescapeDrupalText(String(raw));
+  text = text.replace(/\[img_assist[^\]]*\]/gi, " ");
+  text = text.replace(/<[^>]+>/g, " ");
+  text = text.replace(/&#?[a-z0-9]+;/gi, " ");
+  text = text.replace(/\s+/g, " ").trim();
+  if (text.length <= maxLen) return text;
+  const truncated = text.slice(0, maxLen);
+  const lastSpace = truncated.lastIndexOf(" ");
+  return (lastSpace > 60 ? truncated.slice(0, lastSpace) : truncated).trim() + "…";
+}
+
+function toIsoDate(unixSeconds) {
+  if (!unixSeconds) return undefined;
+  const d = new Date(Number(unixSeconds) * 1000);
+  return isNaN(d.getTime()) ? undefined : d.toISOString();
 }
 
 function slugifyCategory(cat = "") {
@@ -310,6 +357,37 @@ export default async function CatchAllPage({ params, searchParams }) {
   const displayItem = item;
 
   const displayTitle = cleanTitle(displayItem.title);
+
+  // Structured data (schema.org) for the article-style pages (trip/stop/page).
+  // Rendered as a JSON-LD <script> in the main content column below.
+  const canonicalUrl = "https://cross-country-trips.com/" + decodeURIComponent(slugStr).replace(/^\/+/, "");
+  const jsonLd = ["trip", "stop", "page"].includes(displayItem.itemType)
+    ? {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "BlogPosting",
+            headline: displayTitle,
+            description: plainExcerpt(displayItem.travelogue || displayItem.description || displayItem.body) || undefined,
+            datePublished: toIsoDate(displayItem.arrival_date || displayItem.created),
+            author: { "@type": "Person", name: displayItem.author || "Lolo" },
+            mainEntityOfPage: canonicalUrl,
+            publisher: {
+              "@type": "Organization",
+              name: "Lolo's Extreme Cross Country RV Trips",
+              logo: { "@type": "ImageObject", url: "https://cross-country-trips.com/photos/logo.gif" },
+            },
+          },
+          {
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://cross-country-trips.com/" },
+              { "@type": "ListItem", position: 2, name: displayTitle, item: canonicalUrl },
+            ],
+          },
+        ],
+      }
+    : null;
 
   if (displayItem.itemType === 'state_listing' || displayItem.itemType === 'category_listing') {
     const matchingStops = displayItem.itemType === 'state_listing'
@@ -622,6 +700,9 @@ export default async function CatchAllPage({ params, searchParams }) {
 
         {/* CENTER COLUMN: Road Trip Article (Fluid Width - Expands/Contracts as needed) */}
         <main className="trip-main-column flex-1 min-w-0">
+          {jsonLd && (
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+          )}
           <article className="glass-panel p-6 md:p-8 mb-8">
             <div className="border-b border-black/10 pb-5 mb-6">
               <h1 className="text-2xl md:text-3xl font-bold text-[#2e2c26] m-0">

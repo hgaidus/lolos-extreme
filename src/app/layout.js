@@ -27,14 +27,19 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const lora  = Lora ({ subsets: ["latin"], variable: "--font-heading", display: "swap" });
 
 export const metadata = {
+  // Resolves all relative canonical/OpenGraph URLs to this canonical origin
+  // (non-www — the live domain). Also fixes the previously hardcoded www og:url.
+  metadataBase: new URL("https://cross-country-trips.com"),
   title: "Lolo's Extreme Cross Country RV Trips",
-  description: "20+ summers of RV road trip travels across the USA and Canada in our Lazy Daze motorhome.",
+  description: "20+ summers of RV road-trip travels across the USA & Canada in our Lazy Daze motorhome — cross-country routes, campsites, national parks, and trip-planning photos for your own adventure.",
+  alternates: { canonical: "/" },
   openGraph: {
     title: "Lolo's Extreme Cross Country RV Trips",
-    description: "20+ summers of RV road trip travels across the USA and Canada in our Lazy Daze motorhome.",
-    url: "https://www.cross-country-trips.com/",
+    description: "20+ summers of RV road-trip travels across the USA & Canada in our Lazy Daze motorhome — cross-country routes, campsites, national parks, and trip-planning photos.",
+    url: "/",
     siteName: "Lolo's Extreme Cross Country RV Trips",
     type: "website",
+    images: ["/photos/logo.gif"],
   },
 };
 

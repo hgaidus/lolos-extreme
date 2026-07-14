@@ -36,6 +36,17 @@ export default function SlideCard({ title, subtitle, imageUrl, href, onClick }) 
   if (href) {
     return <a href={href} className="block h-full w-full no-underline">{content}</a>;
   }
-  return <div onClick={onClick} className="cursor-pointer h-full w-full">{content}</div>;
+  // A real <button>, not a clickable div: this opens the lightbox, so it has to
+  // be reachable by keyboard and announced as interactive. The classes strip the
+  // browser's default button chrome so it renders identically to the old div.
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="block h-full w-full cursor-pointer appearance-none border-0 bg-transparent p-0 text-left font-inherit focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c1593a]"
+    >
+      {content}
+    </button>
+  );
 }
 

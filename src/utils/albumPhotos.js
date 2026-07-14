@@ -139,7 +139,23 @@ export function getPhotosForAlbum(albumOrSlug) {
     }));
 }
 
+// Only the first usable photo is needed for a thumbnail, so stop at it rather
+// than resolving the whole album. The index renders 85 thumbnails; going
+// through getPhotosForAlbum meant existence-checking and stop-resolving all
+// ~6,600 images across every album on each request.
 export function getAlbumPreviewPhoto(albumOrSlug) {
+  const album = findAlbumBySlug(albumOrSlug);
+
+  if (album && Array.isArray(album.images) && album.images.length > 0) {
+    for (const img of album.images) {
+      const name = img.filename || img.url;
+      if (!name || !photoFileExists(name)) continue;
+      return img.url && img.url.startsWith('/') ? img.url : `/photos/${name}`;
+    }
+    return null;
+  }
+
+  // Albums without an images list fall back to the slower title/year scan.
   const p = getPhotosForAlbum(albumOrSlug);
   return p.length > 0 ? p[0].url : null;
 }

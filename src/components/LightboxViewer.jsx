@@ -1,14 +1,24 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import SlideCard from './SlideCard';
 
 export default function LightboxViewer({ photos = [], albumTitle = "Photo Gallery", use35mmSlides = true }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
 
-  const openLightbox = (index) => setSelectedIndex(index);
-  const closeLightbox = () => setSelectedIndex(null);
+  // Remembers which tile opened the lightbox so focus can go back there on
+  // close — otherwise a keyboard user is dumped at the top of the document.
+  const triggerRef = useRef(null);
+
+  const openLightbox = (index, event) => {
+    triggerRef.current = event?.currentTarget || null;
+    setSelectedIndex(index);
+  };
+  const closeLightbox = useCallback(() => {
+    setSelectedIndex(null);
+    if (triggerRef.current) triggerRef.current.focus();
+  }, []);
 
   const showNext = useCallback(() => {
     if (selectedIndex !== null) {
@@ -50,13 +60,18 @@ export default function LightboxViewer({ photos = [], albumTitle = "Photo Galler
               key={idx}
               title={photo.title || `Slide #${idx + 1}`}
               imageUrl={photo.url}
-              onClick={() => openLightbox(idx)}
+              onClick={(e) => openLightbox(idx, e)}
             />
           ) : (
-            <div
+            // <button>, not a clickable div: opening a photo must work by
+            // keyboard and be announced as interactive. appearance-none/border-0
+            // resets the default button chrome so it looks unchanged.
+            <button
               key={idx}
-              onClick={() => openLightbox(idx)}
-              className="bg-white hover:bg-[#faf6ee] border border-[#e4dcc8] hover:border-[#c1593a]/50 rounded overflow-hidden cursor-pointer transition-all duration-200 flex flex-col group shadow-md"
+              type="button"
+              onClick={(e) => openLightbox(idx, e)}
+              aria-label={`Open photo${photo.title ? `: ${photo.title}` : ` ${idx + 1}`}`}
+              className="appearance-none p-0 text-left bg-white hover:bg-[#faf6ee] border border-[#e4dcc8] hover:border-[#c1593a]/50 rounded overflow-hidden cursor-pointer transition-all duration-200 flex flex-col group shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c1593a]"
             >
               <div className="w-full h-44 sm:h-48 md:h-52 bg-[#f2ede1] p-2 flex items-center justify-center overflow-hidden relative">
                 <img
@@ -77,7 +92,7 @@ export default function LightboxViewer({ photos = [], albumTitle = "Photo Galler
                   </p>
                 </div>
               )}
-            </div>
+            </button>
           );
         })}
       </div>

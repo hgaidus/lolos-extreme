@@ -79,21 +79,22 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Short description</label>
-        <input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border border-gray-300 rounded px-3 py-2"
-        />
-      </div>
-
-      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Travelogue</label>
         <textarea
           value={travelogue}
           onChange={(e) => setTravelogue(e.target.value)}
-          rows={10}
+          rows={24}
           className="w-full border border-gray-300 rounded px-3 py-2 font-mono text-sm"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Short description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={4}
+          className="w-full border border-gray-300 rounded px-3 py-2"
         />
       </div>
 

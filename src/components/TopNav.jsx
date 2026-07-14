@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { menuTrips } from "@/data/menuTrips";
 
+// Labels are kept short so the desktop bar doesn't overflow on narrow screens.
 const MENUS = [
-  { key: "trips", label: "Cross Country Trips", items: menuTrips.crossCountry },
-  { key: "east",  label: "East Coast",          items: menuTrips.eastCoast },
-  { key: "west",  label: "West Coast",           items: menuTrips.westCoast },
-  { key: "intl",  label: "International",        items: menuTrips.international },
+  { key: "trips", label: "Cross Country", items: menuTrips.crossCountry },
+  { key: "west",  label: "West",          items: menuTrips.westCoast },
+  { key: "east",  label: "East",          items: menuTrips.eastCoast },
+  { key: "intl",  label: "International", items: menuTrips.international },
 ];
 
 export default function TopNav({ tripTitles = {} }) {
@@ -152,10 +153,10 @@ export default function TopNav({ tripTitles = {} }) {
           }}
         >
           <li>
-            <Link href="/" onClick={close} style={navLinkStyle}>Home</Link>
+            <Link href="/" onClick={close} className="nav-top-link" style={navLinkStyle}>Home</Link>
           </li>
           <li>
-            <Link href="/about-lolo-and-herb" onClick={close} style={navLinkStyle}>About</Link>
+            <Link href="/about-lolo-and-herb" onClick={close} className="nav-top-link" style={navLinkStyle}>About</Link>
           </li>
 
           {MENUS.map(m => (
@@ -165,6 +166,7 @@ export default function TopNav({ tripTitles = {} }) {
             >
               <button
                 onClick={(e) => toggle(m.key, e)}
+                className="nav-top-link"
                 style={{ ...navLinkStyle, background: openMenu === m.key ? "rgba(193,89,58,0.18)" : "none" }}
               >
                 {m.label} <span style={{ fontSize: "0.65rem", color: "#d1704f", marginLeft: "2px" }}>▼</span>
@@ -189,11 +191,11 @@ export default function TopNav({ tripTitles = {} }) {
             </li>
           ))}
 
-          <li><Link href="/trip-index"          onClick={close} style={navLinkStyle}>Index</Link></li>
-          <li><Link href="/photo-albums"  onClick={close} style={navLinkStyle}>Photos</Link></li>
-          <li><Link href="/trip-stops-map" onClick={close} style={navLinkStyle}>Map</Link></li>
-          <li><Link href="/search"         onClick={close} style={navLinkStyle}>Search</Link></li>
-          <li><Link href="/contact-us"     onClick={close} style={navLinkStyle}>Contact</Link></li>
+          <li><Link href="/photo-albums"   onClick={close} className="nav-top-link" style={navLinkStyle}>Photos</Link></li>
+          <li><Link href="/trip-stops-map" onClick={close} className="nav-top-link" style={navLinkStyle}>Map</Link></li>
+          <li><Link href="/search"         onClick={close} className="nav-top-link" style={navLinkStyle}>Search</Link></li>
+          <li><Link href="/contact-us"     onClick={close} className="nav-top-link" style={navLinkStyle}>Contact</Link></li>
+          <li><Link href="/trip-index"     onClick={close} className="nav-top-link" style={navLinkStyle}>Index</Link></li>
         </ul>
       </div>
 
@@ -285,13 +287,13 @@ export default function TopNav({ tripTitles = {} }) {
             </div>
           ))}
 
-          {/* Index + Photos + Map + Search + Contact */}
+          {/* Photos + Map + Search + Contact + Index */}
           {[
-            { href: "/index",          label: "Index" },
             { href: "/photo-albums",   label: "Photos" },
             { href: "/trip-stops-map", label: "Map" },
             { href: "/search",         label: "Search" },
             { href: "/contact-us",     label: "Contact" },
+            { href: "/trip-index",     label: "Index" },
           ].map(l => (
             <Link key={l.href} href={l.href} onClick={close} style={{
               display: "block",
@@ -319,12 +321,23 @@ export default function TopNav({ tripTitles = {} }) {
           background-color: rgba(255, 255, 255, 0.08) !important;
           color: #ffffff !important;
         }
-        @media (max-width: 900px) {
+        /* Between ~820px and 1024px the full bar only fits if it's tightened,
+           so phone landscape (844/852/932px) keeps every link instead of
+           collapsing to a hamburger. Roomy spacing returns above 1024px. */
+        @media (max-width: 1024px) {
+          .nav-top-link {
+            padding-left: 7px !important;
+            padding-right: 7px !important;
+            font-size: 0.86rem !important;
+          }
+        }
+        /* Below ~820px even the tightened bar overflows, so use the hamburger. */
+        @media (max-width: 819px) {
           .desktop-nav { display: none !important; }
           .hamburger-btn { display: flex !important; }
           .mobile-logo { display: block !important; }
         }
-        @media (min-width: 901px) {
+        @media (min-width: 820px) {
           .hamburger-btn { display: none !important; }
           .mobile-logo { display: none !important; }
         }

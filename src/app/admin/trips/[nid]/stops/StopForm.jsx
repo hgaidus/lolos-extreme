@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 function toDateInputValue(unixSeconds) {
   if (!unixSeconds) return '';
@@ -15,7 +14,6 @@ function fromDateInputValue(dateStr) {
 
 // mode: 'edit' (PATCH /api/admin/stops/:nid) or 'create' (POST /api/admin/trips/:tripNid/stops)
 export default function StopForm({ mode, tripNid, stop, categories, states, authors }) {
-  const router = useRouter();
   const [title, setTitle] = useState(stop?.title || '');
   const [description, setDescription] = useState(stop?.description || '');
   const [travelogue, setTravelogue] = useState(stop?.travelogue || '');
@@ -58,8 +56,9 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
         setGitWarning('Saved, but not yet backed up to GitHub (push failed). The edit is safe on disk.');
       }
       if (mode === 'create') {
-        router.push(`/admin/trips/${tripNid}/stops/${data.stop.nid}`);
-        router.refresh();
+        // Hard navigation to the newly-created stop's edit page (avoids the
+        // soft-nav flakiness seen with the post-login redirect in prod).
+        window.location.assign(`/admin/trips/${tripNid}/stops/${data.stop.nid}`);
       } else {
         setStatus('saved');
       }

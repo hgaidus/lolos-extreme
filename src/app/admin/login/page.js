@@ -1,13 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const router = useRouter();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -25,8 +23,10 @@ export default function AdminLoginPage() {
         setSubmitting(false);
         return;
       }
-      router.push('/admin');
-      router.refresh();
+      // Hard navigation (not router.push) — forces a fresh full-page load of
+      // /admin carrying the just-set cookie. Soft navigation + the statically
+      // prerendered login page raced unreliably in the standalone prod build.
+      window.location.assign('/admin');
     } catch (err) {
       setError('Login failed');
       setSubmitting(false);

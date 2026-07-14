@@ -3,6 +3,13 @@ import path from "path";
 import Link from "next/link";
 import { DATA_DIR } from "@/lib/dataPaths";
 
+// The type list and counts come from activities.json, which changes when
+// content is edited. Without this the page is prerendered once at build time
+// and its counts go stale until the next deploy. Hourly regeneration keeps it
+// fast while letting content edits land on their own — same approach as
+// app/sitemap.js.
+export const revalidate = 3600;
+
 export const metadata = {
   title: "Activities | Lolo's Extreme Cross Country RV Trips",
   description:

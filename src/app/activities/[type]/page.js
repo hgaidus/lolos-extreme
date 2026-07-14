@@ -18,6 +18,16 @@ function tripYear(trip) {
   return (cleanTitle(trip.title || "").match(/\b(19|20)\d{2}\b/) || [])[0] || null;
 }
 
+// Every trip title leads with its year ("2001 Cross Country Road Trip"), which
+// would just repeat the year shown alongside it — so drop the leading year and
+// keep the name. Falls back to the full title if that leaves nothing.
+function tripName(trip) {
+  if (!trip) return null;
+  const full = cleanTitle(trip.title || "");
+  const stripped = full.replace(/^(19|20)\d{2}\s+/, "").trim();
+  return stripped || full || null;
+}
+
 export async function generateStaticParams() {
   const activitiesPath = path.join(DATA_DIR, "activities.json");
   if (!fs.existsSync(activitiesPath)) return [];
@@ -107,7 +117,7 @@ export default async function ActivityTypePage({ params, searchParams }) {
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         
         {/* Left Side: Activity Cards */}
-        <div className="flex-1 w-full space-y-6">
+        <div className="flex-1 w-full space-y-4">
           {matchingActivities.length > 0 ? (
             matchingActivities.map((act, idx) => {
               const stop = stopMap[String(act.parent_stop_nid)];
@@ -115,45 +125,50 @@ export default async function ActivityTypePage({ params, searchParams }) {
               const actTitle = cleanTitle(act.title || displayTypeName);
               const actText = act.narrative || "";
               const year = tripYear(trip);
+              const tripLabel = tripName(trip);
 
               // Activity narratives carry no links or images of their own
               // (verified across all records), so the whole card can be a
               // single anchor — the hover lift then means what it looks like.
-              const cardClass = "glass-card block p-6 border-l-4 border-l-[#c1593a]/80 transition-all no-underline";
+              const cardClass = "glass-card block p-4 md:p-5 border-l-4 border-l-[#c1593a]/80 transition-all no-underline";
 
               const body = (
                 <>
-                  <div className="text-xs font-extrabold uppercase tracking-wider text-[#c1593a] mb-2">
+                  <div className="text-xs font-extrabold uppercase tracking-wider text-[#c1593a] mb-1">
                     {displayTypeName}
                   </div>
 
-                  <h3 className="text-lg md:text-xl font-bold text-[#2e2c26] mb-2 m-0 leading-snug">
+                  <h3 className="text-base md:text-lg font-bold text-[#2e2c26] mb-1.5 m-0 leading-snug">
                     {actTitle}
                   </h3>
 
+                  {/* cleanDrupalContent gives every <p> a bottom margin, which on
+                      the last one just pads the card out — flow-root keeps it
+                      inside rather than collapsing it away. Zero it out so the
+                      footer sits close to the text. */}
                   {actText && (
                     <div
-                      className="text-sm text-[#4a4437] leading-relaxed mb-4 max-w-none flow-root"
+                      className="text-sm text-[#4a4437] leading-relaxed mb-3 max-w-none flow-root [&>*:last-child]:mb-0"
                       dangerouslySetInnerHTML={{ __html: cleanDrupalContent(actText, photoTitles) }}
                     />
                   )}
 
                   {stop && (
-                    <div className="mt-4 pt-3 border-t border-black/10 flex flex-wrap items-center gap-2.5">
+                    <div className="mt-3 pt-2.5 border-t border-black/10 flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="text-sm font-bold text-[#3f5c4c] group-hover:text-[#c1593a] transition-colors">
                         {cleanTitle(stop.title)}
                       </span>
+                      {/* No separator glyph: it strands at the end of the line
+                          when this wraps on narrow screens, and the weight and
+                          colour already separate stop from trip. */}
+                      {tripLabel && (
+                        <span className="text-xs text-[#8a8272]">{tripLabel}</span>
+                      )}
                       {year && (
                         <span className="px-2 py-0.5 rounded-full bg-[#c1593a]/10 text-[#c1593a] text-[11px] font-extrabold tabular-nums">
                           {year}
                         </span>
                       )}
-                      <span
-                        aria-hidden="true"
-                        className="ml-auto text-[#8a8272] group-hover:text-[#c1593a] group-hover:translate-x-0.5 transition-all"
-                      >
-                        →
-                      </span>
                     </div>
                   )}
                 </>

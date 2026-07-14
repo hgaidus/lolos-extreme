@@ -59,14 +59,30 @@ export default function CrossCountryRoadTripsList({ region }) {
             <tbody className="divide-y divide-[#e4dcc8]">
               {trips.length > 0 ? (
                 trips.map((trip, idx) => (
-                  <tr key={trip.slug} className={idx % 2 === 0 ? "bg-[#faf6ee] hover:bg-[#f2ede1] transition-colors" : "bg-white hover:bg-[#f2ede1] transition-colors"}>
-                    <td className="py-3 px-4 font-semibold">
-                      <Link href={`/${trip.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline">
+                  // The row highlights on hover, so the whole row should be
+                  // clickable. A <tr> can't be wrapped in an anchor, so each
+                  // cell holds a block-level link filling it (padding moved off
+                  // the td onto the link). The year link is hidden from
+                  // assistive tech and skipped in the tab order so the row is
+                  // still announced once, as a single destination.
+                  <tr key={trip.slug} className={`group ${idx % 2 === 0 ? "bg-[#faf6ee]" : "bg-white"} hover:bg-[#f2ede1] transition-colors`}>
+                    <td className="p-0 font-semibold">
+                      <Link
+                        href={`/${trip.slug}`}
+                        className="block py-3 px-4 text-[#3f5c4c] no-underline group-hover:text-[#c1593a] group-hover:underline transition-colors"
+                      >
                         {cleanTitle(trip.title)}
                       </Link>
                     </td>
-                    <td className="py-3 px-4 text-center text-[#5c5847] font-medium">
-                      {trip.displayYear || '--'}
+                    <td className="p-0 text-center text-[#5c5847] font-medium">
+                      <Link
+                        href={`/${trip.slug}`}
+                        tabIndex={-1}
+                        aria-hidden="true"
+                        className="block py-3 px-4 text-[#5c5847] no-underline group-hover:text-[#c1593a] transition-colors"
+                      >
+                        {trip.displayYear || '--'}
+                      </Link>
                     </td>
                   </tr>
                 ))

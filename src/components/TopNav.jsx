@@ -189,6 +189,7 @@ export default function TopNav({ tripTitles = {} }) {
             </li>
           ))}
 
+          <li><Link href="/trip-index"          onClick={close} style={navLinkStyle}>Index</Link></li>
           <li><Link href="/photo-albums"  onClick={close} style={navLinkStyle}>Photos</Link></li>
           <li><Link href="/trip-stops-map" onClick={close} style={navLinkStyle}>Map</Link></li>
           <li><Link href="/search"         onClick={close} style={navLinkStyle}>Search</Link></li>
@@ -284,8 +285,9 @@ export default function TopNav({ tripTitles = {} }) {
             </div>
           ))}
 
-          {/* Photos + Map + Search + Contact */}
+          {/* Index + Photos + Map + Search + Contact */}
           {[
+            { href: "/index",          label: "Index" },
             { href: "/photo-albums",   label: "Photos" },
             { href: "/trip-stops-map", label: "Map" },
             { href: "/search",         label: "Search" },

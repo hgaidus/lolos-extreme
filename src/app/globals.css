@@ -550,12 +550,23 @@ figure.drupal-figure figcaption {
 img, video, iframe { max-width: 100%; height: auto; }
 table { word-break: break-word; }
 
-/* ── Tablet (≤1024px): collapse right sidebar, shrink left ── */
+/* ── Tablet (≤1024px): wrap the right sidebar below, shrink left ── */
 @media (max-width: 1024px) {
-  .trip-page-layout { gap: 1rem !important; }
+  /* "What we did" used to be display:none here, which hid it on every phone
+     and tablet — the ≤768px block below sets its width and position expecting
+     to stack it, but never reset display, so that rule never took effect and
+     the activity list was simply gone. Keeping it in the row instead squeezes
+     the travelogue to ~350px (narrower than its own floated images), so it
+     wraps onto its own full-width row underneath: the article keeps ~617px at
+     900px wide, and nothing is hidden. */
+  .trip-page-layout { gap: 1rem !important; flex-wrap: wrap !important; }
   .trip-sidebar-column { width: 220px !important; }
   .trip-overview-sidebar-column { width: 340px !important; }
-  .trip-right-sidebar-column { display: none !important; }
+  .trip-right-sidebar-column {
+    width: 100% !important;
+    position: static !important;
+    max-height: none !important;
+  }
   .photo-sidebar-column { width: 260px !important; }
   .nav-link { padding: 12px 10px !important; font-size: 0.9rem !important; }
   .sidebar-item { padding: 12px 14px; }

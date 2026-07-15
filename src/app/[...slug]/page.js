@@ -619,9 +619,22 @@ export default async function CatchAllPage({ params, searchParams }) {
                   {/* Drupal Green & White Striped Itinerary Table - ONLY ON TRIPS & STOPS */}
                   {(displayItem.itemType === 'trip' || displayItem.itemType === 'stop') && (
                     <div className="trip-sidebar-table-box">
-                      <div className="bg-[#58B195] text-[#faf6ee] font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-[#c1593a]/30">
-                        {currentTrip ? cleanTitle(currentTrip.title) : displayTitle} Itinerary
-                      </div>
+                      {/* From a stop, this bar is the way back up to the trip
+                          overview. On the trip overview itself it names the page
+                          you're already on, so it stays plain text rather than
+                          linking to itself. */}
+                      {isStop && currentTrip ? (
+                        <Link
+                          href={`/${currentTrip.slug}`}
+                          className="block bg-[#58B195] hover:bg-[#4a9a80] text-[#faf6ee] hover:text-white font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-[#c1593a]/30 no-underline hover:underline transition-colors"
+                        >
+                          {cleanTitle(currentTrip.title)} Itinerary
+                        </Link>
+                      ) : (
+                        <div className="bg-[#58B195] text-[#faf6ee] font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-[#c1593a]/30">
+                          {currentTrip ? cleanTitle(currentTrip.title) : displayTitle} Itinerary
+                        </div>
+                      )}
                       <div className="overflow-x-auto">
                         {isStop ? (
                           <table className="w-full text-left text-xs border-collapse font-sans">

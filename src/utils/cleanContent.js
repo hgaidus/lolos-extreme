@@ -104,15 +104,19 @@ export function cleanDrupalContent(text, photoTitles = []) {
   cleaned = cleaned.replace(/<!--\s*break\s*-->/gi, "");
   cleaned = cleaned.replace(/<!--.*?-->/gs, "");
 
-  // Create a lookup map from image_nid and image_vid to filename/title
-  // Ensure image_nid always takes precedence by adding image_vid first, then overwriting with image_nid
+  // Look [img_assist|nid=N] up by image_nid ONLY.
+  //
+  // This used to also index image_vid as a fallback, but the two are separate
+  // Drupal namespaces that overlap heavily (5,385 image_vid values collide with
+  // some other photo's image_nid). When a tag referenced a photo missing from
+  // the export, the vid entry answered instead and the page showed a completely
+  // unrelated photo — Salt Point State Park displayed "The way I feel about
+  // Iceland" from the Grindavik stop under the caption "The Eyes of Salt Point".
+  // Checked across every [img_assist] on the site: 5,318 resolve by image_nid,
+  // and all 5 that resolved only by image_vid were showing the wrong photo. An
+  // unmatched tag is stripped below, so those simply show nothing.
   const imageMap = new Map();
   if (Array.isArray(photoTitles)) {
-    photoTitles.forEach((item) => {
-      if (item && item.image_vid) {
-        imageMap.set(String(item.image_vid), item);
-      }
-    });
     photoTitles.forEach((item) => {
       if (item && item.image_nid) {
         imageMap.set(String(item.image_nid), item);

@@ -58,6 +58,37 @@ export function unescapeDrupalText(str) {
  * @param {string} html
  * @returns {string} html with internal links resolved
  */
+/**
+ * Turns bare URLs sitting in prose into real links, the way Drupal's URL filter
+ * used to. The old site rendered `https://www.mcrent.eu/` as an anchor; the
+ * export stored it as plain text, so the migration lost that and readers were
+ * left with unclickable URLs.
+ *
+ * Only text nodes are touched — anything inside a tag, or already inside an
+ * <a>…</a>, is left alone, so existing links are never double-wrapped.
+ * Only http/https is matched, so this can't manufacture a javascript: href.
+ * @param {string} html
+ * @returns {string}
+ */
+export function autolinkBareUrls(html) {
+  if (!html || typeof html !== "string") return "";
+  // Odd indices are the captured anchors/tags; even indices are text.
+  const parts = html.split(/(<a\b[^>]*>[\s\S]*?<\/a>|<[^>]+>)/gi);
+  for (let i = 0; i < parts.length; i += 2) {
+    if (!parts[i]) continue;
+    parts[i] = parts[i].replace(/https?:\/\/[^\s<>"']+/gi, (match) => {
+      // Don't swallow the sentence's punctuation: "(https://x.com/)" and
+      // "https://x.com/en/." should link the URL and leave the rest as text.
+      const trailing = match.match(/[).,;:!?\]]+$/);
+      const url = trailing ? match.slice(0, -trailing[0].length) : match;
+      const tail = trailing ? trailing[0] : "";
+      if (!url) return match;
+      return `<a href="${url}">${url}</a>${tail}`;
+    });
+  }
+  return parts.join("");
+}
+
 export function resolveDrupalLinks(html) {
   if (!html || typeof html !== "string") return "";
   const nidMap = getNidMap();
@@ -163,6 +194,13 @@ export function cleanDrupalContent(text, photoTitles = []) {
   cleaned = cleaned.replace(/\[[a-zA-Z0-9_-]+:[^\]]+\]/gi, "");
   cleaned = cleaned.replace(/\[[a-zA-Z0-9_-]+\|[^\]]+\]/gi, "");
   cleaned = cleaned.replace(/\[[a-zA-Z0-9_-]+\]/gi, "");
+
+  // 2c. Link bare URLs left in prose, BEFORE resolveDrupalLinks. Order matters:
+  // an unlinked "http://www.cross-country-trips.com/yosemite-valley" would
+  // otherwise just have its domain stripped in place and render as the dead
+  // text "/yosemite-valley". Linking first means resolveDrupalLinks rewrites
+  // the anchor it produced, giving a working site-relative link.
+  cleaned = autolinkBareUrls(cleaned);
 
   // 3. Fix all internal Drupal href links (node nids, taxonomy categories, media files, and domain URLs)
   cleaned = resolveDrupalLinks(cleaned);

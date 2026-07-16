@@ -24,12 +24,23 @@ export function getTrip(nid) {
   return readDataset('trips').find((t) => String(t.nid) === String(nid)) || null;
 }
 
+// `published` is a nullable flag: absence = published (the pristine legacy
+// shape all 4,457 existing records have), false = draft. Republishing DELETES
+// the field rather than storing true, so a record only carries it while it is
+// actually a draft — mirroring updatePhotoRecord in adminPhotos.js.
+function applyPublished(record, published) {
+  if (published === false) record.published = false;
+  else if (published === true) delete record.published;
+}
+
 export function updateTrip(nid, fields) {
   const trips = readDataset('trips');
   const idx = trips.findIndex((t) => String(t.nid) === String(nid));
   if (idx === -1) throw new Error(`Trip nid ${nid} not found`);
 
-  const updated = { ...trips[idx], ...fields };
+  const { published, ...rest } = fields;
+  const updated = { ...trips[idx], ...rest };
+  applyPublished(updated, published);
   updated.body = updated.travelogue;
   trips[idx] = updated;
 
@@ -71,7 +82,9 @@ export function updateStop(nid, fields) {
   const idx = stops.findIndex((s) => String(s.nid) === String(nid));
   if (idx === -1) throw new Error(`Stop nid ${nid} not found`);
 
-  const updated = { ...stops[idx], ...fields };
+  const { published, ...rest } = fields;
+  const updated = { ...stops[idx], ...rest };
+  applyPublished(updated, published);
   updated.body = updated.description || updated.travelogue;
   stops[idx] = updated;
 
@@ -107,6 +120,9 @@ export function createStop(parentTripNid, fields) {
     state: fields.state || '',
     category: fields.category || '',
   };
+  // The create form defaults new stops to draft; without this the flag was
+  // silently dropped and "drafts" went straight to the live site.
+  applyPublished(newStop, fields.published);
 
   stops.push(newStop);
   writeDataset('stops', stops);

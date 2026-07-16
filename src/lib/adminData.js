@@ -17,8 +17,14 @@ import { computeInsertOrders } from './tripMeta';
 
 const execFileAsync = promisify(execFile);
 
+// Newest first — the trips you're working on are the recent ones. Ties (and
+// records whose year field is unparseable) fall back to creation date.
 export function getTrips() {
-  return readDataset('trips').sort((a, b) => Number(a.year || 0) - Number(b.year || 0));
+  return readDataset('trips').sort(
+    (a, b) =>
+      Number(b.year || 0) - Number(a.year || 0) ||
+      Number(b.created || 0) - Number(a.created || 0)
+  );
 }
 
 export function getTrip(nid) {

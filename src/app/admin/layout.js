@@ -6,6 +6,14 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
+// Every admin page must render from the CURRENT content files on every
+// request. Without this, listing pages that use no request-scoped API
+// (/admin, /admin/albums, /admin/pages, /admin/trips/new) get statically
+// prerendered at BUILD time and show a frozen snapshot: an edited trip's
+// year looked unsaved on the dashboard even though the record was correct.
+// Cascades to all child routes from this layout.
+export const dynamic = 'force-dynamic';
+
 export default function AdminLayout({ children }) {
   return (
     <div className="min-h-screen bg-gray-100">

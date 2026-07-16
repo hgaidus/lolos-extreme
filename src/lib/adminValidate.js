@@ -95,6 +95,40 @@ const TRIP_RULES = {
   },
   travelogue: optionalString,
   published: publishedFlag,
+  menu_label: {
+    check(v) {
+      if (typeof v !== 'string' || !v.trim()) return { error: 'Must not be empty.' };
+      if (v.trim().length > 40) return { error: 'Keep menu labels short (40 characters max).' };
+      return { value: v.trim() };
+    },
+  },
+  menu_hover: optionalString,
+};
+
+const REGIONS = ['crossCountry', 'eastCoast', 'westCoast', 'international'];
+
+// Creation is stricter than editing: a trip must land in a region with a
+// menu label and a real four-digit year, or it can't appear in navigation.
+const NEW_TRIP_RULES = {
+  ...TRIP_RULES,
+  menu_label: { required: true, ...TRIP_RULES.menu_label },
+  year: {
+    required: true,
+    check(v) {
+      const n = Number(v);
+      if (!Number.isInteger(n) || n < 1900 || n > 2100) return { error: 'Must be a four-digit year.' };
+      return { value: String(n) };
+    },
+  },
+  region: {
+    required: true,
+    check(v) {
+      if (!REGIONS.includes(v)) return { error: 'Must be one of the four regions.' };
+      return { value: v };
+    },
+  },
+  author: optionalString,
+  map_image: optionalString,
 };
 
 export function validateStopFields(fields, opts) {
@@ -103,4 +137,8 @@ export function validateStopFields(fields, opts) {
 
 export function validateTripFields(fields, opts) {
   return validateWith(TRIP_RULES, fields, opts);
+}
+
+export function validateNewTripFields(fields) {
+  return validateWith(NEW_TRIP_RULES, fields, { partial: false });
 }

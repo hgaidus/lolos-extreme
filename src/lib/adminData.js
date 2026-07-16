@@ -9,6 +9,7 @@ import {
   ensureUniqueSlug,
   allContentSlugs,
 } from './adminStore';
+import { computeInsertOrders } from './tripMeta';
 
 // Facade over adminStore: keeps the exported API the routes/pages already use,
 // while reads/writes/nid-allocation go through the shared write layer (per-file
@@ -46,6 +47,42 @@ export function updateTrip(nid, fields) {
 
   writeDataset('trips', trips);
   return updated;
+}
+
+// New trips are born as drafts and slot into the nav menu and trip index by
+// year (computeInsertOrders): newest-first in menus, oldest-first in the
+// index. index_desc is deliberately NOT set — the trip-index description
+// auto-derives from the trip's stop titles and grows as stops are added.
+export function createTrip(fields) {
+  const trips = readDataset('trips');
+  const nid = allocateNid();
+  const slug = ensureUniqueSlug(slugify(fields.title || 'new-trip'), allContentSlugs());
+  const year = String(fields.year);
+  const { menu_order, index_order } = computeInsertOrders(fields.region, Number(year));
+
+  const newTrip = {
+    nid,
+    title: fields.title,
+    slug,
+    year,
+    created: Math.floor(Date.now() / 1000),
+    summary: '3',
+    travelogue: fields.travelogue || '',
+    body: fields.travelogue || '',
+    region: fields.region,
+    menu_label: fields.menu_label,
+    menu_hover: fields.menu_hover || fields.title,
+    menu_order,
+    index_title: fields.title,
+    index_order,
+    published: false,
+  };
+  if (fields.author && fields.author !== 'Lolo') newTrip.author = fields.author;
+  if (fields.map_image) newTrip.map_image = fields.map_image;
+
+  trips.push(newTrip);
+  writeDataset('trips', trips);
+  return newTrip;
 }
 
 export function getStop(nid) {

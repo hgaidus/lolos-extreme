@@ -12,7 +12,7 @@ export async function PATCH(request, { params }) {
 
     const body = await request.json();
     const fields = {};
-    for (const key of ['title', 'year', 'travelogue', 'published']) {
+    for (const key of ['title', 'year', 'travelogue', 'published', 'menu_label', 'menu_hover']) {
       if (key in body) fields[key] = body[key];
     }
 

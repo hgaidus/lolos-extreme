@@ -17,7 +17,15 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
 
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">Trips</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold text-gray-800">Trips</h1>
+        <Link
+          href="/admin/trips/new"
+          className="bg-blue-600 text-white rounded px-4 py-2 text-sm font-semibold hover:bg-blue-700"
+        >
+          + New Trip
+        </Link>
+      </div>
       <p className="text-sm text-gray-500 mb-6">
         {trips.length} trips. Click one to edit its details or add a stop.
       </p>

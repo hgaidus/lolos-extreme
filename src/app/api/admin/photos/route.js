@@ -100,10 +100,53 @@ export async function POST(request) {
     const title = String(form.get('title') || '').trim();
     const tripStopNid = String(form.get('trip_stop_nid') || '').trim();
     const allowSimilar = form.get('allowSimilar') === 'yes';
+    const kind = String(form.get('kind') || 'photo');
 
     if (!file || typeof file.arrayBuffer !== 'function') {
       return NextResponse.json({ error: 'No file provided.' }, { status: 400 });
     }
+
+    // kind=map: a trip overview map, not a gallery photo — the binary lands
+    // in uploads/maps/ with NO photo record and NO album entry; the caller
+    // stores the returned url on the trip's map_image field.
+    if (kind === 'map') {
+      if (file.size > MAX_UPLOAD_BYTES) {
+        return NextResponse.json(
+          { error: `File is ${(file.size / 1048576).toFixed(1)}MB — the limit is 30MB.` },
+          { status: 413 }
+        );
+      }
+      const sanitizedMap = sanitizeUploadFilename(file.name);
+      if (sanitizedMap.error) {
+        return NextResponse.json({ error: sanitizedMap.error }, { status: 400 });
+      }
+      const mapName = sanitizedMap.filename;
+      const mapBuf = Buffer.from(await file.arrayBuffer());
+      if (!sniffMatchesExtension(mapBuf, path.extname(mapName).toLowerCase())) {
+        return NextResponse.json(
+          { error: 'File contents do not match the file type — is this really an image?' },
+          { status: 400 }
+        );
+      }
+      const mapsDir = path.join(UPLOADS_DIR, 'maps');
+      const mapDest = path.join(mapsDir, mapName);
+      if (fs.existsSync(mapDest)) {
+        return NextResponse.json(
+          { error: 'file_exists', message: `A map named ${mapName} already exists.`, suggestion: suggestRename(mapName) },
+          { status: 409 }
+        );
+      }
+      fs.mkdirSync(mapsDir, { recursive: true });
+      fs.writeFileSync(mapDest, mapBuf);
+      if (fs.statSync(mapDest).size !== file.size) {
+        fs.rmSync(mapDest, { force: true });
+        return NextResponse.json({ error: 'Write verification failed — upload aborted.' }, { status: 500 });
+      }
+      invalidatePhotoIndex();
+      const gitMap = await commitAndPushUploads(`Add trip map: maps/${mapName}`);
+      return NextResponse.json({ url: `/photos/uploads/maps/${mapName}`, gitUploads: gitMap });
+    }
+
     if (!title) {
       return NextResponse.json({ error: 'Validation failed', fields: { title: 'Required.' } }, { status: 400 });
     }

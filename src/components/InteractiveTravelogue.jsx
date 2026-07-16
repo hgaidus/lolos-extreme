@@ -64,7 +64,11 @@ export default function InteractiveTravelogue({
       }
     }
 
-    // 2. Append any remaining gallery archive photos that were NOT embedded in the story HTML
+    // 2. Append any remaining gallery archive photos that were NOT embedded
+    // in the story HTML. These only ever appear while paging the lightbox
+    // past the last inline figure, so they're tagged and captioned
+    // "from the photo album" — otherwise the jump into pictures that aren't
+    // on the page reads as a glitch.
     if (Array.isArray(photos)) {
       photos.forEach((p) => {
         const url = p.url || (p.filename ? (p.filename.startsWith('/') || p.filename.startsWith('http') ? p.filename : `/photos/${p.filename}`) : "");
@@ -74,7 +78,8 @@ export default function InteractiveTravelogue({
           list.push({
             ...p,
             url: url,
-            title: p.title || p.filename || `${albumTitle || ''} Photo`
+            title: p.title || p.filename || `${albumTitle || ''} Photo`,
+            fromAlbum: true
           });
         }
       });
@@ -338,6 +343,9 @@ export default function InteractiveTravelogue({
                 </div>
                 <div style={{ fontSize: "0.8rem", color: "#666666", fontWeight: "500" }}>
                   Image {selectedIndex + 1} of {combinedSlides.length}
+                  {currentPhoto.fromAlbum && (
+                    <span style={{ fontStyle: "italic", color: "#8a7a5c" }}> · from the photo album</span>
+                  )}
                 </div>
               </div>
 

@@ -3,6 +3,7 @@ import path from "path";
 import Link from "next/link";
 import { cleanDrupalContent, unescapeDrupalText } from "@/utils/cleanContent";
 import { DATA_DIR } from "@/lib/dataPaths";
+import { isPublished } from "@/lib/publishState";
 
 function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
@@ -48,7 +49,9 @@ export async function generateStaticParams() {
 export default async function ActivityTypePage({ params, searchParams }) {
   const { type } = await params;
   const { from } = await searchParams;
-  const activities = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "activities.json"), "utf-8"));
+  // Unpublished activities are hidden from the cards AND the sidebar counts.
+  const activities = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "activities.json"), "utf-8"))
+    .filter(a => isPublished(a));
   const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
   const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
   const photoTitles = fs.existsSync(path.join(DATA_DIR, "photo_titles.json"))

@@ -421,7 +421,7 @@ export default async function CatchAllPage({ params, searchParams }) {
     if (currentTrip) {
       tripStops = stops.filter(s => String(s.parent_trip_nid) === String(currentTrip.nid) && stopVisible(s)).sort(byArrivalOrder);
     }
-    relevantActivities = activities.filter(a => String(a.parent_stop_nid) === String(displayItem.nid));
+    relevantActivities = activities.filter(a => String(a.parent_stop_nid) === String(displayItem.nid) && isPublished(a));
   }
 
   const isStop = displayItem.itemType === 'stop';

@@ -131,6 +131,53 @@ const NEW_TRIP_RULES = {
   map_image: optionalString,
 };
 
+// Ratings: the five-star scale plus the two legacy values already present in
+// the export ('' = unrated, '_original' = Drupal cruft on 153 records) — the
+// editor never mints '_original' but must not reject a record carrying it.
+const ACTIVITY_RULES = {
+  title: nonEmptyString,
+  activity_type: nonEmptyString,
+  narrative: optionalString,
+  published: publishedFlag,
+  rating: {
+    check(v) {
+      if (typeof v !== 'string' || !['', '*', '**', '***', '****', '*****', '_original'].includes(v)) {
+        return { error: 'Must be a star rating or blank.' };
+      }
+      return { value: v };
+    },
+  },
+};
+
+export function validateActivityFields(fields, opts) {
+  return validateWith(ACTIVITY_RULES, fields, opts);
+}
+
+const PAGE_RULES = {
+  title: nonEmptyString,
+  body: optionalString,
+  published: publishedFlag,
+};
+
+const NEW_PAGE_RULES = {
+  ...PAGE_RULES,
+  type: {
+    required: true,
+    check(v) {
+      if (!['page', 'story', 'tips'].includes(v)) return { error: 'Must be page, story, or tips.' };
+      return { value: v };
+    },
+  },
+};
+
+export function validatePageFields(fields, opts) {
+  return validateWith(PAGE_RULES, fields, opts);
+}
+
+export function validateNewPageFields(fields) {
+  return validateWith(NEW_PAGE_RULES, fields, { partial: false });
+}
+
 export function validateStopFields(fields, opts) {
   return validateWith(STOP_RULES, fields, opts);
 }

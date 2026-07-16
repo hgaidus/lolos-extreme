@@ -3,6 +3,7 @@ import path from "path";
 import { DATA_DIR } from "@/lib/dataPaths";
 import SearchClient from "@/components/SearchClient";
 import { getMenuGroups } from "@/lib/tripMeta";
+import { isPublished } from "@/lib/publishState";
 
 export const metadata = {
   title: "Search | Lolo's Extreme Cross Country RV Trips",
@@ -22,9 +23,11 @@ function loadJSON(name) {
 }
 
 function buildSearchIndex() {
-  const trips = loadJSON("trips.json");
-  const stops = loadJSON("stops.json");
-  const pages = loadJSON("standalone_pages.json");
+  // Draft filtering here too, not just in /api/search: this index feeds the
+  // instant title results, which would otherwise offer links into 404s.
+  const trips = loadJSON("trips.json").filter(isPublished);
+  const stops = loadJSON("stops.json").filter(isPublished);
+  const pages = loadJSON("standalone_pages.json").filter(isPublished);
 
   const tripByNid = new Map(trips.filter(t => t.nid).map(t => [String(t.nid), t]));
 

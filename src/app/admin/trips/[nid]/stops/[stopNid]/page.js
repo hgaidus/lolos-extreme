@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTrip, getStop, STOP_CATEGORIES, getDistinctStates, getDistinctAuthors } from '@/lib/adminData';
+import { getActivitiesForStop, getDistinctActivityTypes } from '@/lib/adminActivities';
 import StopForm from '../StopForm';
+import ActivitiesSection from '../ActivitiesSection';
 
 export default async function AdminStopEditPage({ params }) {
   const { nid, stopNid } = await params;
@@ -23,6 +25,19 @@ export default async function AdminStopEditPage({ params }) {
         categories={STOP_CATEGORIES}
         states={getDistinctStates()}
         authors={getDistinctAuthors()}
+      />
+      <ActivitiesSection
+        stopNid={stop.nid}
+        tripNid={trip.nid}
+        initialActivities={getActivitiesForStop(stop.nid).map((a) => ({
+          nid: a.nid,
+          title: a.title,
+          narrative: a.narrative || '',
+          activity_type: a.activity_type || '',
+          rating: a.rating || '',
+          published: a.published !== false,
+        }))}
+        activityTypes={getDistinctActivityTypes()}
       />
     </div>
   );

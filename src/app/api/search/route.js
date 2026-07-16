@@ -3,6 +3,7 @@ import path from "path";
 import { NextResponse } from "next/server";
 import { DATA_DIR } from "@/lib/dataPaths";
 import { makeVersioned, getDataVersion } from "@/lib/dataVersion";
+import { isPublished } from "@/lib/publishState";
 
 function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
@@ -44,9 +45,10 @@ function getIndex() {
 }
 
 function buildIndex() {
-  const trips = loadJSON("trips.json");
-  const stops = loadJSON("stops.json");
-  const pages = loadJSON("standalone_pages.json");
+  // Drafts never enter the index — their pages 404 for the public.
+  const trips = loadJSON("trips.json").filter(isPublished);
+  const stops = loadJSON("stops.json").filter(isPublished);
+  const pages = loadJSON("standalone_pages.json").filter(isPublished);
   const tripByNid = new Map(trips.filter(t => t.nid).map(t => [String(t.nid), t]));
 
   const tripEntries = trips

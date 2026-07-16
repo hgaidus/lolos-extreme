@@ -36,7 +36,14 @@ export default async function AdminTripEditPage({ params }) {
                 href={`/admin/trips/${trip.nid}/stops/${stop.nid}`}
                 className="flex items-center justify-between px-4 py-3 hover:bg-gray-50"
               >
-                <span className="font-medium text-gray-800">{stop.title}</span>
+                <span className="font-medium text-gray-800">
+                  {stop.title}
+                  {stop.published === false && (
+                    <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800 align-middle">
+                      Draft
+                    </span>
+                  )}
+                </span>
                 <span className="text-sm text-gray-400">{stop.state}</span>
               </Link>
             </li>

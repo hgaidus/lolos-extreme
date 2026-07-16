@@ -25,6 +25,10 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
   const [author, setAuthor] = useState(stop?.author || '');
   const [state, setState] = useState(stop?.state || '');
   const [category, setCategory] = useState(stop?.category || categories[0]);
+  // New stops start as drafts; existing stops keep their current state
+  // (absence of the field means published — none of the legacy records
+  // carry it).
+  const [published, setPublished] = useState(mode === 'create' ? false : stop?.published !== false);
   const [status, setStatus] = useState(null);
   const [gitWarning, setGitWarning] = useState('');
   const [gitError, setGitError] = useState('');
@@ -42,6 +46,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
       miles: Number(miles), hours: Number(hours), nights: Number(nights),
       arrival_date: fromDateInputValue(arrivalDate),
       author, state, category,
+      published,
     };
 
     try {
@@ -193,6 +198,25 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
           </select>
           {fieldError('category')}
         </div>
+      </div>
+
+      <div className="flex items-start gap-2 border-t border-gray-100 pt-4">
+        <input
+          id="stop-published"
+          type="checkbox"
+          checked={published}
+          onChange={(e) => setPublished(e.target.checked)}
+          className="mt-1 h-4 w-4"
+        />
+        <label htmlFor="stop-published" className="text-sm text-gray-700">
+          <span className="font-medium">Published</span> — visible to the public.
+          {!published && (
+            <span className="block text-xs text-amber-700 mt-0.5">
+              Draft: only you (logged in) can view this stop at its URL; it stays out of
+              the itinerary, search, and sitemap until published.
+            </span>
+          )}
+        </label>
       </div>
 
       {stop && (

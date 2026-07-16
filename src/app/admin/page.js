@@ -17,7 +17,14 @@ export default function AdminDashboardPage() {
               href={`/admin/trips/${trip.nid}`}
               className="flex items-center justify-between px-4 py-3 hover:bg-gray-50"
             >
-              <span className="font-medium text-gray-800">{trip.title}</span>
+              <span className="font-medium text-gray-800">
+                {trip.title}
+                {trip.published === false && (
+                  <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800 align-middle">
+                    Draft
+                  </span>
+                )}
+              </span>
               <span className="text-sm text-gray-400">{trip.year}</span>
             </Link>
           </li>

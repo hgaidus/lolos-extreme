@@ -7,6 +7,7 @@ export default function TripEditForm({ trip }) {
   const [title, setTitle] = useState(trip.title || '');
   const [year, setYear] = useState(trip.year || '');
   const [travelogue, setTravelogue] = useState(trip.travelogue || '');
+  const [published, setPublished] = useState(trip.published !== false);
   const [status, setStatus] = useState(null); // 'saving' | 'saved' | 'error' | 'invalid'
   const [gitWarning, setGitWarning] = useState('');
   const [gitError, setGitError] = useState('');
@@ -22,7 +23,7 @@ export default function TripEditForm({ trip }) {
       const res = await fetch(`/api/admin/trips/${trip.nid}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, year, travelogue }),
+        body: JSON.stringify({ title, year, travelogue, published }),
       });
       if (res.status === 400) {
         const data = await res.json();
@@ -79,6 +80,26 @@ export default function TripEditForm({ trip }) {
         />
         <ContentPreview type="trip" travelogue={travelogue} />
       </div>
+      <div className="flex items-start gap-2 border-t border-gray-100 pt-4">
+        <input
+          id="trip-published"
+          type="checkbox"
+          checked={published}
+          onChange={(e) => setPublished(e.target.checked)}
+          className="mt-1 h-4 w-4"
+        />
+        <label htmlFor="trip-published" className="text-sm text-gray-700">
+          <span className="font-medium">Published</span> — visible to the public.
+          {!published && (
+            <span className="block text-xs text-amber-700 mt-0.5">
+              Draft: only you (logged in) can view this trip at its URL; it stays out of
+              region listings, search, and the sitemap until published. (Its stops keep
+              their own individual flags.)
+            </span>
+          )}
+        </label>
+      </div>
+
       <div className="text-xs text-gray-400">
         Slug: <code>{trip.slug}</code> (not editable) &middot; nid {trip.nid}
       </div>

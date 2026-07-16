@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { DATA_DIR } from '@/lib/dataPaths';
+import { isPublished } from '@/lib/publishState';
 
 const BASE_URL = 'https://cross-country-trips.com';
 
@@ -57,21 +58,22 @@ export default function sitemap() {
     add(p, { changeFrequency: 'monthly', priority: 0.7 });
   }
 
-  // Trips
+  // Trips (drafts excluded — they 404 for the public)
   for (const t of trips) {
-    if (!t.slug) continue;
+    if (!t.slug || !isPublished(t)) continue;
     add(cleanPath(t.slug), { lastModified: toDate(t.created), changeFrequency: 'yearly', priority: 0.9 });
   }
 
-  // Stops
+  // Stops (drafts excluded)
   for (const s of stops) {
-    if (!s.slug) continue;
+    if (!s.slug || !isPublished(s)) continue;
     add(cleanPath(s.slug), { lastModified: toDate(s.arrival_date || s.created), changeFrequency: 'yearly', priority: 0.6 });
   }
 
-  // Standalone pages (skip the excluded 'tips' type — those 404 by design)
+  // Standalone pages (skip the excluded 'tips' type — those 404 by design —
+  // and drafts)
   for (const p of pages) {
-    if (!p.slug || p.type === 'tips') continue;
+    if (!p.slug || p.type === 'tips' || !isPublished(p)) continue;
     add(cleanPath(p.slug), { lastModified: toDate(p.created), changeFrequency: 'yearly', priority: 0.5 });
   }
 

@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { DATA_DIR } from "@/lib/dataPaths";
 import { getTripRegion, REGION_INFO } from "@/lib/tripRegions";
+import { isPublished } from "@/lib/publishState";
 
 function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
@@ -14,7 +15,8 @@ function getAllTrips(region) {
     const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
     const byNid = new Map();
     trips.forEach(t => {
-      if (t && t.nid && t.slug && !byNid.has(t.nid)) byNid.set(t.nid, t);
+      // Drafts stay out of every public listing.
+      if (t && t.nid && t.slug && isPublished(t) && !byNid.has(t.nid)) byNid.set(t.nid, t);
     });
     const yearOf = (t) => Number(t.year) || (t.created ? new Date(Number(t.created) * 1000).getFullYear() : 0);
     let list = Array.from(byNid.values());

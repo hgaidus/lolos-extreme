@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import InteractiveTravelogue from '@/components/InteractiveTravelogue';
 import { cleanDrupalContent, unescapeDrupalText } from '@/utils/cleanContent';
 import { buildContentRawText } from '@/lib/stopRawText';
+import { isPublished, viewerCanSeeDrafts } from '@/lib/publishState';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { photoFileExists } from '@/lib/photoExists';
 import { getTripRegionInfo } from '@/lib/tripRegions';
@@ -26,6 +27,12 @@ export async function generateMetadata({ params }) {
   }
   const title = cleanTitle(item.title);
   const fullTitle = `${title} | Lolo's Extreme Cross Country RV Trips`;
+
+  // Drafts: the page 404s for the public; the admin preview render must not
+  // be indexable if a crawler ever saw it, and needs no canonical/OG.
+  if (!isPublished(item)) {
+    return { title: fullTitle, robots: { index: false, follow: false } };
+  }
   // Canonicalize to the matched item's own slug, not the requested path.
   // lookupItem() falls back to fuzzy matching for legacy Drupal URLs, so many
   // URL variants (including any suffix on a real slug) resolve to the same
@@ -361,6 +368,17 @@ export default async function CatchAllPage({ params, searchParams }) {
   if (!item) {
     notFound();
   }
+
+  // Drafts 404 for the public but render for a logged-in admin (with the
+  // banner below), so unpublished content can be proofread at its real URL.
+  // adminViewer is computed unconditionally: a published trip's itinerary
+  // must also show its draft stops to the admin (and only the admin).
+  const isDraft = !isPublished(item);
+  const adminViewer = await viewerCanSeeDrafts();
+  if (isDraft && !adminViewer) {
+    notFound();
+  }
+
   const { stops, trips, comments, photoTitles, activities } = getExportedData();
   const displayItem = item;
 
@@ -514,14 +532,18 @@ export default async function CatchAllPage({ params, searchParams }) {
     return ta - tb;
   };
 
+  // Draft stops stay out of the itinerary, prev/next, and the trip hand-off
+  // for the public; the admin sees them (that's how a draft is reached).
+  const stopVisible = (s) => isPublished(s) || adminViewer;
+
   if (displayItem.itemType === 'trip') {
     currentTrip = displayItem;
-    tripStops = stops.filter(s => String(s.parent_trip_nid) === String(displayItem.nid)).sort(byArrivalOrder);
+    tripStops = stops.filter(s => String(s.parent_trip_nid) === String(displayItem.nid) && stopVisible(s)).sort(byArrivalOrder);
     relevantActivities = [];
   } else if (displayItem.itemType === 'stop') {
     currentTrip = trips.find(t => String(t.nid) === String(displayItem.parent_trip_nid));
     if (currentTrip) {
-      tripStops = stops.filter(s => String(s.parent_trip_nid) === String(currentTrip.nid)).sort(byArrivalOrder);
+      tripStops = stops.filter(s => String(s.parent_trip_nid) === String(currentTrip.nid) && stopVisible(s)).sort(byArrivalOrder);
     }
     relevantActivities = activities.filter(a => String(a.parent_stop_nid) === String(displayItem.nid));
   }
@@ -540,6 +562,15 @@ export default async function CatchAllPage({ params, searchParams }) {
 
   return (
     <div className="w-full">
+      {/* Admin-only preview of an unpublished record at its real URL. The
+          public never reaches this branch — drafts 404 above. */}
+      {isDraft && adminViewer && (
+        <div className="mb-6 rounded border-2 border-amber-500 bg-amber-50 px-4 py-3 font-sans">
+          <span className="font-extrabold text-amber-800 uppercase tracking-wide text-sm">Draft</span>
+          <span className="text-amber-800 text-sm"> — not visible to the public. Publish it from the admin editor when ready.</span>
+        </div>
+      )}
+
       {/* Navigation Breadcrumb */}
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
         <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>

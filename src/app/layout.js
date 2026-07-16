@@ -4,6 +4,7 @@ import "./globals.css";
 import SiteChrome from "../components/SiteChrome";
 import { Inter, Lora } from "next/font/google";
 import { DATA_DIR } from "@/lib/dataPaths";
+import { isPublished } from "@/lib/publishState";
 
 function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
@@ -14,7 +15,7 @@ function getTripTitlesBySlug() {
     const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
     const map = {};
     trips.forEach(t => {
-      if (t && t.slug) map[t.slug] = cleanTitle(t.title);
+      if (t && t.slug && isPublished(t)) map[t.slug] = cleanTitle(t.title);
     });
     return map;
   } catch {

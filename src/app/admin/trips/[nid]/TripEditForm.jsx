@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import ContentPreview from '../../ContentPreview';
+import EditorPane from '../../EditorPane';
 
 export default function TripEditForm({ trip }) {
   const [title, setTitle] = useState(trip.title || '');
@@ -70,16 +70,14 @@ export default function TripEditForm({ trip }) {
           className="w-32 border border-gray-300 rounded px-3 py-2"
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Travelogue</label>
-        <textarea
-          value={travelogue}
-          onChange={(e) => setTravelogue(e.target.value)}
-          rows={20}
-          className="w-full border border-gray-300 rounded px-3 py-2 font-mono text-sm"
-        />
-        <ContentPreview type="trip" travelogue={travelogue} />
-      </div>
+      <EditorPane
+        label="Travelogue"
+        value={travelogue}
+        onChange={setTravelogue}
+        previewType="trip"
+        tripNid={trip.nid}
+        rows={20}
+      />
       <div className="flex items-start gap-2 border-t border-gray-100 pt-4">
         <input
           id="trip-published"

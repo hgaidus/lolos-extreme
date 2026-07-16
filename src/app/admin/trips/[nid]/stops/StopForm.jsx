@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import ContentPreview from '../../../ContentPreview';
+import EditorPane from '../../../EditorPane';
 
 function toDateInputValue(unixSeconds) {
   if (!unixSeconds) return '';
@@ -101,15 +101,16 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
         {fieldError('title')}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Travelogue</label>
-        <textarea
-          value={travelogue}
-          onChange={(e) => setTravelogue(e.target.value)}
-          rows={24}
-          className="w-full border border-gray-300 rounded px-3 py-2 font-mono text-sm"
-        />
-      </div>
+      <EditorPane
+        label="Travelogue"
+        value={travelogue}
+        onChange={setTravelogue}
+        previewType="stop"
+        description={description}
+        stopNid={stop?.nid}
+        tripNid={tripNid}
+        rows={24}
+      />
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Short description</label>
@@ -119,7 +120,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
           rows={4}
           className="w-full border border-gray-300 rounded px-3 py-2"
         />
-        <ContentPreview type="stop" travelogue={travelogue} description={description} />
+        <p className="text-xs text-gray-400 mt-1">Shown in the italic callout box after the travelogue — the live preview above includes it.</p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">

@@ -20,13 +20,16 @@ function getPhotoTitles() {
 }
 
 /**
- * Render a draft stop/trip body to the same cleaned HTML the public site shows.
- * Raw-text assembly is the SAME function the public page uses (stopRawText.js),
- * so preview parity is structural.
- * @param {{type?: 'stop'|'trip', travelogue?: string, description?: string}} draft
+ * Render a draft body to the same cleaned HTML the public site shows.
+ * Trip/stop raw-text assembly is the SAME function the public page uses
+ * (stopRawText.js), so preview parity is structural. Activities render their
+ * narrative directly, mirroring activities/[type]/page.js; standalone pages
+ * fall through buildContentRawText's body fallback, same as the public page.
+ * @param {{type?: 'stop'|'trip'|'page'|'activity', travelogue?: string, description?: string, body?: string, narrative?: string}} draft
  * @returns {string} HTML string (normalized by cleanDrupalContent)
  */
 export function renderContentPreview(draft) {
-  const rawText = buildContentRawText(draft || {});
+  const d = draft || {};
+  const rawText = d.type === 'activity' ? d.narrative || '' : buildContentRawText(d);
   return cleanDrupalContent(rawText, getPhotoTitles());
 }

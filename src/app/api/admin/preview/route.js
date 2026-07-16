@@ -7,8 +7,8 @@ import { renderContentPreview } from '@/lib/adminPreview';
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { type, travelogue, description } = body || {};
-    const html = renderContentPreview({ type, travelogue, description });
+    const { type, travelogue, description, body: pageBody, narrative } = body || {};
+    const html = renderContentPreview({ type, travelogue, description, body: pageBody, narrative });
     return NextResponse.json({ html });
   } catch (err) {
     console.error('Error rendering preview:', err);

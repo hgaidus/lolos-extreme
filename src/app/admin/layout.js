@@ -15,7 +15,7 @@ export default function AdminLayout({ children }) {
         </Link>
         <LogoutButton />
       </header>
-      <main className="p-6 max-w-4xl mx-auto">{children}</main>
+      <main className="p-6 max-w-6xl mx-auto">{children}</main>
     </div>
   );
 }

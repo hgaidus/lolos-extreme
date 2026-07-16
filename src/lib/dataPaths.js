@@ -10,3 +10,11 @@ export const DATA_DIR = path.normalize(
 export const FILES_DIR = path.normalize(
   process.env.DRUPAL_FILES_DIR || path.join(process.cwd(), '..', 'files')
 );
+
+// New photos uploaded through the CMS. Unlike FILES_DIR (the ~26GB legacy
+// archive, outside version control), this directory is its own git repo
+// (hgaidus/lolos-photo-uploads) and every upload is committed and pushed, so
+// new photos are backed up to GitHub within seconds of upload.
+export const UPLOADS_DIR = path.normalize(
+  process.env.PHOTO_UPLOADS_DIR || path.join(process.cwd(), '..', 'uploads')
+);

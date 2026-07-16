@@ -507,9 +507,12 @@ export default async function CatchAllPage({ params, searchParams }) {
   const rawText = buildContentRawText(displayItem);
   const cleanedHtml = cleanDrupalContent(rawText, photoTitles);
 
-  // Find archival photos for this stop
+  // Find archival photos for this stop. Unpublished photos are hidden from
+  // the gallery (explicit [img_assist] embeds in the narrative still render —
+  // that's the deliberate asymmetry that makes silent figure loss impossible).
   const stopPhotos = photoTitles
     .filter(p => String(p.trip_stop_nid) === String(displayItem.nid))
+    .filter(p => isPublished(p))
     .filter(p => photoFileExists(p.filename))
     .map((p, i) => ({
       url: `/photos/${p.filename}`,

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { DATA_DIR, FILES_DIR } from './dataPaths.js';
+import { DATA_DIR, FILES_DIR, UPLOADS_DIR } from './dataPaths.js';
 
 // Version stamps for the two things module-level caches derive from: the
 // content JSON and the photo directories. Caches wrapped in makeVersioned
@@ -25,6 +25,8 @@ const PHOTO_DIRS = [
   ...['1k', '2k', '3k', '4k', '5k', '6k', '7k', '8k'].map((t) => path.join(FILES_DIR, 'images', t)),
   path.join(FILES_DIR, 'images-old'),
   FILES_DIR,
+  UPLOADS_DIR,
+  path.join(UPLOADS_DIR, 'maps'),
 ];
 
 function stamp(paths) {

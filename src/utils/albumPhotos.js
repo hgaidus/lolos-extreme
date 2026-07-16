@@ -32,12 +32,18 @@ function buildData() {
 
     const stopByNid = new Map(stops.map(s => [String(s.nid), s]));
     const stopNidByImageNid = new Map(titles.map(t => [String(t.image_nid), t.trip_stop_nid]));
+    // Album image entries carry no published flag of their own — visibility
+    // is governed by the photo_titles record (every album image_nid has one).
+    const unpublishedImageNids = new Set(
+      titles.filter(t => !isPublished(t)).map(t => String(t.image_nid))
+    );
 
     return {
       albumsObj: albums,
       titlesObj: titles,
       stopByNid,
-      stopNidByImageNid
+      stopNidByImageNid,
+      unpublishedImageNids
     };
   } catch (err) {
     console.error("Error loading photo album dataset:", err);
@@ -45,9 +51,15 @@ function buildData() {
       albumsObj: [],
       titlesObj: [],
       stopByNid: new Map(),
-      stopNidByImageNid: new Map()
+      stopNidByImageNid: new Map(),
+      unpublishedImageNids: new Set()
     };
   }
+}
+
+function imagePublished(imageNid) {
+  const { unpublishedImageNids } = loadData();
+  return !unpublishedImageNids.has(String(imageNid));
 }
 
 // Given an image's nid and/or a directly-known trip_stop_nid, resolve the
@@ -110,6 +122,7 @@ export function getPhotosForAlbum(albumOrSlug) {
 
   if (album && Array.isArray(album.images) && album.images.length > 0) {
     return album.images
+      .filter(img => imagePublished(img.image_nid))
       .filter(img => photoFileExists(img.filename || img.url))
       .map((img, idx) => ({
         url: img.url.startsWith('/') ? img.url : `/photos/${img.filename || img.url}`,
@@ -127,7 +140,7 @@ export function getPhotosForAlbum(albumOrSlug) {
   const year = yearMatch ? yearMatch[1] : null;
 
   let results = titlesObj.filter(p => {
-    if (!p) return false;
+    if (!p || !isPublished(p)) return false;
     const fn = (p.filename || '').toLowerCase();
     const ttl = (p.title || '').toLowerCase();
     if (year && (fn.includes(year) || ttl.includes(year))) return true;
@@ -157,7 +170,7 @@ export function getAlbumPreviewPhoto(albumOrSlug) {
   if (album && Array.isArray(album.images) && album.images.length > 0) {
     for (const img of album.images) {
       const name = img.filename || img.url;
-      if (!name || !photoFileExists(name)) continue;
+      if (!name || !imagePublished(img.image_nid) || !photoFileExists(name)) continue;
       return img.url && img.url.startsWith('/') ? img.url : `/photos/${name}`;
     }
     return null;

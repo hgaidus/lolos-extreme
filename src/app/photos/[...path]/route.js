@@ -1,13 +1,45 @@
 import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { FILES_DIR } from '@/lib/dataPaths';
+import { FILES_DIR, UPLOADS_DIR } from '@/lib/dataPaths';
+
+const MIME_TYPES = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
+};
 
 export async function GET(request, { params }) {
   try {
     const { path: pathArray } = await params;
     let filename = pathArray.join('/');
     filename = filename.replace(/^sites\/default\/files\/(?:images\/)?/i, '');
+
+    // CMS uploads live in their own git-backed directory and are served by
+    // exact name — they're CMS-controlled, so none of the legacy fuzzy tiers
+    // apply, and an early exit keeps them out of the 22k-file search space.
+    const uploadsMatch = filename.match(/^uploads\/(.+)$/i);
+    if (uploadsMatch) {
+      const rel = path.normalize(uploadsMatch[1]);
+      // No traversal out of UPLOADS_DIR, and never serve repo internals.
+      if (rel.startsWith('..') || path.isAbsolute(rel) || rel.split(/[\\/]/)[0] === '.git') {
+        return new NextResponse('Image Not Found', { status: 404 });
+      }
+      const uploadPath = path.join(UPLOADS_DIR, rel);
+      if (!fs.existsSync(uploadPath) || !fs.statSync(uploadPath).isFile()) {
+        return new NextResponse('Image Not Found', { status: 404 });
+      }
+      return new NextResponse(fs.readFileSync(uploadPath), {
+        status: 200,
+        headers: {
+          'Content-Type': MIME_TYPES[path.extname(uploadPath).toLowerCase()] || 'application/octet-stream',
+          'Cache-Control': 'public, max-age=31536000, immutable',
+        },
+      });
+    }
 
     // Check candidate directories including subdirectories
     const baseDirs = [
@@ -179,18 +211,10 @@ export async function GET(request, { params }) {
     }
 
     const fileBuffer = fs.readFileSync(filePath);
-    
+
     // Determine mime type
     const extReal = path.extname(filePath).toLowerCase();
-    const mimeTypes = {
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.png': 'image/png',
-      '.gif': 'image/gif',
-      '.webp': 'image/webp',
-      '.svg': 'image/svg+xml'
-    };
-    const contentType = mimeTypes[extReal] || 'application/octet-stream';
+    const contentType = MIME_TYPES[extReal] || 'application/octet-stream';
 
     return new NextResponse(fileBuffer, {
       status: 200,

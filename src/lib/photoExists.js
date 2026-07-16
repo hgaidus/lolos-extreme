@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { FILES_DIR } from './dataPaths';
+import { FILES_DIR, UPLOADS_DIR } from './dataPaths';
 import { getPhotoDirVersion, expireVersionMemos } from './dataVersion';
 
 // The index rebuilds when any photo directory's mtime changes (a new upload,
@@ -42,6 +42,8 @@ function buildIndex() {
     path.join(FILES_DIR, 'images', '8k'),
     path.join(FILES_DIR, 'images-old'),
     FILES_DIR,
+    UPLOADS_DIR,
+    path.join(UPLOADS_DIR, 'maps'),
   ];
 
   const files = new Set();

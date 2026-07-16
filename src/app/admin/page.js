@@ -6,6 +6,17 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
+      <div className="grid grid-cols-2 gap-3 mb-8 sm:max-w-md">
+        <Link href="/admin/photos" className="bg-white rounded-lg shadow px-4 py-3 hover:bg-gray-50">
+          <span className="block font-bold text-gray-800">Photos</span>
+          <span className="block text-xs text-gray-500">Upload, retitle, assign to stops</span>
+        </Link>
+        <Link href="/admin/albums" className="bg-white rounded-lg shadow px-4 py-3 hover:bg-gray-50">
+          <span className="block font-bold text-gray-800">Albums</span>
+          <span className="block text-xs text-gray-500">Reorder, covers, membership</span>
+        </Link>
+      </div>
+
       <h1 className="text-2xl font-bold mb-4 text-gray-800">Trips</h1>
       <p className="text-sm text-gray-500 mb-6">
         {trips.length} trips. Click one to edit its details or add a stop.

@@ -1,6 +1,6 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { DATA_DIR } from './dataPaths';
+import { DATA_DIR, UPLOADS_DIR } from './dataPaths';
 import {
   readDataset,
   writeDataset,
@@ -123,8 +123,8 @@ export function createStop(parentTripNid, fields) {
 //   'commit_failed'     the edit is on disk but NOT in git at all (red: the
 //                       change is unversioned — investigate before continuing)
 //   'nothing_to_commit' a no-op edit
-export async function commitAndPush(message) {
-  const opts = { cwd: DATA_DIR };
+async function gitCommitAndPush(cwd, message) {
+  const opts = { cwd };
   try {
     await execFileAsync('git', ['add', '-A'], opts);
     try {
@@ -142,4 +142,15 @@ export async function commitAndPush(message) {
   } catch (err) {
     return { status: 'commit_failed', committed: false, pushed: false, error: err.message };
   }
+}
+
+export async function commitAndPush(message) {
+  return gitCommitAndPush(DATA_DIR, message);
+}
+
+// The uploads directory is its own git repo (hgaidus/lolos-photo-uploads);
+// pushing each uploaded binary is what gives new photos an off-site copy
+// within seconds of upload.
+export async function commitAndPushUploads(message) {
+  return gitCommitAndPush(UPLOADS_DIR, message);
 }

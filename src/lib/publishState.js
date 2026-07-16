@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { isValidSessionToken, ADMIN_COOKIE_NAME } from './adminAuth';
+import { isValidSessionToken, ADMIN_COOKIE_NAME } from './adminAuth.js';
 
 // Draft support (trips, stops, standalone pages). The Drupal status field did
 // not survive the export, so this is a new nullable flag with a
@@ -14,9 +13,10 @@ import { isValidSessionToken, ADMIN_COOKIE_NAME } from './adminAuth';
 // - The content page itself ([...slug], already a dynamic route) 404s a
 //   draft for the public but renders it for a logged-in admin with a DRAFT
 //   banner, so drafts can be proofread at their real URL.
-// - Activities and photos carry no flag by design; an activity or photo
-//   attached to a draft stop simply has no public page to link to until the
-//   stop is published.
+// - Photos carry the same flag (adminPhotos.js) with one deliberate
+//   asymmetry: unpublished photos leave galleries/albums but explicit
+//   [img_assist] narrative embeds keep rendering. Activities gain the flag
+//   in Phase D.
 
 export function isPublished(record) {
   return !record || record.published !== false;
@@ -24,6 +24,9 @@ export function isPublished(record) {
 
 export async function viewerCanSeeDrafts() {
   try {
+    // Lazy so this module stays importable by plain node scripts (backfill,
+    // parity checks) that never touch the request-scoped branch.
+    const { cookies } = await import('next/headers');
     const store = await cookies();
     const token = store.get(ADMIN_COOKIE_NAME)?.value;
     return token ? isValidSessionToken(token) : false;

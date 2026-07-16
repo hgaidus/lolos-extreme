@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { menuTrips } from "@/data/menuTrips";
 
-// Labels are kept short so the desktop bar doesn't overflow on narrow screens.
-const MENUS = [
-  { key: "trips", label: "Cross Country", items: menuTrips.crossCountry },
-  { key: "west",  label: "West",          items: menuTrips.westCoast },
-  { key: "east",  label: "East",          items: menuTrips.eastCoast },
-  { key: "intl",  label: "International", items: menuTrips.international },
-];
-
-export default function TopNav({ tripTitles = {} }) {
+export default function TopNav({ tripTitles = {}, menus = {} }) {
+  // Menu groups arrive as a server-derived prop (tripMeta reads the trip
+  // records). Labels are kept short so the desktop bar doesn't overflow on
+  // narrow screens.
+  const MENUS = [
+    { key: "trips", label: "Cross Country", items: menus.crossCountry || [] },
+    { key: "west",  label: "West",          items: menus.westCoast || [] },
+    { key: "east",  label: "East",          items: menus.eastCoast || [] },
+    { key: "intl",  label: "International", items: menus.international || [] },
+  ];
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMenu, setOpenMenu]     = useState(null);
   const [mobileExpanded, setMobileExpanded] = useState(null);

@@ -7,7 +7,7 @@ import TopNav from "./TopNav";
 // Wraps the public-facing chrome (green banner, top nav, footer) around page
 // content. Admin routes get their own chrome from src/app/admin/layout.js, so
 // this hides the public chrome on /admin/* to avoid two stacked headers.
-export default function SiteChrome({ tripTitles, children }) {
+export default function SiteChrome({ tripTitles, menus, children }) {
   const pathname = usePathname();
   const isAdmin = pathname === "/admin" || pathname?.startsWith("/admin/");
 
@@ -69,7 +69,7 @@ export default function SiteChrome({ tripTitles, children }) {
       </header>
 
       {/* ── Sticky Navigation Bar ── */}
-      <TopNav tripTitles={tripTitles} />
+      <TopNav tripTitles={tripTitles} menus={menus} />
 
       {/* ── Main Content ── */}
       <main style={{

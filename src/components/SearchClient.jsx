@@ -2,14 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { menuTrips } from "@/data/menuTrips";
-
-const REGIONS = [
-  { key: "crossCountry", label: "Cross Country Trips", items: menuTrips.crossCountry },
-  { key: "east", label: "East Coast Trips", items: menuTrips.eastCoast },
-  { key: "west", label: "West Coast Trips", items: menuTrips.westCoast },
-  { key: "intl", label: "International Trips", items: menuTrips.international },
-];
 
 const TYPE_LABEL = { trip: "Trip", stop: "Stop", page: "Page" };
 const TYPE_BADGE_CLASS = {
@@ -18,7 +10,15 @@ const TYPE_BADGE_CLASS = {
   page: "bg-[#7c9880]/15 text-[#3f5c4c] border-[#7c9880]/40",
 };
 
-export default function SearchClient({ searchIndex }) {
+export default function SearchClient({ searchIndex, menus = {} }) {
+  // Region browse groups arrive as a server-derived prop (tripMeta), same
+  // shape the nav dropdowns use.
+  const REGIONS = [
+    { key: "crossCountry", label: "Cross Country Trips", items: menus.crossCountry || [] },
+    { key: "east", label: "East Coast Trips", items: menus.eastCoast || [] },
+    { key: "west", label: "West Coast Trips", items: menus.westCoast || [] },
+    { key: "intl", label: "International Trips", items: menus.international || [] },
+  ];
   const [query, setQuery] = useState("");
   const [activeRegion, setActiveRegion] = useState(null);
   const [results, setResults] = useState([]);

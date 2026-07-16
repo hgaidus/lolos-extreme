@@ -9,6 +9,7 @@ import { isPublished, viewerCanSeeDrafts } from '@/lib/publishState';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { photoFileExists } from '@/lib/photoExists';
 import { getTripRegionInfo } from '@/lib/tripRegions';
+import { getTripMapImage, getTripAuthor } from '@/lib/tripMeta';
 
 function isExcludedSlug(slugStr) {
   const s = slugStr.toLowerCase();
@@ -137,138 +138,10 @@ function formatStopStats(miles, hours, nights) {
   return str;
 }
 
-// Verified against every trip's actual page on the original Drupal site
-// (cross-country-trips.com) rather than guessed from slug keywords, since
-// no trip-overview-map reference exists anywhere in the migrated data.
-// null means the original site shows no overview map for that trip at all.
-// Where the exact original file wasn't migrated (only a lower-res variant
-// exists, or the file is missing entirely), the closest available
-// substitute is used instead.
-const TRIP_MAP_BY_SLUG = {
-  "1998-road-trip-virginia-and-north-carolina": "/photos/ccalltrips_0.gif",
-  "1999-cross-country-road-trip": "/photos/cc1999s.gif",
-  "1999-road-trip-first-landing-state-park-virginia": "/photos/ccalltrips_0.gif",
-  "1999-road-trip-niagara-falls": "/photos/ccalltrips_0.gif",
-  "1999-road-trip-boston-suburbs": "/photos/ccalltrips_0.gif",
-  "2000-cross-country-road-trip": "/photos/cc2000s.gif",
-  "2000-winter-road-trip-acadia": "/photos/ccalltrips_0.gif",
-  "2000-spring-break-hunting-island": "/photos/ccalltrips_0.gif",
-  "2000-columbus-day-provincetown": "/photos/ccalltrips_0.gif",
-  "2000-chesapeake-rv-road-trip": "/photos/ccalltrips_0.gif",
-  "2001-cross-country-road-trip": "/photos/cc2001s.gif",
-  "2001-spring-break-hunting-island": "/photos/ccalltrips_0.gif",
-  "2001-winter-trip-lake-placid": "/photos/ccalltrips_0.gif",
-  "2002-cross-country-road-trip": "/photos/cc2002s.gif",
-  "2002-winter-trip-stowe-vermont": "/photos/ccalltrips_0.gif",
-  "2002-spring-break-hunting-island": "/photos/ccalltrips_0.gif",
-  "2002-rv-trip-delaware-and-virginia-beach": "/photos/ccalltrips_0.gif",
-  "2003-cross-country-road-trip": "/photos/cc2003s.gif",
-  "2003-spring-break-edisto-island": "/photos/ccalltrips_0.gif",
-  "2004-maritime-provinces-road-trip": "/photos/cc2004s.gif",
-  "2004-spring-break-ocracoke-island": "/photos/ccalltrips_0.gif",
-  "2005-cross-country-road-trip": "/photos/cc2005s.gif",
-  "2006-alaska-rv-road-trip": "/photos/cc2006s.gif",
-  "2007-cross-country-road-trip": "/photos/cc2007s.gif",
-  "2008-marthas-vineyard-rv-vacation": "/photos/4k/cc2008.gif",
-  "2009-cross-country-camping-trip": "/photos/4k/cc20b9s.gif",
-  "2009-white-mountains-backpacking-trip": "/photos/4k/AJG-White-Mountains-Map-01-450_0.jpg",
-  "2009-southeast-coast-trip": "/photos/4k/cc2009s.gif",
-  "2010-rv-trip-quebec": "/photos/4k/cc2010s.gif",
-  "2011-cross-country-road-trip": "/photos/4k/cc2011s.gif",
-  "2012-northern-california-road-trip": "/photos/4k/cc2012.gif",
-  "2013-cross-country-road-trip": "/photos/4k/cc2013a.gif",
-  "2013-pacific-northwest": "/photos/5k/cc2013b.gif",
-  "2013-yosemite-thanksgiving": "/photos/5k/cc2013c_0.gif",
-  "2014-pacific-northwest": "/photos/5k/cc2014a.gif",
-  "2014-yosemite-and-eastern-sierra": "/photos/5k/cc2014b.gif",
-  "2014-southwest-deserts-and-yosemite": "/photos/5k/cc2014c.gif",
-  "2015-seattle-san-francisco-and-sierra": "/photos/6k/cc2015b.gif",
-  "2015-solo-cross-country-motorcycle-trip": "/photos/8k/2015-solo-motorcycle.gif",
-  "2015-yosemite-and-northern-california": "/photos/6k/cc2015c.gif",
-  "2015-herb-and-lolos-migration-west": "/photos/6k/cc2015d.gif",
-  "2015-yosemite-thanksgiving-and-san-diego": "/photos/6k/cc2015e.gif",
-  "2015-christmas-yosemite": "/photos/6k/cc2015f.gif",
-  "2016-yosemite-eastern-sierra": "/photos/6k/cc2016b.gif",
-  "2016-bringing-boat-west": "/photos/6k/cc2016c.gif",
-  "2016-yosemite-and-pinnacles": "/photos/6k/cc2016d.gif",
-  "2016-christmas-tahoe": "/photos/6k/cc2016e.gif",
-  "2017-southern-california-deserts": "/photos/6k/cc2017a.gif",
-  "2017-death-valley-and-eastern-sierra-4wd": "/photos/6k/cc2017b.gif",
-  "2017-european-vacation": "/photos/7k/germany.gif",
-  "2017-4wd-eastern-sierra-and-death-valley-adventure": "/photos/6k/cc2017b.gif",
-  "totality": "/photos/7k/cc2017d.gif",
-  "2018-hawaii-big-island-maui": "/photos/8k/Hawaii-real.gif",
-  "2018-thailand-trip": "/photos/7k/Thailand-Route.gif",
-  "2018-eastern-sierra": "/photos/7k/20180529-sierra.gif",
-  "2018-lake-powell-boat-camping": "/photos/7k/20180701-powell.gif",
-  "2018-tuolumne-meadows": "/photos/7k/20180822-tuolumne.gif",
-  "2018-trinity-alps": "/photos/7k/20180925-trinity.gif",
-  "2018-eastern-sierra-outlaws": "/photos/7k/20181007-outlaws.gif",
-  "2018-mojave-road-indian-wells": "/photos/7k/20181016-mojave.gif",
-  "2018-yosemite-winter": "/photos/7k/20180220-yosemite.gif",
-  "2019-spain": "/photos/8k/Spain.gif",
-  "2019-baja-adventure": "/photos/8k/baja_map.gif",
-  "2019-superbloom": "/photos/8k/north_america_map_2019-04_final_.gif",
-  "2019-central-and-se-oregon": "/photos/8k/oregon.gif",
-  "2019-bishop-andrews-30th-birthday-bash": "/photos/8k/2019-05-03-Bishop-Bday.gif",
-  "2019-boating-shasta-lake": "/photos/8k/2019-07-07-Shasta.gif",
-  "2019-august-yosemite-valley": "/photos/8k/2019-08-14-yosemite.gif",
-  "2019-fall-trip-eastern-sierra": "/photos/8k/north_america_map_2019-10_final_.gif",
-  "2020-yosemite-during-covid": "/photos/8k/2020-yosemite_0.gif",
-  "2020-lake-powell-during-covid": "/photos/8k/cc2020-powell.gif",
-  "2020-eastern-sierra-during-covid": "/photos/8k/2020-east-sierra-covid.gif",
-  "2020-bishop-and-death-valley": "/photos/8k/2020-bishop-death.gif",
-  "2021-california-surf-and-turf": "/photos/8k/2021-surfturf.gif",
-  "2021-pacific-northwest-escaping-smoke": "/photos/8k/2021-Oregon.gif",
-  "2021-yosemite-fall": "/photos/8k/2021-10-26-yosemite.gif",
-  "2021-death-valley-fall": "/photos/8k/cc2017b.gif",
-  "2021-carmel": "/photos/8k/2021-Carmel.gif",
-  "2021-utah-roading": "/photos/8k/2023-9-9-UtahOffRoad.gif",
-  "2022-san-diego-anza-borrego-joshua-tree": "/photos/8k/2022-sandiego-anza.gif",
-  "2022-bishop-and-death-valley": "/photos/8k/2020-bishop-death.gif",
-  "2022-pescadero-capitola": "/photos/8k/2022-capitola.gif",
-  "2022-arizona-and-new-mexico": "/photos/8k/north_america_map_2022bisti_.gif",
-  "2022-greece-and-islands": "/photos/8k/International-greece.gif",
-  "2022-yosemite-valley": "/photos/8k/2020-yosemite_0.gif",
-  "2023-galapagos-islands": "/photos/8k/galapagos-map.gif",
-  "2023-iceland": "/photos/8k/Iceland.gif",
-  "2023-lost-coast": "/photos/8k/Lost-Coast.gif",
-  "2023-vancouver-island": "/photos/8k/2023-8-14-Vancouver.gif",
-  "2023-utah-road": "/photos/8k/2023-9-9-UtahOffRoad.gif",
-  "2023-yosemite-fall": "/photos/8k/2020-yosemite_0.gif",
-  "2024-kauai": "/photos/8k/Hawaii-2024.gif",
-  "2024-bishop-and-death-valley": "/photos/8k/cc2017b.gif",
-  "2024-colorado-river-rafting": "/photos/8k/cc2020-powell.gif",
-  "2024-maui": "/photos/8k/Hawaii-real.gif",
-  "mojave-4wd-course-and-more": null,
-  "2025-new-zealand-north-island": "/photos/8k/New-Zealand-North.gif",
-  "2025-new-zealand-south-island": "/photos/8k/New-Zealand.gif",
-  "2025-marthas-vineyard-vermont": "/photos/4k/cc2008.gif",
-  "2025-utah-roading": "/photos/8k/2023-9-9-UtahOffRoad.gif",
-  "2025-burning-man": "/photos/8k/cc2017b.gif",
-  "2026-carmel": "/photos/8k/2021-Carmel.gif",
-};
-
+// Overview map and author now live on the trip record itself (map_image /
+// author fields, backfilled from the old hardcoded tables).
 function getTripMapUrl(trip) {
-  if (!trip) return null;
-  const slug = (trip.slug || "").toLowerCase();
-  return TRIP_MAP_BY_SLUG[slug] ?? null;
-}
-
-// Trips have no per-record author field in the migrated data (unlike stops,
-// which do), so authorship was hardcoded to "Lolo" for every trip. Verified
-// against the live site's byline for all 103 trips; these are the only ones
-// not written by Lolo.
-const TRIP_AUTHOR_BY_SLUG = {
-  "2009-cross-country-camping-trip": "Tommy",
-  "2009-white-mountains-backpacking-trip": "Andrew",
-  "2015-solo-cross-country-motorcycle-trip": "Herb",
-};
-
-function getTripAuthor(trip) {
-  if (!trip) return "Lolo";
-  const slug = (trip.slug || "").toLowerCase();
-  return TRIP_AUTHOR_BY_SLUG[slug] ?? "Lolo";
+  return getTripMapImage(trip);
 }
 
 function formatStopDateOnly(ts) {

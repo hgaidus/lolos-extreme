@@ -3,7 +3,7 @@ import path from 'path';
 import Link from 'next/link';
 import CrossCountryExplorer from '@/components/CrossCountryExplorer';
 import { DATA_DIR } from '@/lib/dataPaths';
-import { menuTrips } from '@/data/menuTrips';
+import { getMenuGroups } from '@/lib/tripMeta';
 import { resolveDrupalLinks } from '@/utils/cleanContent';
 
 // Route-map GIFs for each trip. Most were already in the exported archive
@@ -32,7 +32,8 @@ const GIF_BY_HREF = {
 };
 
 // Short editorial blurbs, one per trip — grounded in each trip's real stops,
-// not auto-generated. Maintained by hand alongside menuTrips.js. Cross-checked
+// not auto-generated. Maintained by hand (the explorer is a closed set — see
+// getCrossCountryTrips). Cross-checked
 // against stops.json for accuracy (a few parks named in earlier drafts of
 // this copy — e.g. Olympic, North Cascades, Glacier, and Theodore Roosevelt
 // for 2013 — turned out not to be on that trip's actual stop list, so those
@@ -171,7 +172,11 @@ function getCrossCountryTrips() {
     const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
     const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
 
-    return [...menuTrips.crossCountry].reverse().map(t => {
+    // The explorer is deliberately a CLOSED set (the 1999–2016 cross-country
+    // era): derive the list from tripMeta but only keep trips that have
+    // hand-written homepage copy, so new trips never appear here untended.
+    const crossCountry = getMenuGroups().crossCountry.filter(t => TEASER_BY_HREF[t.href]);
+    return [...crossCountry].reverse().map(t => {
       const slug = t.href.replace(/^\//, "");
       const trip = trips.find(tr => tr.slug === slug);
       const tripStops = trip ? stops.filter(s => s.parent_trip_nid === trip.nid) : [];

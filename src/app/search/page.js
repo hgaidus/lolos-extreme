@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { DATA_DIR } from "@/lib/dataPaths";
 import SearchClient from "@/components/SearchClient";
+import { getMenuGroups } from "@/lib/tripMeta";
 
 export const metadata = {
   title: "Search | Lolo's Extreme Cross Country RV Trips",
@@ -68,5 +69,5 @@ function buildSearchIndex() {
 
 export default function SearchPage() {
   const searchIndex = buildSearchIndex();
-  return <SearchClient searchIndex={searchIndex} />;
+  return <SearchClient searchIndex={searchIndex} menus={getMenuGroups()} />;
 }

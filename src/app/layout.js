@@ -5,6 +5,7 @@ import SiteChrome from "../components/SiteChrome";
 import { Inter, Lora } from "next/font/google";
 import { DATA_DIR } from "@/lib/dataPaths";
 import { isPublished } from "@/lib/publishState";
+import { getMenuGroups } from "@/lib/tripMeta";
 
 function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
@@ -51,6 +52,9 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   const tripTitles = getTripTitlesBySlug();
+  // Nav dropdowns are derived server-side from the trip records (tripMeta)
+  // and passed down — TopNav is a client component and can't read the JSON.
+  const menus = getMenuGroups();
   return (
     <html lang="en" className={`${inter.variable} ${lora.variable}`}>
       <body style={{
@@ -66,7 +70,7 @@ export default function RootLayout({ children }) {
       }}>
         {/* Public chrome (banner/nav/footer) lives in SiteChrome, which hides
             itself on /admin/* so the admin UI uses only its own header. */}
-        <SiteChrome tripTitles={tripTitles}>
+        <SiteChrome tripTitles={tripTitles} menus={menus}>
           {children}
         </SiteChrome>
       </body>

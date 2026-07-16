@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { tripIndex } from '@/data/tripIndex';
+import { getTripIndexGroups } from '@/lib/tripMeta';
 
 export const metadata = {
   title: "Trip Index | Lolo's Extreme Cross Country RV Trips",
@@ -14,6 +14,7 @@ const SECTIONS = [
 ];
 
 export default function TripIndexPage() {
+  const tripIndex = getTripIndexGroups();
   return (
     <div>
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">

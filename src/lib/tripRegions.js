@@ -1,10 +1,9 @@
-import { menuTrips } from "@/data/menuTrips";
+import { getRegionBySlug } from "./tripMeta.js";
 
-// Single source of truth for which region (crossCountry/eastCoast/westCoast/
-// international) each trip belongs to, and where its "browse all" listing
-// page and trip-page region tag point. Derived from the same grouping
-// already used for the nav dropdowns, since no region field exists in the
-// migrated trip data itself.
+// Region labels and listing-page hrefs. Which region a trip belongs to now
+// comes from the trip record's own `region` field (via tripMeta) rather than
+// the deleted hardcoded menu tables; unknown slugs keep the original
+// crossCountry fallback.
 export const REGION_INFO = {
   crossCountry: { label: "Cross Country Road Trip", href: "/cross-country-road-trip" },
   eastCoast: { label: "East Coast Road Trip", href: "/east-coast-road-trip" },
@@ -12,14 +11,8 @@ export const REGION_INFO = {
   international: { label: "International", href: "/international-trips" },
 };
 
-const REGION_BY_SLUG = Object.fromEntries(
-  Object.entries(menuTrips).flatMap(([region, items]) =>
-    items.map(item => [item.href.replace(/^\//, ""), region])
-  )
-);
-
 export function getTripRegion(slug) {
-  return REGION_BY_SLUG[(slug || "").replace(/^\//, "")] || "crossCountry";
+  return getRegionBySlug(slug);
 }
 
 export function getTripRegionInfo(slug) {

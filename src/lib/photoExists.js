@@ -1,9 +1,24 @@
 import fs from 'fs';
 import path from 'path';
 import { FILES_DIR } from './dataPaths';
+import { getPhotoDirVersion, expireVersionMemos } from './dataVersion';
 
+// The index rebuilds when any photo directory's mtime changes (a new upload,
+// an scp'd file), so a just-uploaded photo passes the existence gate without
+// a process restart. The per-filename result cache must flush with it —
+// otherwise stale negative results would keep hiding the new file.
 let cachedIndex = null;
+let cachedIndexVersion = null;
 const resultCache = new Map();
+
+// For the upload route: force the writing worker to see its own upload on the
+// very next request instead of waiting out the ~2s version-memo TTL.
+export function invalidatePhotoIndex() {
+  expireVersionMemos();
+  cachedIndex = null;
+  cachedIndexVersion = null;
+  resultCache.clear();
+}
 
 // Characters that may follow a stem in a real filename (e.g. "foo.jpg",
 // "foo_1.jpg", "foo~2.jpg", "foo 2.jpg"). Kept in sync with the fuzzy rules in
@@ -11,7 +26,10 @@ const resultCache = new Map();
 const STEM_DELIMITERS = new Set(['.', '_', '~', ' ']);
 
 function buildIndex() {
-  if (cachedIndex) return cachedIndex;
+  const version = getPhotoDirVersion();
+  if (cachedIndex && cachedIndexVersion === version) return cachedIndex;
+  resultCache.clear();
+  cachedIndexVersion = version;
   const baseDirs = [
     path.join(FILES_DIR, 'images'),
     path.join(FILES_DIR, 'images', '1k'),

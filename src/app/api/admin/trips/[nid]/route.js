@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getTrip, updateTrip, commitAndPush } from '@/lib/adminData';
+import { validateTripFields } from '@/lib/adminValidate';
 
 export async function PATCH(request, { params }) {
   try {
@@ -11,11 +12,16 @@ export async function PATCH(request, { params }) {
 
     const body = await request.json();
     const fields = {};
-    for (const key of ['title', 'year', 'travelogue']) {
+    for (const key of ['title', 'year', 'travelogue', 'published']) {
       if (key in body) fields[key] = body[key];
     }
 
-    const updated = updateTrip(nid, fields);
+    const { ok, errors, values } = validateTripFields(fields, { partial: true });
+    if (!ok) {
+      return NextResponse.json({ error: 'Validation failed', fields: errors }, { status: 400 });
+    }
+
+    const updated = updateTrip(nid, values);
     const gitResult = await commitAndPush(`Edit trip: ${updated.title} (nid ${nid})`);
 
     return NextResponse.json({ trip: updated, git: gitResult });

@@ -1,33 +1,31 @@
-import fs from 'fs';
-import path from 'path';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { DATA_DIR } from './dataPaths';
+import {
+  readDataset,
+  writeDataset,
+  allocateNid,
+  slugify,
+  ensureUniqueSlug,
+  allContentSlugs,
+} from './adminStore';
+
+// Facade over adminStore: keeps the exported API the routes/pages already use,
+// while reads/writes/nid-allocation go through the shared write layer (per-file
+// indent preservation, atomic writes, namespace-wide nid allocation).
 
 const execFileAsync = promisify(execFile);
 
-const TRIPS_PATH = path.join(DATA_DIR, 'trips.json');
-const STOPS_PATH = path.join(DATA_DIR, 'stops.json');
-
-function readJSON(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-}
-
-function writeJSON(filePath, data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 1), 'utf-8');
-}
-
 export function getTrips() {
-  return readJSON(TRIPS_PATH).sort((a, b) => Number(a.year || 0) - Number(b.year || 0));
+  return readDataset('trips').sort((a, b) => Number(a.year || 0) - Number(b.year || 0));
 }
 
 export function getTrip(nid) {
-  const trips = readJSON(TRIPS_PATH);
-  return trips.find((t) => String(t.nid) === String(nid)) || null;
+  return readDataset('trips').find((t) => String(t.nid) === String(nid)) || null;
 }
 
 export function updateTrip(nid, fields) {
-  const trips = readJSON(TRIPS_PATH);
+  const trips = readDataset('trips');
   const idx = trips.findIndex((t) => String(t.nid) === String(nid));
   if (idx === -1) throw new Error(`Trip nid ${nid} not found`);
 
@@ -35,18 +33,16 @@ export function updateTrip(nid, fields) {
   updated.body = updated.travelogue;
   trips[idx] = updated;
 
-  writeJSON(TRIPS_PATH, trips);
+  writeDataset('trips', trips);
   return updated;
 }
 
 export function getStop(nid) {
-  const stops = readJSON(STOPS_PATH);
-  return stops.find((s) => String(s.nid) === String(nid)) || null;
+  return readDataset('stops').find((s) => String(s.nid) === String(nid)) || null;
 }
 
 export function getStopsForTrip(tripNid) {
-  const stops = readJSON(STOPS_PATH);
-  return stops.filter((s) => String(s.parent_trip_nid) === String(tripNid));
+  return readDataset('stops').filter((s) => String(s.parent_trip_nid) === String(tripNid));
 }
 
 // exact 20 values confirmed present across stops.json; category_listing pages
@@ -61,17 +57,17 @@ export const STOP_CATEGORIES = [
 ];
 
 export function getDistinctStates() {
-  const stops = readJSON(STOPS_PATH);
+  const stops = readDataset('stops');
   return Array.from(new Set(stops.map((s) => s.state).filter(Boolean))).sort();
 }
 
 export function getDistinctAuthors() {
-  const stops = readJSON(STOPS_PATH);
+  const stops = readDataset('stops');
   return Array.from(new Set(stops.map((s) => s.author).filter(Boolean))).sort();
 }
 
 export function updateStop(nid, fields) {
-  const stops = readJSON(STOPS_PATH);
+  const stops = readDataset('stops');
   const idx = stops.findIndex((s) => String(s.nid) === String(nid));
   if (idx === -1) throw new Error(`Stop nid ${nid} not found`);
 
@@ -79,45 +75,20 @@ export function updateStop(nid, fields) {
   updated.body = updated.description || updated.travelogue;
   stops[idx] = updated;
 
-  writeJSON(STOPS_PATH, stops);
+  writeDataset('stops', stops);
   return updated;
 }
 
-function slugify(title) {
-  return title
-    .toLowerCase()
-    .replace(/'/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function allSlugs(trips, stops) {
-  return new Set([...trips.map((t) => t.slug), ...stops.map((s) => s.slug)]);
-}
-
-function nextNid(trips, stops) {
-  const all = [...trips, ...stops].map((r) => Number(r.nid)).filter((n) => Number.isFinite(n));
-  return String(Math.max(0, ...all) + 1);
-}
-
 export function createStop(parentTripNid, fields) {
-  const trips = readJSON(TRIPS_PATH);
-  const stops = readJSON(STOPS_PATH);
+  const trips = readDataset('trips');
+  const stops = readDataset('stops');
 
   const parentTrip = trips.find((t) => String(t.nid) === String(parentTripNid));
   if (!parentTrip) throw new Error(`Parent trip nid ${parentTripNid} not found`);
 
-  const taken = allSlugs(trips, stops);
-  let slug = slugify(fields.title || 'new-stop');
-  let candidate = slug;
-  let n = 2;
-  while (taken.has(candidate)) {
-    candidate = `${slug}-${n}`;
-    n += 1;
-  }
-  slug = candidate;
+  const slug = ensureUniqueSlug(slugify(fields.title || 'new-stop'), allContentSlugs());
+  const nid = allocateNid();
 
-  const nid = nextNid(trips, stops);
   const newStop = {
     nid,
     vid: nid,
@@ -138,15 +109,20 @@ export function createStop(parentTripNid, fields) {
   };
 
   stops.push(newStop);
-  writeJSON(STOPS_PATH, stops);
+  writeDataset('stops', stops);
   return newStop;
 }
 
-// Runs from within DATA_DIR, which is its own git repo (see project setup:
-// local + production server both have DATA_DIR wired to the
-// hgaidus/lolos-extreme-content remote). A push failure is surfaced as a
-// warning rather than rolled back — the file write already succeeded and
-// remains locally revertible via git either way.
+// Runs from within DATA_DIR, which is its own git repo (local + production
+// server both wired to the hgaidus/lolos-extreme-content remote). The file
+// write has already succeeded by the time this runs and is never rolled back;
+// `status` tells the caller how much of the versioning pipeline followed:
+//   'pushed'            committed and on GitHub
+//   'push_failed'       committed locally, GitHub push failed (amber: backup
+//                       deferred; the next successful push carries it)
+//   'commit_failed'     the edit is on disk but NOT in git at all (red: the
+//                       change is unversioned — investigate before continuing)
+//   'nothing_to_commit' a no-op edit
 export async function commitAndPush(message) {
   const opts = { cwd: DATA_DIR };
   try {
@@ -155,15 +131,15 @@ export async function commitAndPush(message) {
       await execFileAsync('git', ['commit', '-m', message], opts);
     } catch (err) {
       if (!/nothing to commit/i.test(err.stdout || err.message || '')) throw err;
-      return { committed: false, pushed: false };
+      return { status: 'nothing_to_commit', committed: false, pushed: false };
     }
     try {
       await execFileAsync('git', ['push'], opts);
-      return { committed: true, pushed: true };
+      return { status: 'pushed', committed: true, pushed: true };
     } catch (pushErr) {
-      return { committed: true, pushed: false, pushError: pushErr.message };
+      return { status: 'push_failed', committed: true, pushed: false, pushError: pushErr.message };
     }
   } catch (err) {
-    return { committed: false, pushed: false, error: err.message };
+    return { status: 'commit_failed', committed: false, pushed: false, error: err.message };
   }
 }

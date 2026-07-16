@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 import { DATA_DIR } from "@/lib/dataPaths";
+import { makeVersioned, getDataVersion } from "@/lib/dataVersion";
 
 function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
@@ -34,11 +35,15 @@ function buildSnippet(text, query) {
   return (start > 0 ? "…" : "") + text.slice(start, end).trim() + (end < text.length ? "…" : "");
 }
 
-let cachedIndex = null;
+// Rebuilt when the content JSON changes on disk, so CMS edits are searchable
+// within seconds instead of waiting for a deploy/restart.
+const indexCache = makeVersioned(buildIndex, getDataVersion);
 
 function getIndex() {
-  if (cachedIndex) return cachedIndex;
+  return indexCache.get();
+}
 
+function buildIndex() {
   const trips = loadJSON("trips.json");
   const stops = loadJSON("stops.json");
   const pages = loadJSON("standalone_pages.json");
@@ -93,8 +98,7 @@ function getIndex() {
       };
     });
 
-  cachedIndex = [...tripEntries, ...stopEntries, ...pageEntries];
-  return cachedIndex;
+  return [...tripEntries, ...stopEntries, ...pageEntries];
 }
 
 export async function GET(request) {

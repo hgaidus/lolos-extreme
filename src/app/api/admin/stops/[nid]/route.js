@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getStop, updateStop, commitAndPush } from '@/lib/adminData';
+import { validateStopFields } from '@/lib/adminValidate';
 
 const EDITABLE_FIELDS = [
   'title', 'description', 'travelogue', 'miles', 'hours', 'nights',
-  'arrival_date', 'author', 'state', 'category',
+  'arrival_date', 'author', 'state', 'category', 'published',
 ];
 
 export async function PATCH(request, { params }) {
@@ -20,7 +21,12 @@ export async function PATCH(request, { params }) {
       if (key in body) fields[key] = body[key];
     }
 
-    const updated = updateStop(nid, fields);
+    const { ok, errors, values } = validateStopFields(fields, { partial: true });
+    if (!ok) {
+      return NextResponse.json({ error: 'Validation failed', fields: errors }, { status: 400 });
+    }
+
+    const updated = updateStop(nid, values);
     const gitResult = await commitAndPush(`Edit stop: ${updated.title} (nid ${nid})`);
 
     return NextResponse.json({ stop: updated, git: gitResult });

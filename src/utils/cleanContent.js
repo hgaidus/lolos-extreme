@@ -2,12 +2,12 @@ import fs from "fs";
 import path from "path";
 import { DATA_DIR } from "@/lib/dataPaths";
 import { photoFileExists } from "@/lib/photoExists";
+import { makeVersioned, getDataVersion } from "@/lib/dataVersion";
 
-let cachedNidMap = null;
-
-function getNidMap() {
-  if (cachedNidMap) return cachedNidMap;
-  cachedNidMap = new Map();
+// Rebuilt whenever the content JSON changes on disk (CMS save, server-side
+// git pull), so a new node's internal links resolve without a restart.
+const nidMapCache = makeVersioned(() => {
+  const map = new Map();
   try {
     if (fs.existsSync(DATA_DIR)) {
       const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
@@ -18,14 +18,18 @@ function getNidMap() {
         if (item && item.nid && (item.slug || item.title)) {
           const rawSlug = item.slug || item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
           const cleanSlug = rawSlug.startsWith('/') ? rawSlug : `/${rawSlug}`;
-          cachedNidMap.set(String(item.nid), cleanSlug);
+          map.set(String(item.nid), cleanSlug);
         }
       });
     }
   } catch (err) {
     // Fallback if filesystem is not directly accessible
   }
-  return cachedNidMap;
+  return map;
+}, getDataVersion);
+
+function getNidMap() {
+  return nidMapCache.get();
 }
 
 /**

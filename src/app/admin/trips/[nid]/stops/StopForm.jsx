@@ -27,11 +27,15 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
   const [category, setCategory] = useState(stop?.category || categories[0]);
   const [status, setStatus] = useState(null);
   const [gitWarning, setGitWarning] = useState('');
+  const [gitError, setGitError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus('saving');
     setGitWarning('');
+    setGitError('');
+    setFieldErrors({});
 
     const fields = {
       title, description, travelogue,
@@ -48,12 +52,21 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(fields),
       });
+      if (res.status === 400) {
+        const data = await res.json();
+        setFieldErrors(data.fields || {});
+        setStatus('invalid');
+        return;
+      }
       if (!res.ok) {
         setStatus('error');
         return;
       }
       const data = await res.json();
-      if (data.git && !data.git.pushed) {
+      const gitStatus = data.git?.status;
+      if (gitStatus === 'commit_failed') {
+        setGitError('Saved to disk but NOT committed to git — the change is unversioned. Stop and investigate before further edits.');
+      } else if (gitStatus === 'push_failed') {
         setGitWarning('Saved, but not yet backed up to GitHub (push failed). The edit is safe on disk.');
       }
       if (mode === 'create') {
@@ -68,6 +81,9 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
     }
   }
 
+  const fieldError = (name) =>
+    fieldErrors[name] ? <p className="text-red-600 text-xs mt-1">{fieldErrors[name]}</p> : null;
+
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-4">
       <div>
@@ -77,6 +93,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
           onChange={(e) => setTitle(e.target.value)}
           className="w-full border border-gray-300 rounded px-3 py-2"
         />
+        {fieldError('title')}
       </div>
 
       <div>
@@ -108,6 +125,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
             onChange={(e) => setMiles(e.target.value)}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
+          {fieldError('miles')}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Hours</label>
@@ -116,6 +134,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
             onChange={(e) => setHours(e.target.value)}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
+          {fieldError('hours')}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Nights</label>
@@ -124,6 +143,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
             onChange={(e) => setNights(e.target.value)}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
+          {fieldError('nights')}
         </div>
       </div>
 
@@ -135,6 +155,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
             onChange={(e) => setArrivalDate(e.target.value)}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
+          {fieldError('arrival_date')}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
@@ -170,6 +191,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
           >
             {categories.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
+          {fieldError('category')}
         </div>
       </div>
 
@@ -189,8 +211,14 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
         </button>
         {status === 'saved' && <span className="text-green-700 text-sm">Saved &amp; pushed to GitHub</span>}
         {status === 'error' && <span className="text-red-600 text-sm">Save failed</span>}
+        {status === 'invalid' && <span className="text-red-600 text-sm">Not saved — fix the highlighted fields.</span>}
       </div>
       {gitWarning && <p className="text-amber-700 text-sm">{gitWarning}</p>}
+      {gitError && (
+        <p className="text-red-700 text-sm font-semibold bg-red-50 border border-red-200 rounded px-3 py-2">
+          {gitError}
+        </p>
+      )}
     </form>
   );
 }

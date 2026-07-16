@@ -3,11 +3,17 @@ import path from 'path';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { photoFileExists } from '@/lib/photoExists';
 import { unescapeDrupalText } from '@/utils/cleanContent';
+import { makeVersioned, getDataVersion } from '@/lib/dataVersion';
 
-let cachedData = null;
+// Rebuilt when the content JSON changes on disk, so CMS photo/album writes
+// show up in albums and lightbox stop-links without a process restart.
+const dataCache = makeVersioned(buildData, getDataVersion);
 
 function loadData() {
-  if (cachedData) return cachedData;
+  return dataCache.get();
+}
+
+function buildData() {
   try {
     const albumsObj = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "albums.json"), "utf-8"));
     const titlesObj = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "photo_titles.json"), "utf-8"));
@@ -26,7 +32,7 @@ function loadData() {
     const stopByNid = new Map(stops.map(s => [String(s.nid), s]));
     const stopNidByImageNid = new Map(titles.map(t => [String(t.image_nid), t.trip_stop_nid]));
 
-    cachedData = {
+    return {
       albumsObj: albums,
       titlesObj: titles,
       stopByNid,
@@ -34,14 +40,13 @@ function loadData() {
     };
   } catch (err) {
     console.error("Error loading photo album dataset:", err);
-    cachedData = {
+    return {
       albumsObj: [],
       titlesObj: [],
       stopByNid: new Map(),
       stopNidByImageNid: new Map()
     };
   }
-  return cachedData;
 }
 
 // Given an image's nid and/or a directly-known trip_stop_nid, resolve the

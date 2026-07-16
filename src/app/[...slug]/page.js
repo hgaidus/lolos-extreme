@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import InteractiveTravelogue from '@/components/InteractiveTravelogue';
 import { cleanDrupalContent, unescapeDrupalText } from '@/utils/cleanContent';
+import { buildContentRawText } from '@/lib/stopRawText';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { photoFileExists } from '@/lib/photoExists';
 import { getTripRegionInfo } from '@/lib/tripRegions';
@@ -483,15 +484,9 @@ export default async function CatchAllPage({ params, searchParams }) {
     );
   }
 
-  // Clean the text using our utility
-  let rawText = "";
-  if (displayItem.itemType === 'trip') {
-    rawText = displayItem.travelogue || displayItem.body || (String(displayItem.year || "").length > 10 ? displayItem.year : "") || displayItem.summary || "";
-  } else if (displayItem.description && displayItem.description.trim() && displayItem.travelogue && displayItem.description !== displayItem.travelogue) {
-    rawText = displayItem.travelogue + `\n\n<hr />\n\n<div class="trip-description-box bg-[#c1593a]/[0.07] border-l-4 border-[#c1593a] rounded text-[#4a4437] italic font-medium leading-relaxed">${displayItem.description}</div>`;
-  } else {
-    rawText = displayItem.travelogue || displayItem.description || displayItem.summary || displayItem.body || "";
-  }
+  // Raw text assembly is shared with the admin preview (single definition in
+  // stopRawText.js) so preview parity is structural rather than hand-synced.
+  const rawText = buildContentRawText(displayItem);
   const cleanedHtml = cleanDrupalContent(rawText, photoTitles);
 
   // Find archival photos for this stop

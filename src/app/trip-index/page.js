@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import { getTripIndexGroups } from '@/lib/tripMeta';
 
+// Reflect CMS edits (new trips, retitles, publish changes) within ~2s rather
+// than freezing this listing into static HTML until the next deploy.
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Trip Index | Lolo's Extreme Cross Country RV Trips",
   description: "A complete directory of every cross-country, East Coast, West Coast, and international trip on the site, grouped by region.",

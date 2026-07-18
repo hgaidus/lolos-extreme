@@ -2,6 +2,10 @@ import Link from 'next/link';
 import SlideCard from '@/components/SlideCard';
 import { getCleanAlbums, getAlbumPreviewPhoto } from '@/utils/albumPhotos';
 
+// Reflect CMS edits (uploads, album reorders, cover/title changes) within
+// ~2s rather than freezing this grid into static HTML until the next deploy.
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Photo Albums | Lolo's Extreme Cross Country RV Trips",
   description: "Browse over 20 years of family RV travel photography collections.",

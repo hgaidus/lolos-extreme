@@ -6,6 +6,12 @@ import { DATA_DIR } from '@/lib/dataPaths';
 import { getMenuGroups } from '@/lib/tripMeta';
 import { resolveDrupalLinks } from '@/utils/cleanContent';
 
+// Render on every request so CMS edits (the homepage "Plan Your Route" body,
+// new/retitled trips) appear within the ~2s mtime-cache window instead of
+// being frozen into static HTML until the next deploy. The mtime memo keeps
+// bursts cheap. Same reasoning as the dynamic [...slug] trip/stop pages.
+export const dynamic = 'force-dynamic';
+
 // Route-map GIFs for each trip. Most were already in the exported archive
 // under their original Drupal filenames. The three newest trips (2015
 // Migration West, 2015 Solo Motorcycle, 2016 Boat West) turned out to have
@@ -254,7 +260,13 @@ export default function HomePage() {
   // and the news update — we render that section ourselves below (deduped
   // list, no Index item), so it's cut out here rather than shown twice.
   const contentsIdx = cleanedBody.indexOf('<h2 style="color:#c1593a;font-size:1.05rem;font-weight:700;margin:22px 0 10px">Contents of this');
-  const updateIdx = cleanedBody.indexOf('<h2 style="color:#c1593a;font-size:1.05rem;font-weight:700;margin:22px 0 10px">January 2026 Update');
+  // The news section is anchored on its heading PATTERN ("<Month> <Year>
+  // Update"), not a hardcoded month — renaming the update each month (as the
+  // CMS editor naturally does) used to point this at a heading that no longer
+  // existed, silently hiding the entire update. cleanBody has already added
+  // the inline style to every <h2>, so [^>]* spans that attribute.
+  const updateMatch = cleanedBody.match(/<h2\b[^>]*>[A-Za-z]+\s+\d{4}\s+Update/);
+  const updateIdx = updateMatch ? updateMatch.index : -1;
   const introPart = contentsIdx > 0 ? cleanedBody.substring(0, contentsIdx) : cleanedBody;
   const newsPart  = updateIdx > 0 ? cleanedBody.substring(updateIdx) : "";
 

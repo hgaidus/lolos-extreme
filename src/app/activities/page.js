@@ -5,11 +5,10 @@ import { DATA_DIR } from "@/lib/dataPaths";
 import { isPublished } from "@/lib/publishState";
 
 // The type list and counts come from activities.json, which changes when
-// content is edited. Without this the page is prerendered once at build time
-// and its counts go stale until the next deploy. Hourly regeneration keeps it
-// fast while letting content edits land on their own — same approach as
-// app/sitemap.js.
-export const revalidate = 3600;
+// content is edited. Render per-request so edits appear within the ~2s
+// mtime-cache window (was revalidate=3600, an hour's lag that surprised the
+// editor) — consistent with every other content page.
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: "Activities | Lolo's Extreme Cross Country RV Trips",

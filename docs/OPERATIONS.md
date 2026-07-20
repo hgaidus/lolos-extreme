@@ -16,9 +16,9 @@ changes, revisit before adding a second login.
 
 | What | Where | Backed up by |
 |---|---|---|
-| All text content (trips, stops, pages, activities, photo records, albums) | `exported_content/data/*.json` on the server, clone at `Y:\Lolos_Migration_Data\exported_content` | git → `hgaidus/lolos-extreme-content` (private), pushed automatically on every CMS save |
-| New photos uploaded through the CMS | `uploads/` on the server, clone at `Y:\Lolos_Migration_Data\uploads` | git → `hgaidus/lolos-photo-uploads` (private), pushed automatically on every upload |
-| Legacy photo archive (~26GB, pre-CMS) | server `files/` + `Y:\Lolos_Migration_Data\files` | **not in git** — NAS backup is the open item |
+| All text content (trips, stops, pages, activities, photo records, albums) | `exported_content/data/*.json` on the server, clone at `C:\Dev\current\cross-country-trips\exported_content` | git → `hgaidus/lolos-extreme-content` (private), pushed automatically on every CMS save |
+| New photos uploaded through the CMS | `uploads/` on the server, clone at `C:\Dev\current\cross-country-trips\uploads` | git → `hgaidus/lolos-photo-uploads` (private), pushed automatically on every upload |
+| Legacy photo archive (~26GB, pre-CMS) | server `files/` + `C:\Dev\current\cross-country-trips\files` | **not in git** — Synology Drive syncs the whole project tree (one-way, versioned) to the NAS `DEV` share |
 
 Every CMS save makes one git commit (two for uploads: the JSON record and
 the binary) and pushes it. If the push fails, the editor shows an amber
@@ -32,8 +32,8 @@ The server is the source of truth once the CMS is in daily use. Pull
 before doing anything locally with content or photos:
 
 ```
-git -C Y:\Lolos_Migration_Data\exported_content pull
-git -C Y:\Lolos_Migration_Data\uploads pull
+git -C C:\Dev\current\cross-country-trips\exported_content\data pull
+git -C C:\Dev\current\cross-country-trips\uploads pull
 ```
 
 Same habit as checking mail. Editing JSON locally and pushing works too
@@ -77,9 +77,9 @@ record — the path is git, not the CMS:
 Every CMS action is one git commit with a descriptive message. To undo:
 
 ```
-git -C Y:\Lolos_Migration_Data\exported_content log --oneline -10
-git -C Y:\Lolos_Migration_Data\exported_content revert <commit>
-git -C Y:\Lolos_Migration_Data\exported_content push
+git -C C:\Dev\current\cross-country-trips\exported_content\data log --oneline -10
+git -C C:\Dev\current\cross-country-trips\exported_content\data revert <commit>
+git -C C:\Dev\current\cross-country-trips\exported_content\data push
 ```
 
 Then pull on the server (as above). The site reflects it within seconds —

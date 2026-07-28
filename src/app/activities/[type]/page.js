@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { cleanDrupalContent, unescapeDrupalText } from "@/utils/cleanContent";
 import { DATA_DIR } from "@/lib/dataPaths";
 import { isPublished } from "@/lib/publishState";
@@ -84,6 +85,11 @@ export default async function ActivityTypePage({ params, searchParams }) {
     const slug = (act.activity_type || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     return slug === type.toLowerCase();
   });
+
+  // A type with no activities is not a page — without this, any made-up
+  // /activities/<word> URL rendered an empty listing with a 200, which
+  // Google rightly flags as a soft 404 (old Drupal paths were hitting it).
+  if (matchingActivities.length === 0) notFound();
 
   const displayTypeName = typeNames[type.toLowerCase()] || type.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 

@@ -45,7 +45,9 @@ export default function CrossCountryRoadTripsList({ region }) {
         <span className="text-[#5c5847] font-medium">{info.label}</span>
       </div>
 
-      <h1 className="text-3xl md:text-4xl font-bold text-[#3f5c4c] mb-6 font-heading">
+      {/* Dark, like every other H1. Green sits one level down (section H2s) —
+          this was the last page title borrowing it. */}
+      <h1 className="text-3xl md:text-4xl font-bold text-[#2e2c26] mb-6 font-heading">
         {info.label}
       </h1>
 

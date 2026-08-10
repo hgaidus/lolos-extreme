@@ -312,7 +312,7 @@ export default async function CatchAllPage({ params, searchParams }) {
           )}
           <span className="text-[#5c5648] font-medium truncate">{displayItem.title}</span>
         </div>
-        <h1 className="text-3xl md:text-4xl font-extrabold text-[#c1593a] mb-6 font-sans">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-[#2e2c26] mb-6 font-sans">
           {displayItem.title}
         </h1>
         <div className="glass-panel overflow-hidden border border-[#c1593a]/25 rounded-lg shadow-xl">

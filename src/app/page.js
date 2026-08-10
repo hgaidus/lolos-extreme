@@ -248,8 +248,13 @@ function cleanBody(html) {
     )
   );
   return withParagraphs
-    .replace(/<h2>/g, '<h2 style="color:#c1593a;font-size:1.05rem;font-weight:700;margin:22px 0 10px">')
-    .replace(/<h3>/g, '<h3 style="color:#c1593a;font-size:0.95rem;font-weight:700;margin:16px 0 8px">')
+    // Green, not terracotta. These were the only terracotta headings on the
+    // site — every other H1/H2 is either #2e2c26 or --color-green-dark — and
+    // once links became terracotta they read as links rather than headings.
+    // Green is the structural colour (nav bar, sidebars, the trip-index
+    // section headings these match).
+    .replace(/<h2>/g, '<h2 style="color:var(--color-green-dark);font-size:1.05rem;font-weight:700;margin:22px 0 10px">')
+    .replace(/<h3>/g, '<h3 style="color:var(--color-green-dark);font-size:0.95rem;font-weight:700;margin:16px 0 8px">')
     .replace(/<ul>/g, '<ul style="margin:0 0 12px 18px;line-height:1.8">')
     .replace(/<li>/g, '<li style="margin-bottom:4px">')
     .replace(/<strong>/g, '<strong style="color:#2e2c26">');
@@ -267,7 +272,12 @@ export default function HomePage() {
   // The raw body has its own "Contents of this site" list between the intro
   // and the news update — we render that section ourselves below (deduped
   // list, no Index item), so it's cut out here rather than shown twice.
-  const contentsIdx = cleanedBody.indexOf('<h2 style="color:#c1593a;font-size:1.05rem;font-weight:700;margin:22px 0 10px">Contents of this');
+  // Matched on the heading TEXT, not the injected style string. This used to
+  // duplicate the whole style attribute from cleanBody above, so a colour
+  // change there silently stopped the cut from matching and rendered the
+  // list twice. [^>]* spans whatever attributes cleanBody added.
+  const contentsMatch = cleanedBody.match(/<h2\b[^>]*>Contents of this/);
+  const contentsIdx = contentsMatch ? contentsMatch.index : -1;
   // The news section is anchored on its heading PATTERN ("<Month> <Year>
   // Update"), not a hardcoded month — renaming the update each month (as the
   // CMS editor naturally does) used to point this at a heading that no longer
@@ -290,7 +300,7 @@ export default function HomePage() {
         <div>
           <div className="content-prose" dangerouslySetInnerHTML={{ __html: introPart }} />
 
-          <h2 style={{ color: "#c1593a", fontSize: "1.05rem", fontWeight: 700, margin: "20px 0 10px" }}>
+          <h2 style={{ color: "var(--color-green-dark)", fontSize: "1.05rem", fontWeight: 700, margin: "20px 0 10px" }}>
             Contents of this 2,000+ page site include&hellip;
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5 text-sm mb-2" style={{ color: "#3d3a30" }}>

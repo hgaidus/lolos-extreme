@@ -42,7 +42,7 @@ export async function generateMetadata({ params }) {
   // back to the request path.
   const canonicalPath = item.slug
     ? "/" + String(item.slug).replace(/^\/+/, "")
-    : "/" + decodeURIComponent(slugStr).replace(/^\/+/, "");
+    : "/" + safeDecodeURIComponent(slugStr, slugStr).replace(/^\/+/, "");
 
   // Real description from the content when available; sensible fallbacks for
   // the synthetic state/category listing pages (which have no travelogue).
@@ -172,11 +172,31 @@ function getExportedData() {
   }
 }
 
+// decodeURIComponent throws URIError on a percent-escape that doesn't decode to
+// valid UTF-8 — /go%F0afoss, say. Unhandled inside a server component that
+// surfaces as a 500, which is exactly what Search Console has been logging
+// against this site as "Server error (5xx)". Production nginx normalises a raw
+// invalid byte into the same %XX form before proxying, so both shapes arrive
+// here identically; the local dev server rejects the raw-byte form earlier with
+// a 400, which is why this only ever reproduced against a production build.
+//
+// A path that isn't valid percent-encoding cannot name any content, so the
+// honest answer is a miss — which becomes notFound() -> 404 at the call sites.
+function safeDecodeURIComponent(str, fallback = null) {
+  try {
+    return decodeURIComponent(str);
+  } catch {
+    return fallback;
+  }
+}
+
 function lookupItem(slugStr) {
   if (isExcludedSlug(slugStr)) return null;
   const { stops, trips, pages: allPages } = getExportedData();
   const pages = allPages.filter(p => p.type !== 'amazon_node' && !((p.slug || '').toLowerCase() === 'tips' || (p.slug || '').toLowerCase().startsWith('tips/')));
-  const cleanSlug = decodeURIComponent(slugStr).replace(/^\//, '');
+  const decodedSlug = safeDecodeURIComponent(slugStr);
+  if (decodedSlug === null) return null;
+  const cleanSlug = decodedSlug.replace(/^\//, '');
 
   let found = stops.find(s => s.slug === cleanSlug || s.slug === `/${cleanSlug}`);
   if (found) return { ...found, itemType: 'stop' };
@@ -214,14 +234,17 @@ function lookupItem(slugStr) {
   }
 
   // Check if this is a state listing URL (e.g. /state/oh or /oh or /state/germany)
-  const stateCandidate = decodeURIComponent(cleanSlug).replace(/^state\//i, '').trim().toLowerCase();
+  // cleanSlug is already decoded once, so this second pass is a no-op for every
+  // real slug — kept (rather than removed) so double-encoded legacy URLs keep
+  // matching, but no longer able to throw.
+  const stateCandidate = safeDecodeURIComponent(cleanSlug, cleanSlug).replace(/^state\//i, '').trim().toLowerCase();
   const matchedStateObj = stops.find(s => s.state && (s.state.toLowerCase() === stateCandidate || slugifyCategory(s.state) === stateCandidate));
   if (matchedStateObj) {
     return { title: matchedStateObj.state, itemType: 'state_listing', stateCode: matchedStateObj.state };
   }
 
   // Check if this is a category/stop-type listing URL (e.g. /category/stopover or /stopover)
-  const catCandidate = decodeURIComponent(cleanSlug).replace(/^(category|stop-type)\//i, '').trim().toLowerCase();
+  const catCandidate = safeDecodeURIComponent(cleanSlug, cleanSlug).replace(/^(category|stop-type)\//i, '').trim().toLowerCase();
   const matchedCatObj = stops.find(s => s.category && (s.category.toLowerCase() === catCandidate || slugifyCategory(s.category) === catCandidate));
   if (matchedCatObj) {
     return { title: matchedCatObj.category, itemType: 'category_listing', categoryName: matchedCatObj.category };
@@ -259,7 +282,7 @@ export default async function CatchAllPage({ params, searchParams }) {
 
   // Structured data (schema.org) for the article-style pages (trip/stop/page).
   // Rendered as a JSON-LD <script> in the main content column below.
-  const canonicalUrl = "https://cross-country-trips.com/" + decodeURIComponent(slugStr).replace(/^\/+/, "");
+  const canonicalUrl = "https://cross-country-trips.com/" + safeDecodeURIComponent(slugStr, slugStr).replace(/^\/+/, "");
   const jsonLd = ["trip", "stop", "page"].includes(displayItem.itemType)
     ? {
         "@context": "https://schema.org",

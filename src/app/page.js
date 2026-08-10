@@ -288,7 +288,7 @@ export default function HomePage() {
         <CrossCountryExplorer trips={ccTrips} />
 
         <div>
-          <div dangerouslySetInnerHTML={{ __html: introPart }} />
+          <div className="content-prose" dangerouslySetInnerHTML={{ __html: introPart }} />
 
           <h2 style={{ color: "#c1593a", fontSize: "1.05rem", fontWeight: 700, margin: "20px 0 10px" }}>
             Contents of this 2,000+ page site include&hellip;
@@ -304,7 +304,7 @@ export default function HomePage() {
 
           <hr style={{ border: "none", borderTop: "1px solid rgba(90,74,50,0.15)", margin: "18px 0" }} />
 
-          {newsPart && <div dangerouslySetInnerHTML={{ __html: newsPart }} />}
+          {newsPart && <div className="content-prose" dangerouslySetInnerHTML={{ __html: newsPart }} />}
         </div>
       </div>
     </div>

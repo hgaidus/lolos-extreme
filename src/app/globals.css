@@ -396,6 +396,44 @@ figure.drupal-figure figcaption {
   line-height: 1.3 !important;
 }
 
+/* Inline links inside prose.
+   The base `a` rule (#3f5c4c, no underline) is fine for chrome — nav, cards,
+   breadcrumbs — where position and weight already say "link". Inside body copy
+   it failed: #3f5c4c measures 6.84:1 against the cream background but only
+   1.89:1 against the #2e2c26 text it sits in, with nothing but colour to
+   separate them, so links were invisible until hover.
+   Colour alone can't fix it on this palette. A body link needs >=4.5:1 vs the
+   background (AA) AND >=3:1 vs the surrounding text (WCAG 1.4.1, colour as the
+   sole differentiator). --color-gold-primary gives 4.09/3.16 and
+   --color-gold-dark 5.38/2.41 — darkening to pass one pushes the other under,
+   and there is no stop between them that clears both. Hence the underline: it
+   identifies the link without depending on the colour delta at all.
+   Scoped deliberately — a global underline would hit every nav item, card and
+   breadcrumb on the site. */
+.content-prose a {
+  color: var(--color-gold-dark);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(165, 74, 47, 0.45);
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+/* Hover keeps its old meaning — the underline firms up and the colour warms,
+   rather than an underline appearing out of nowhere. */
+.content-prose a:hover {
+  color: var(--color-gold-primary);
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+}
+
+/* Keyboard users previously got no link indication at all. */
+.content-prose a:focus-visible {
+  outline: 2px solid var(--color-gold-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* Foolproof Typography & List Formatting for All Travelogues and Articles */
 .travelogue-interactive-body p {
   margin-bottom: 1.5em;

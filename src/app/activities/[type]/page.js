@@ -200,7 +200,7 @@ export default async function ActivityTypePage({ params, searchParams }) {
                       footer sits close to the text. */}
                   {actText && (
                     <div
-                      className="text-sm text-[#4a4437] leading-relaxed mb-3 max-w-none flow-root [&>*:last-child]:mb-0"
+                      className="text-sm text-[#4a4437] leading-relaxed mb-3 max-w-none flow-root [&>*:last-child]:mb-0 content-prose"
                       dangerouslySetInnerHTML={{ __html: cleanDrupalContent(actText, photoTitles) }}
                     />
                   )}

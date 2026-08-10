@@ -153,7 +153,7 @@ export default function InteractiveTravelogue({
       <div
         ref={contentRef}
         onClick={handleBodyClick}
-        className="text-base leading-relaxed text-[#2e2c26] mb-8 space-y-4 flow-root travelogue-interactive-body"
+        className="text-base leading-relaxed text-[#2e2c26] mb-8 space-y-4 flow-root travelogue-interactive-body content-prose"
         dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
 

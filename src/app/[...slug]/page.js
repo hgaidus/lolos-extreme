@@ -776,7 +776,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                     </h4>
                     {actText && (
                       <div
-                        className="text-xs text-[#5c5648] leading-relaxed mt-1.5 border-t border-black/10 pt-1.5 [&>*:last-child]:mb-0"
+                        className="text-xs text-[#5c5648] leading-relaxed mt-1.5 border-t border-black/10 pt-1.5 [&>*:last-child]:mb-0 content-prose"
                         dangerouslySetInnerHTML={{ __html: cleanDrupalContent(actText, photoTitles) }}
                       />
                     )}

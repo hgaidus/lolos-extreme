@@ -313,9 +313,12 @@ export default function TopNav({ tripTitles = {}, menus = {} }) {
 
       {/* Responsive visibility styles */}
       <style>{`
+        /* Text darkens to the shared link-hover colour (#8f3f28, 7.22:1 on
+           this white panel); #c1593a was 4.41:1, under AA. The background
+           tint is decorative and stays as it is. */
         .nav-dropdown-link:hover {
           background-color: rgba(193, 89, 58, 0.12) !important;
-          color: #c1593a !important;
+          color: #8f3f28 !important;
         }
         .nav-mobile-link:hover {
           background-color: rgba(255, 255, 255, 0.08) !important;

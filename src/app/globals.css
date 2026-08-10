@@ -62,7 +62,7 @@
   }
 
   a:hover {
-    color: var(--color-gold-primary);
+    color: var(--color-link-hover);
     text-decoration: underline;
   }
 }
@@ -76,6 +76,15 @@
   --color-gold-primary: #c1593a;
   --color-gold-light: #d1704f;
   --color-gold-dark: #a54a2f;
+
+  /* Link hover. Its own token rather than reusing --color-gold-primary, which
+     stays where it is for badges, borders and accent labels: at 4.09:1 on the
+     cream background and 4.41:1 on the white dropdown panel it is below AA,
+     and WCAG applies to hover as much as to rest. Hover therefore DARKENS
+     (6.70:1 / 7.22:1) instead of brightening — counterintuitive, but the
+     state change still reads, and the underline does most of the signalling
+     anyway. */
+  --color-link-hover: #8f3f28;
 
   --bg-main: #faf6ee;
   --bg-card: rgba(255, 255, 255, 0.78);
@@ -426,17 +435,17 @@ figure.drupal-figure figcaption {
   transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }
 
-/* Hover keeps its old meaning — the underline firms up and the colour warms,
+/* Hover keeps its old meaning — the underline firms up and the colour shifts,
    rather than an underline appearing out of nowhere. */
 .content-prose a:hover {
-  color: var(--color-gold-primary);
+  color: var(--color-link-hover);
   text-decoration-color: currentColor;
   text-decoration-thickness: 2px;
 }
 
 /* Keyboard users previously got no link indication at all. */
 .content-prose a:focus-visible {
-  outline: 2px solid var(--color-gold-primary);
+  outline: 2px solid var(--color-link-hover);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -457,13 +466,13 @@ figure.drupal-figure figcaption {
 }
 
 .link-chrome:hover {
-  color: var(--color-gold-primary);
+  color: var(--color-link-hover);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .link-chrome:focus-visible {
-  outline: 2px solid var(--color-gold-primary);
+  outline: 2px solid var(--color-link-hover);
   outline-offset: 2px;
   border-radius: 2px;
 }

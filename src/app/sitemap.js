@@ -23,8 +23,13 @@ function toDate(unixSeconds) {
   return isNaN(d.getTime()) ? undefined : d;
 }
 
+// Sitemap <loc> values must be URL-escaped (sitemaps.org protocol), and 23 of
+// these slugs are not ASCII — the Iceland stops, española-island, and two with
+// a typographic apostrophe. Unescaped, the server answered 500 for the raw
+// bytes while the percent-encoded form returned 200. encodeURI leaves already-
+// safe characters (including '/') alone, so ASCII slugs are unchanged.
 function cleanPath(slug) {
-  return '/' + String(slug).replace(/^\/+/, '');
+  return encodeURI('/' + String(slug).replace(/^\/+/, ''));
 }
 
 // Matches the slugification used by src/app/activities/[type]/page.js
@@ -84,9 +89,11 @@ export default function sitemap() {
   }
 
   // Activity-type listing pages
+  // Published only: /activities/<type> calls notFound() when a type has no
+  // published activities, so listing every type here could advertise a 404.
   const activityTypes = new Set();
   for (const act of activities) {
-    if (act.activity_type) {
+    if (act.activity_type && isPublished(act)) {
       const slug = slugifyActivityType(act.activity_type);
       if (slug) activityTypes.add(slug);
     }

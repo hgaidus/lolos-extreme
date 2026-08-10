@@ -13,6 +13,9 @@ export async function generateMetadata({ params }) {
   return {
     title: `${title} | 35mm Photo Album`,
     description: `View historical 35mm slides and travel photography from the ${title}.`,
+    // album.slug already carries the "photo-albums/" prefix, same as in
+    // sitemap.js — build from it rather than re-deriving the path.
+    alternates: { canonical: "/" + String(album?.slug || `photo-albums/${slug}`).replace(/^\/+/, "") },
   };
 }
 

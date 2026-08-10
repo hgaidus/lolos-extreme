@@ -33,7 +33,15 @@ export const metadata = {
   metadataBase: new URL("https://cross-country-trips.com"),
   title: "Lolo's Extreme Cross Country RV Trips",
   description: "20+ summers of RV road-trip travels across the USA & Canada in our Lazy Daze motorhome — cross-country routes, campsites, national parks, and trip-planning photos for your own adventure.",
-  alternates: { canonical: "/" },
+  // NO `alternates` here on purpose. Metadata is shallowly merged, so a
+  // layout-level `canonical: "/"` is inherited by every page that doesn't set
+  // its own — which had 141 live pages (all the activity types, every photo
+  // album, the section landing pages) telling Google "I am a duplicate of the
+  // homepage." Exporting a `metadata` object is NOT enough to escape it; the
+  // page has to set `alternates` specifically, which is why /trip-index and
+  // /photo-albums were broken despite having metadata. With no default here,
+  // a page that forgets its canonical simply emits none and Google
+  // self-canonicalizes — wrong-but-harmless instead of actively harmful.
   openGraph: {
     title: "Lolo's Extreme Cross Country RV Trips",
     description: "20+ summers of RV road-trip travels across the USA & Canada in our Lazy Daze motorhome — cross-country routes, campsites, national parks, and trip-planning photos.",

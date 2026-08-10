@@ -8,6 +8,7 @@ import { isPublished } from "@/lib/publishState";
 export const metadata = {
   title: "Search | Lolo's Extreme Cross Country RV Trips",
   description: "Search across all of Lolo and Herb's RV trips, stops, and pages.",
+  alternates: { canonical: "/search" },
 };
 
 function cleanTitle(str = "") {

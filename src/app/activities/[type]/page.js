@@ -5,9 +5,53 @@ import { notFound } from "next/navigation";
 import { cleanDrupalContent, unescapeDrupalText } from "@/utils/cleanContent";
 import { DATA_DIR } from "@/lib/dataPaths";
 import { isPublished } from "@/lib/publishState";
+import { getDataVersion, makeVersioned } from "@/lib/dataVersion";
 
 function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
+}
+
+// The one place an activity_type string becomes a URL segment. sitemap.js
+// mirrors this — the two must agree or the sitemap advertises 404s.
+function slugifyType(t) {
+  return String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+// slug -> { name, count } across published activities, for generateMetadata.
+// Versioned so a CMS publish/unpublish shows up within the same ~2s window as
+// the rest of the site, without re-parsing activities.json on every request.
+const publishedTypeIndex = makeVersioned(() => {
+  const index = {};
+  try {
+    const activities = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "activities.json"), "utf-8"));
+    for (const act of activities) {
+      if (!isPublished(act)) continue;
+      const slug = slugifyType(act.activity_type);
+      if (!slug) continue;
+      if (!index[slug]) index[slug] = { name: act.activity_type, count: 0 };
+      index[slug].count += 1;
+    }
+  } catch {
+    // Missing/unreadable data file — fall through to empty, same as the page.
+  }
+  return index;
+}, getDataVersion);
+
+// Without this these 47 pages inherited the root layout's metadata wholesale:
+// the generic site title AND a canonical pointing at the homepage, which told
+// Google every activity listing was a duplicate of "/".
+export async function generateMetadata({ params }) {
+  const { type } = await params;
+  const key = String(type).toLowerCase();
+  const entry = publishedTypeIndex.get()[key];
+  // No published activities of this type — the page calls notFound() below, so
+  // there is nothing worth describing.
+  if (!entry) return {};
+  return {
+    title: `${entry.name} Activities | Lolo's Extreme Cross Country RV Trips`,
+    description: `${entry.count} ${entry.name.toLowerCase()} activities logged across 20+ years of Lolo and Herb's cross-country RV road trips — where each one happened and on which trip.`,
+    alternates: { canonical: `/activities/${key}` },
+  };
 }
 
 // Prefer the trip's year field, falling back to a year in its title. One trip
@@ -38,10 +82,8 @@ export async function generateStaticParams() {
   const typesSet = new Set();
 
   activities.forEach(act => {
-    if (act.activity_type) {
-      const slug = act.activity_type.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-      if (slug) typesSet.add(slug);
-    }
+    const slug = slugifyType(act.activity_type);
+    if (slug) typesSet.add(slug);
   });
 
   return Array.from(typesSet).map(type => ({ type }));
@@ -71,7 +113,7 @@ export default async function ActivityTypePage({ params, searchParams }) {
   const typeNames = {};
   activities.forEach(act => {
     const t = act.activity_type || "Other";
-    const slug = t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const slug = slugifyType(t);
     if (!slug) return;
     typeCounts[slug] = (typeCounts[slug] || 0) + 1;
     typeNames[slug] = t;
@@ -81,10 +123,9 @@ export default async function ActivityTypePage({ params, searchParams }) {
   const sortedTypes = Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]);
 
   // Filter matching activities
-  const matchingActivities = activities.filter(act => {
-    const slug = (act.activity_type || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    return slug === type.toLowerCase();
-  });
+  const matchingActivities = activities.filter(
+    act => slugifyType(act.activity_type) === type.toLowerCase()
+  );
 
   // A type with no activities is not a page — without this, any made-up
   // /activities/<word> URL rendered an empty listing with a 200, which

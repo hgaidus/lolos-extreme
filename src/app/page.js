@@ -12,6 +12,14 @@ import { resolveDrupalLinks } from '@/utils/cleanContent';
 // bursts cheap. Same reasoning as the dynamic [...slug] trip/stop pages.
 export const dynamic = 'force-dynamic';
 
+// The homepage's own canonical. It used to come free from the root layout's
+// `canonical: "/"` default — but that default was also being inherited by
+// every other page, so it moved here where it belongs. Title/description/
+// OpenGraph still come from the layout, which describes this page anyway.
+export const metadata = {
+  alternates: { canonical: "/" },
+};
+
 // Route-map GIFs for each trip. Most were already in the exported archive
 // under their original Drupal filenames. The three newest trips (2015
 // Migration West, 2015 Solo Motorcycle, 2016 Boat West) turned out to have

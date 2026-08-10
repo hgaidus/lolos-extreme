@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = {
   title: "East Coast Road Trip | Lolo's Extreme Cross Country RV Trips",
   description: "Browse all of Lolo and Herb's East Coast road trips.",
+  alternates: { canonical: "/east-coast-road-trip" },
 };
 
 export default function EastCoastRoadTripPage() {

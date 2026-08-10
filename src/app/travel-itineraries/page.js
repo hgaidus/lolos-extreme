@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = {
   title: "All Driving Routes & Itineraries | Lolo's Extreme Cross Country RV Trips",
   description: "Browse all of Lolo and Herb's cross country road trips across the USA.",
+  alternates: { canonical: "/travel-itineraries" },
 };
 
 export default function TravelItinerariesPage() {

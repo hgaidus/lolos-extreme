@@ -300,11 +300,11 @@ export default async function CatchAllPage({ params, searchParams }) {
     return (
       <div className="w-full max-w-6xl mx-auto min-w-0 py-6 px-4 sm:px-6 font-sans">
         <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
-          <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+          <Link href="/" className="link-chrome">Home</Link>
           <span className="text-[#a89e8a]">/</span>
           {originStop && (
             <>
-              <Link href={`/${originStop.slug}`} className="text-[#c1593a] font-semibold hover:underline">
+              <Link href={`/${originStop.slug}`} className="link-chrome">
                 {cleanTitle(originStop.title)}
               </Link>
               <span className="text-[#a89e8a]">/</span>
@@ -334,27 +334,27 @@ export default async function CatchAllPage({ params, searchParams }) {
                     return (
                       <tr key={stop.nid || idx} className={idx % 2 === 0 ? "bg-black/[0.02] hover:bg-[#c1593a]/5 transition-colors" : "bg-transparent hover:bg-[#c1593a]/5 transition-colors"}>
                         <td className="py-3 px-4 font-semibold">
-                          <Link href={`/${stop.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline">
+                          <Link href={`/${stop.slug}`} className="link-chrome">
                             {cleanTitle(stop.title)}
                           </Link>
                         </td>
                         <td className="py-3 px-4">
                           {parentTrip ? (
-                            <Link href={`/${parentTrip.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline">
+                            <Link href={`/${parentTrip.slug}`} className="link-chrome">
                               {cleanTitle(parentTrip.title)}
                             </Link>
                           ) : '--'}
                         </td>
                         <td className="py-3 px-3 text-center font-bold whitespace-nowrap">
                           {stop.state ? (
-                            <Link href={`/state/${stop.state.toLowerCase()}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline">
+                            <Link href={`/state/${stop.state.toLowerCase()}`} className="link-chrome">
                               {stop.state}
                             </Link>
                           ) : '--'}
                         </td>
                         <td className="py-3 px-4 font-medium">
                           {stop.category ? (
-                            <Link href={`/category/${catSlug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline">
+                            <Link href={`/category/${catSlug}`} className="link-chrome">
                               {stop.category}
                             </Link>
                           ) : '--'}
@@ -449,11 +449,11 @@ export default async function CatchAllPage({ params, searchParams }) {
 
       {/* Navigation Breadcrumb */}
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
-        <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+        <Link href="/" className="link-chrome">Home</Link>
         <span className="text-[#a89e8a]">/</span>
         {currentTrip && displayItem.itemType === 'stop' && (
           <>
-            <Link href={`/${currentTrip.slug}`} className="text-[#c1593a] font-semibold hover:underline">
+            <Link href={`/${currentTrip.slug}`} className="link-chrome">
               {cleanTitle(currentTrip.title)}
             </Link>
             <span className="text-[#a89e8a]">/</span>
@@ -547,7 +547,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                                   return (
                                     <tr key={stop.nid || idx} className={isCurrentStop ? "bg-[#7c9880]/25 font-bold text-[#3f5c4c]" : (idx % 2 === 0 ? "bg-black/[0.02] hover:bg-[#c1593a]/5 transition-colors" : "bg-transparent hover:bg-[#c1593a]/5 transition-colors")}>
                                       <td className="py-2.5 px-3 font-medium">
-                                        <Link href={`/${stop.slug}`} className={`${isCurrentStop ? 'text-[#3f5c4c] font-extrabold underline' : 'text-[#3f5c4c] hover:text-[#c1593a] hover:underline no-underline'} block whitespace-normal break-words`}>
+                                        <Link href={`/${stop.slug}`} className={`link-chrome ${isCurrentStop ? 'font-extrabold underline' : ''} block whitespace-normal break-words`}>
                                           {cleanTitle(stop.title)}
                                         </Link>
                                       </td>
@@ -579,7 +579,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                                     <tr key={stop.nid || idx} className={idx % 2 === 0 ? "bg-black/[0.02] hover:bg-[#c1593a]/5 transition-colors" : "bg-transparent hover:bg-[#c1593a]/5 transition-colors"}>
                                       <td className="py-2.5 px-2 text-center font-bold text-[#8a8272] whitespace-nowrap">{idx + 1}</td>
                                       <td className="py-2.5 px-2 font-medium">
-                                        <Link href={`/${stop.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline no-underline block whitespace-normal break-words">
+                                        <Link href={`/${stop.slug}`} className="link-chrome block whitespace-normal break-words">
                                           {cleanTitle(stop.title)}
                                         </Link>
                                       </td>
@@ -646,7 +646,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                     <div>
                       {tripStops.length > 0 ? `${formatStopDateOnly(tripStops[0].arrival_date || tripStops[0].created)} to ${formatStopDateOnly(tripStops[tripStops.length-1].arrival_date || tripStops[tripStops.length-1].created)} by ${getTripAuthor(displayItem)}` : (yr ? `${yr} by ${getTripAuthor(displayItem)}` : `by ${getTripAuthor(displayItem)}`)}
                     </div>
-                    <Link href={getTripRegionInfo(displayItem.slug).href} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-medium transition-colors">
+                    <Link href={getTripRegionInfo(displayItem.slug).href} className="link-chrome">
                       {getTripRegionInfo(displayItem.slug).label}
                     </Link>
                   </div>
@@ -659,9 +659,9 @@ export default async function CatchAllPage({ params, searchParams }) {
                       {displayItem.author ? ` by ${displayItem.author}` : ' by Lolo'}
                     </div>
                     {(displayItem.state || displayItem.category) && (
-                      <div className="flex items-center gap-2 text-[#c1593a] font-medium">
+                      <div className="flex items-center gap-2">
                         {displayItem.state && (
-                          <Link href={`/state/${displayItem.state.toLowerCase()}?from=${displayItem.slug}`} className="hover:text-[#a54a2f] hover:underline transition-colors">
+                          <Link href={`/state/${displayItem.state.toLowerCase()}?from=${displayItem.slug}`} className="link-chrome">
                             {displayItem.state}
                           </Link>
                         )}
@@ -669,7 +669,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                           <span className="text-[#a89e8a]">|</span>
                         )}
                         {displayItem.category && (
-                          <Link href={`/category/${slugifyCategory(displayItem.category)}?from=${displayItem.slug}`} className="hover:text-[#a54a2f] hover:underline transition-colors">
+                          <Link href={`/category/${slugifyCategory(displayItem.category)}?from=${displayItem.slug}`} className="link-chrome">
                             {displayItem.category}
                           </Link>
                         )}
@@ -699,7 +699,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                 Let&apos;s hit the road to{' '}
                 <Link
                   href={`/${tripStops[0].slug}`}
-                  className="text-[#c1593a] font-semibold hover:underline"
+                  className="link-chrome"
                 >
                   {cleanTitle(tripStops[0].title)}
                 </Link>
@@ -714,7 +714,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                   {prevStop ? (
                     <Link
                       href={`/${prevStop.slug}`}
-                      className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline transition-colors no-underline font-medium"
+                      className="link-chrome"
                     >
                       &lt; previous
                     </Link>
@@ -727,7 +727,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                   {nextStop ? (
                     <Link
                       href={`/${nextStop.slug}`}
-                      className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline transition-colors no-underline font-medium"
+                      className="link-chrome"
                     >
                       next &gt;
                     </Link>

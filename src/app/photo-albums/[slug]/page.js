@@ -29,9 +29,9 @@ export default async function AlbumDetailPage({ params }) {
     <div className="w-full">
       <div className="mb-6 pb-4 border-b border-black/10">
         <div className="mb-3 flex gap-2 items-center text-sm flex-wrap">
-          <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+          <Link href="/" className="link-chrome">Home</Link>
           <span className="text-[#a89e8a]">/</span>
-          <Link href="/photo-albums" className="text-[#c1593a] font-semibold hover:underline">Photo Albums</Link>
+          <Link href="/photo-albums" className="link-chrome">Photo Albums</Link>
           <span className="text-[#a89e8a]">/</span>
           <span className="text-[#5c5648] font-medium truncate">{title}</span>
         </div>

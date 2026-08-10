@@ -73,7 +73,7 @@ export default function SearchClient({ searchIndex, menus = {} }) {
   return (
     <div className="w-full font-sans">
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
-        <Link href="/" className="text-[#c1593a] hover:underline font-semibold">Home</Link>
+        <Link href="/" className="link-chrome">Home</Link>
         <span className="text-[#8a8371]">/</span>
         <span className="text-[#5c5847] font-medium">Search</span>
       </div>
@@ -147,7 +147,7 @@ export default function SearchClient({ searchIndex, menus = {} }) {
                             <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${TYPE_BADGE_CLASS[item.type]}`}>
                               {TYPE_LABEL[item.type]}
                             </span>
-                            <Link href={`/${item.slug}`} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-medium">
+                            <Link href={`/${item.slug}`} className="link-chrome">
                               {item.title}
                             </Link>
                             {item.type === "stop" && (item.tripTitle || item.state) && (
@@ -179,7 +179,7 @@ export default function SearchClient({ searchIndex, menus = {} }) {
                       const fullTitle = tripTitleBySlug.get(slug) || item.title;
                       return (
                         <li key={item.href} className="py-3">
-                          <Link href={item.href} title={fullTitle} className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-medium">
+                          <Link href={item.href} title={fullTitle} className="link-chrome">
                             {fullTitle}
                           </Link>
                         </li>

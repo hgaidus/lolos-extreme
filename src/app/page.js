@@ -294,12 +294,12 @@ export default function HomePage() {
             Contents of this 2,000+ page site include&hellip;
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5 text-sm mb-2" style={{ color: "#3d3a30" }}>
-            <div>&bull; <Link href="/travel-itineraries" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-semibold">Travelogues</Link> &mdash; a detailed account of our personal experiences at each stop</div>
-            <div>&bull; <Link href="/trip-stops-map" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-semibold">Overview Map</Link> &mdash; 809+ push-pin GPS stops</div>
-            <div>&bull; <Link href="/activities" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-semibold">Activities</Link> &mdash; hikes, mountain biking, fishing &amp; rafting</div>
-            <div>&bull; <Link href="/photo-albums" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-semibold">Photographs</Link> &mdash; photo albums from each trip</div>
-            <div>&bull; <Link href="/about-lolo-and-herb" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-semibold">About Lolo &amp; Herb</Link> &mdash; our story &amp; the Lazy Daze</div>
-            <div>&bull; <Link href="/motorhome-rentals" className="text-[#3f5c4c] hover:text-[#c1593a] hover:underline font-semibold">Motorhome Rentals</Link> &mdash; tips on renting an RV</div>
+            <div>&bull; <Link href="/travel-itineraries" className="link-chrome">Travelogues</Link> &mdash; a detailed account of our personal experiences at each stop</div>
+            <div>&bull; <Link href="/trip-stops-map" className="link-chrome">Overview Map</Link> &mdash; 809+ push-pin GPS stops</div>
+            <div>&bull; <Link href="/activities" className="link-chrome">Activities</Link> &mdash; hikes, mountain biking, fishing &amp; rafting</div>
+            <div>&bull; <Link href="/photo-albums" className="link-chrome">Photographs</Link> &mdash; photo albums from each trip</div>
+            <div>&bull; <Link href="/about-lolo-and-herb" className="link-chrome">About Lolo &amp; Herb</Link> &mdash; our story &amp; the Lazy Daze</div>
+            <div>&bull; <Link href="/motorhome-rentals" className="link-chrome">Motorhome Rentals</Link> &mdash; tips on renting an RV</div>
           </div>
 
           <hr style={{ border: "none", borderTop: "1px solid rgba(90,74,50,0.15)", margin: "18px 0" }} />

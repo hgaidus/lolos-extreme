@@ -52,7 +52,7 @@ export default function ActivitiesIndexPage() {
   return (
     <div className="w-full pb-16">
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
-        <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+        <Link href="/" className="link-chrome">Home</Link>
         <span className="text-[#a89e8a]">/</span>
         <span className="text-[#5c5648] font-medium">Activities</span>
       </div>
@@ -76,7 +76,7 @@ export default function ActivitiesIndexPage() {
             className="group glass-card block p-4 border-l-4 border-l-[#c1593a]/80 no-underline"
           >
             <div className="flex items-baseline justify-between gap-2">
-              <span className="font-bold text-[#3f5c4c] group-hover:text-[#c1593a] transition-colors leading-snug">
+              <span className="font-bold text-[#2e2c26] group-hover:text-[#a54a2f] transition-colors leading-snug">
                 {t.name}
               </span>
               <span className="shrink-0 px-2 py-0.5 rounded-full bg-[#c1593a]/10 text-[#c1593a] text-[11px] font-extrabold tabular-nums">

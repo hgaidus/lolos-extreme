@@ -48,8 +48,15 @@
     margin-bottom: 0.5rem;
   }
 
+  /* Fallback only — every real link carries a role class (.content-prose a,
+     .link-chrome, or an explicit card colour). This used to be
+     --color-green-dark, which is what left the site speaking two link
+     languages at once; anything that lands here now at least matches the
+     terracotta the roles use. Deliberately still a visible link colour rather
+     than `inherit`, so a link that slips through the roles shows up instead of
+     disappearing into the prose. */
   a {
-    color: var(--color-green-dark);
+    color: var(--color-gold-dark);
     text-decoration: none;
     transition: color 0.2s ease, opacity 0.2s ease;
   }
@@ -432,6 +439,43 @@ figure.drupal-figure figcaption {
   outline: 2px solid var(--color-gold-primary);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+/* Role 2 of the link system: chrome. Breadcrumbs, sidebar facts, section
+   lists, next/previous, trip-table rows — links whose position and weight
+   already announce them, so they carry no resting underline.
+   This replaces ~30 hand-rolled variants across 13 files (green at four
+   weights, terracotta at two, five different hover behaviours). Same
+   --color-gold-dark as prose links, so "link" means one colour site-wide;
+   5.38:1 on the cream background, which also clears the AA failure the old
+   #c1593a breadcrumbs had at 4.09:1. */
+.link-chrome {
+  color: var(--color-gold-dark);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link-chrome:hover {
+  color: var(--color-gold-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link-chrome:focus-visible {
+  outline: 2px solid var(--color-gold-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Role 1 refinement: bold used as a link cue.
+   24 anchors in the content are wrapped in <strong> that contains nothing but
+   the link — emphasis added back when links had no underline to identify them.
+   The underline does that job now, so drop the weight to match surrounding
+   prose. Scoped to `strong > a` where the <strong> wraps only the anchor, so a
+   link inside a genuinely bold sentence keeps its weight. */
+.content-prose strong > a:only-child {
+  font-weight: 400;
 }
 
 /* Foolproof Typography & List Formatting for All Travelogues and Articles */

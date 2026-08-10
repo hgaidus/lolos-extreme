@@ -23,7 +23,7 @@ export default function TripIndexPage() {
   return (
     <div>
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
-        <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+        <Link href="/" className="link-chrome">Home</Link>
         <span className="text-[#a89e8a]">/</span>
         <span className="text-[#5c5648] font-medium">Trip Index</span>
       </div>
@@ -84,7 +84,8 @@ export default function TripIndexPage() {
               <div key={trip.href}>
                 <Link
                   href={trip.href}
-                  style={{ color: 'var(--color-gold-primary)', fontWeight: 700, fontSize: '1.05rem', textDecoration: 'none' }}
+                  className="link-chrome"
+                  style={{ fontSize: '1.05rem' }}
                 >
                   {trip.title}
                 </Link>

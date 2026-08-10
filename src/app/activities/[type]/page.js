@@ -141,13 +141,13 @@ export default async function ActivityTypePage({ params, searchParams }) {
   return (
     <div className="w-full pb-16">
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
-        <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+        <Link href="/" className="link-chrome">Home</Link>
         <span className="text-[#a89e8a]">/</span>
-        <Link href="/activities" className="text-[#c1593a] font-semibold hover:underline">Activities</Link>
+        <Link href="/activities" className="link-chrome">Activities</Link>
         <span className="text-[#a89e8a]">/</span>
         {originStop && (
           <>
-            <Link href={`/${originStop.slug}`} className="text-[#c1593a] font-semibold hover:underline">
+            <Link href={`/${originStop.slug}`} className="link-chrome">
               {cleanTitle(originStop.title)}
             </Link>
             <span className="text-[#a89e8a]">/</span>
@@ -207,7 +207,7 @@ export default async function ActivityTypePage({ params, searchParams }) {
 
                   {stop && (
                     <div className="mt-3 pt-2.5 border-t border-black/10 flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <span className="text-sm font-bold text-[#3f5c4c] group-hover:text-[#c1593a] transition-colors">
+                      <span className="text-sm font-bold text-[#2e2c26] group-hover:text-[#a54a2f] transition-colors">
                         {cleanTitle(stop.title)}
                       </span>
                       {/* No separator glyph: it strands at the end of the line

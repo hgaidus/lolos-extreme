@@ -40,7 +40,7 @@ export default function CrossCountryRoadTripsList({ region }) {
     <div className="w-full max-w-4xl mx-auto min-w-0 py-6 px-4 sm:px-6 font-sans">
       {/* Breadcrumb Navigation */}
       <div className="mb-4 flex gap-2 items-center text-sm flex-wrap">
-        <Link href="/" className="text-[#c1593a] hover:underline font-semibold">Home</Link>
+        <Link href="/" className="link-chrome">Home</Link>
         <span className="text-[#8a8371]">/</span>
         <span className="text-[#5c5847] font-medium">{info.label}</span>
       </div>
@@ -71,7 +71,7 @@ export default function CrossCountryRoadTripsList({ region }) {
                     <td className="p-0 font-semibold">
                       <Link
                         href={`/${trip.slug}`}
-                        className="block py-3 px-4 text-[#3f5c4c] no-underline group-hover:text-[#c1593a] group-hover:underline transition-colors"
+                        className="block py-3 px-4 text-[#2e2c26] no-underline group-hover:text-[#a54a2f] transition-colors"
                       >
                         {cleanTitle(trip.title)}
                       </Link>
@@ -81,7 +81,7 @@ export default function CrossCountryRoadTripsList({ region }) {
                         href={`/${trip.slug}`}
                         tabIndex={-1}
                         aria-hidden="true"
-                        className="block py-3 px-4 text-[#5c5847] no-underline group-hover:text-[#c1593a] transition-colors"
+                        className="block py-3 px-4 text-[#5c5648] no-underline group-hover:text-[#a54a2f] transition-colors"
                       >
                         {trip.displayYear || '--'}
                       </Link>

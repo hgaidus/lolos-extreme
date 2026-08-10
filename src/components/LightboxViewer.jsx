@@ -287,9 +287,8 @@ export default function LightboxViewer({ photos = [], albumTitle = "Photo Galler
                 {currentPhoto.stopSlug && (
                   <Link
                     href={`/${currentPhoto.stopSlug}`}
-                    style={{ display: "inline-block", marginTop: "6px", fontSize: "0.8rem", fontWeight: "600", color: "#3f5c4c" }}
-                    onMouseOver={(e) => (e.currentTarget.style.color = "#c1593a")}
-                    onMouseOut={(e) => (e.currentTarget.style.color = "#3f5c4c")}
+                    className="link-chrome"
+                    style={{ display: "inline-block", marginTop: "6px", fontSize: "0.8rem" }}
                   >
                     Go to Trip Stop{currentPhoto.stopTitle ? `: ${currentPhoto.stopTitle}` : ""} &rarr;
                   </Link>

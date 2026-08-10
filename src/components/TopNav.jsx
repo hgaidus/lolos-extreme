@@ -177,7 +177,7 @@ export default function TopNav({ tripTitles = {}, menus = {} }) {
                   onMouseLeave={leave}
                 >
                   {m.top && (
-                    <li><Link href={m.top.href} onClick={close} className="nav-dropdown-link" style={{ ...linkStyle, color: "#c1593a", fontWeight: 700 }}>{m.top.label}</Link></li>
+                    <li><Link href={m.top.href} onClick={close} className="nav-dropdown-link" style={{ ...linkStyle, color: "#a54a2f", fontWeight: 700 }}>{m.top.label}</Link></li>
                   )}
                   {m.items.map((item, i) => (
                     <li key={i}>

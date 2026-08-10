@@ -49,7 +49,7 @@ export default function InteractiveMapPage() {
   return (
     <div>
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
-        <Link href="/" className="text-[#c1593a] font-semibold hover:underline">Home</Link>
+        <Link href="/" className="link-chrome">Home</Link>
         <span className="text-[#a89e8a]">/</span>
         <span className="text-[#5c5648] font-medium">Interactive Trip Stops Map</span>
       </div>

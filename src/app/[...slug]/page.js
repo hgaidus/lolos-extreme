@@ -548,15 +548,18 @@ export default async function CatchAllPage({ params, searchParams }) {
                           overview. On the trip overview itself it names the page
                           you're already on, so it stays plain text rather than
                           linking to itself. */}
+                      {/* White rather than the page cream, matching the nav: on
+                          this green the two are indistinguishable, so the split
+                          was only ever an inconsistency in the source. */}
                       {isStop && currentTrip ? (
                         <Link
                           href={`/${currentTrip.slug}`}
-                          className="block bg-[#58B195] hover:bg-[#4a9a80] text-[#faf6ee] hover:text-white font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-[#c1593a]/30 no-underline hover:underline transition-colors"
+                          className="block bg-[#58B195] hover:bg-[#4a9a80] text-white font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-[#c1593a]/30 no-underline hover:underline transition-colors"
                         >
                           {cleanTitle(currentTrip.title)} Itinerary
                         </Link>
                       ) : (
-                        <div className="bg-[#58B195] text-[#faf6ee] font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-[#c1593a]/30">
+                        <div className="bg-[#58B195] text-white font-bold p-2.5 text-xs uppercase tracking-wider text-center border-b border-[#c1593a]/30">
                           {currentTrip ? cleanTitle(currentTrip.title) : displayTitle} Itinerary
                         </div>
                       )}
@@ -620,7 +623,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                             </tbody>
                             {tripStops.length > 0 && (
                               <tfoot>
-                                <tr className="bg-[#58B195] text-[#faf6ee] font-bold border-t border-[#c1593a]/30">
+                                <tr className="bg-[#58B195] text-white font-bold border-t border-[#c1593a]/30">
                                   <td colSpan="2" className="py-2.5 px-2 text-right uppercase tracking-wider text-[11px] whitespace-nowrap">Total: {tripStops.length} Stops</td>
                                   <td className="py-2.5 px-1 text-center whitespace-nowrap">--</td>
                                   <td className="py-2.5 px-1 text-right text-[#a54a2f] whitespace-nowrap">

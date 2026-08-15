@@ -107,7 +107,10 @@ export default function TopNav({ tripTitles = {}, menus = {} }) {
 
         {/* Mobile: site name + hamburger */}
         <Link href="/" onClick={close} style={{
-          color: "#faf6ee",
+          // White to match navLinkStyle above — this used to be the page cream
+          // #faf6ee, which against the green is indistinguishable from white
+          // but left the nav using two different light tones.
+          color: "#ffffff",
           fontWeight: 700,
           fontSize: "0.95rem",
           textDecoration: "none",

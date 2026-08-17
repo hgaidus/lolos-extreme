@@ -6,6 +6,14 @@ import { cleanDrupalContent, unescapeDrupalText } from "@/utils/cleanContent";
 import { DATA_DIR } from "@/lib/dataPaths";
 import { isPublished } from "@/lib/publishState";
 import { getDataVersion, makeVersioned } from "@/lib/dataVersion";
+import OriginBreadcrumb from "@/components/OriginBreadcrumb";
+
+// This page used to be dynamic only as a side effect of reading searchParams
+// (for the old ?from= breadcrumb). With that gone, generateStaticParams below
+// would have it prerendered at build time and a CMS edit would not show up
+// until the next deploy. Stated explicitly so the ~2s freshness window the rest
+// of the site relies on is not something a future edit can remove by accident.
+export const dynamic = 'force-dynamic';
 
 function cleanTitle(str = "") {
   return str.replace(/\[img_assist[^\]]*\]/gi, "").trim();
@@ -89,9 +97,8 @@ export async function generateStaticParams() {
   return Array.from(typesSet).map(type => ({ type }));
 }
 
-export default async function ActivityTypePage({ params, searchParams }) {
+export default async function ActivityTypePage({ params }) {
   const { type } = await params;
-  const { from } = await searchParams;
   // Unpublished activities are hidden from the cards AND the sidebar counts.
   const activities = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "activities.json"), "utf-8"))
     .filter(a => isPublished(a));
@@ -134,10 +141,6 @@ export default async function ActivityTypePage({ params, searchParams }) {
 
   const displayTypeName = typeNames[type.toLowerCase()] || type.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 
-  // If we arrived here from a stop's activity badge, show that stop as a
-  // middle breadcrumb segment so it's easy to navigate back to it.
-  const originStop = from ? stops.find(s => s.slug === from) : null;
-
   return (
     <div className="w-full pb-16">
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
@@ -145,14 +148,7 @@ export default async function ActivityTypePage({ params, searchParams }) {
         <span className="text-[#a89e8a]">/</span>
         <Link href="/activities" className="link-chrome">Activities</Link>
         <span className="text-[#a89e8a]">/</span>
-        {originStop && (
-          <>
-            <Link href={`/${originStop.slug}`} className="link-chrome">
-              {cleanTitle(originStop.title)}
-            </Link>
-            <span className="text-[#a89e8a]">/</span>
-          </>
-        )}
+        <OriginBreadcrumb linkClassName="link-chrome" separatorClassName="text-[#a89e8a]" />
         <span className="text-[#5c5648] font-medium truncate">{displayTypeName} Activities</span>
       </div>
       {/* Header */}
@@ -271,7 +267,7 @@ export default async function ActivityTypePage({ params, searchParams }) {
               return (
                 <Link
                   key={slug}
-                  href={originStop ? `/activities/${slug}?from=${originStop.slug}` : `/activities/${slug}`}
+                  href={`/activities/${slug}`}
                   className={`flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                     isCurrent
                       ? "bg-[#7c9880] text-white shadow-md shadow-[#7c9880]/25"

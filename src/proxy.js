@@ -40,6 +40,10 @@ function pathIsDecodable(pathname) {
 // later are covered without being named.
 const CANONICAL_HOST = 'cross-country-trips.com';
 const CANONICAL_ORIGIN = `https://${CANONICAL_HOST}`;
+// Exempted by name rather than by NODE_ENV, so the local production build
+// (`next start`, used to reproduce anything that only appears in a real build)
+// keeps working too.
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]', '0.0.0.0']);
 
 // NOTE — the scheme half of this is deliberately NOT implemented yet, and the
 // reason is worth keeping. Redirecting http→https from here requires knowing
@@ -69,6 +73,12 @@ function canonicalOriginRedirect(request, pathname) {
   // scheme this can be acted on without risking a loop: the target host is by
   // definition not the one being redirected away from.
   if (host === '' || host === CANONICAL_HOST) return null;
+
+  // Loopback is not a wrong host, it is development. Without this, `next dev`
+  // and the local production build both 308 every request straight to the live
+  // site — which is exactly what happened the first time this shipped, and did
+  // not show up in testing because those tests set Host explicitly.
+  if (LOOPBACK_HOSTS.has(host)) return null;
 
   // 308 rather than 301 so a POST is replayed to the canonical origin instead
   // of being silently downgraded to a GET.

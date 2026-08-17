@@ -3,6 +3,8 @@ import path from 'path';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import InteractiveTravelogue from '@/components/InteractiveTravelogue';
+import OriginBreadcrumb from '@/components/OriginBreadcrumb';
+import StopOriginRecorder from '@/components/StopOriginRecorder';
 import { cleanDrupalContent, unescapeDrupalText } from '@/utils/cleanContent';
 import { buildContentRawText } from '@/lib/stopRawText';
 import { isPublished, viewerCanSeeDrafts } from '@/lib/publishState';
@@ -10,6 +12,12 @@ import { DATA_DIR } from '@/lib/dataPaths';
 import { photoFileExists } from '@/lib/photoExists';
 import { getTripRegionInfo } from '@/lib/tripRegions';
 import { getTripMapImage, getTripAuthor } from '@/lib/tripMeta';
+
+// Every content page on the site renders live from the JSON on disk, so a CMS
+// save shows up within the ~2s mtime window. This page was dynamic only as a
+// side effect of reading searchParams for the old ?from= breadcrumb; with that
+// gone, say so explicitly rather than leave it to inference.
+export const dynamic = 'force-dynamic';
 
 function isExcludedSlug(slugStr) {
   const s = slugStr.toLowerCase();
@@ -253,9 +261,8 @@ function lookupItem(slugStr) {
   return null;
 }
 
-export default async function CatchAllPage({ params, searchParams }) {
+export default async function CatchAllPage({ params }) {
   const { slug } = await params;
-  const { from } = await searchParams;
   const slugStr = slug.join('/');
   if (isExcludedSlug(slugStr)) {
     notFound();
@@ -316,23 +323,16 @@ export default async function CatchAllPage({ params, searchParams }) {
       ? stops.filter(s => s.state && (s.state.toUpperCase() === displayItem.stateCode || s.state === displayItem.stateCode)).sort((a, b) => cleanTitle(a.title).localeCompare(cleanTitle(b.title)))
       : stops.filter(s => s.category && s.category === displayItem.categoryName).sort((a, b) => cleanTitle(a.title).localeCompare(cleanTitle(b.title)));
 
-    // If we arrived here from a stop's state/category tag, show that stop as a
-    // middle breadcrumb segment so it's easy to navigate back to it.
-    const originStop = from ? stops.find(s => s.slug === from) : null;
-
     return (
       <div className="w-full max-w-6xl mx-auto min-w-0 py-6 px-4 sm:px-6 font-sans">
         <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
           <Link href="/" className="link-chrome">Home</Link>
           <span className="text-[#a89e8a]">/</span>
-          {originStop && (
-            <>
-              <Link href={`/${originStop.slug}`} className="link-chrome">
-                {cleanTitle(originStop.title)}
-              </Link>
-              <span className="text-[#a89e8a]">/</span>
-            </>
-          )}
+          {/* The stop you came from, if you came from one. Resolved on the
+              client from the referrer — see OriginBreadcrumb — rather than the
+              ?from= parameter this used to read, which multiplied these
+              listings into thousands of crawlable duplicate URLs. */}
+          <OriginBreadcrumb linkClassName="link-chrome" separatorClassName="text-[#a89e8a]" />
           <span className="text-[#5c5648] font-medium truncate">{displayItem.title}</span>
         </div>
         <h1 className="text-3xl md:text-4xl font-extrabold text-[#2e2c26] mb-6 font-sans">
@@ -484,6 +484,12 @@ export default async function CatchAllPage({ params, searchParams }) {
         )}
         <span className="text-[#5c5648] font-medium truncate">{displayTitle}</span>
       </div>
+
+      {/* Remembers this stop for the breadcrumb on whichever listing page the
+          state/category/activity badges below lead to. Renders nothing. */}
+      {isStop && displayItem.slug && (
+        <StopOriginRecorder path={`/${displayItem.slug}`} title={cleanTitle(displayItem.title)} />
+      )}
 
       {/* Unified 3-Column Layout: Fixed Left & Right Sidebars, Fluid Center Content */}
       <div className="trip-page-layout flex flex-row gap-4 sm:gap-6 lg:gap-8 items-start w-full">
@@ -687,7 +693,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                     {(displayItem.state || displayItem.category) && (
                       <div className="flex items-center gap-2">
                         {displayItem.state && (
-                          <Link href={`/state/${displayItem.state.toLowerCase()}?from=${displayItem.slug}`} className="link-chrome">
+                          <Link href={`/state/${displayItem.state.toLowerCase()}`} className="link-chrome">
                             {displayItem.state}
                           </Link>
                         )}
@@ -695,7 +701,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                           <span className="text-[#a89e8a]">|</span>
                         )}
                         {displayItem.category && (
-                          <Link href={`/category/${slugifyCategory(displayItem.category)}?from=${displayItem.slug}`} className="link-chrome">
+                          <Link href={`/category/${slugifyCategory(displayItem.category)}`} className="link-chrome">
                             {displayItem.category}
                           </Link>
                         )}
@@ -788,7 +794,7 @@ export default async function CatchAllPage({ params, searchParams }) {
                 return (
                   <Link
                     key={act.nid || idx}
-                    href={`/activities/${actSlug}?from=${displayItem.slug}`}
+                    href={`/activities/${actSlug}`}
                     aria-label={`${actTitle} — see all ${actType} activities`}
                     className="group glass-card block p-3.5 border-l-4 border-l-[#c1593a]/80 no-underline"
                   >

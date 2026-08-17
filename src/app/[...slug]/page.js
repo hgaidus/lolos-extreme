@@ -20,9 +20,18 @@ import { makeVersioned, getDataVersion } from '@/lib/dataVersion';
 // gone, say so explicitly rather than leave it to inference.
 export const dynamic = 'force-dynamic';
 
+// The 'lazy-daze' clause that used to live here hid two published standalone
+// pages by slug. sitemap.js has no matching rule — it excludes by `type`, not
+// by slug — so the sitemap advertised both, and Google crawled two guaranteed
+// 404s. They are now `published: false` in the CMS instead, which 404s them
+// AND drops them from the sitemap through the same isPublished() check
+// everything else uses, and is reversible from the admin UI.
+//
+// 'tips' stays: those 33 pages are excluded by type in sitemap.js, so the two
+// files already agree about them.
 function isExcludedSlug(slugStr) {
   const s = slugStr.toLowerCase();
-  return s.includes('lazy-daze') || s === 'tips' || s.startsWith('tips/');
+  return s === 'tips' || s.startsWith('tips/');
 }
 
 export async function generateMetadata({ params }) {

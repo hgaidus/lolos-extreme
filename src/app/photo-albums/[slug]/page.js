@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import LightboxViewer from '@/components/LightboxViewer';
 import { getPhotosForAlbum, findAlbumBySlug } from '@/utils/albumPhotos';
 
@@ -22,7 +23,18 @@ export async function generateMetadata({ params }) {
 export default async function AlbumDetailPage({ params }) {
   const { slug } = await params;
   const album = findAlbumBySlug(slug);
-  const title = album?.title || fallbackTitle(slug);
+
+  // No album by that slug is a 404, not a page. This route used to render any
+  // slug at all: it derived a title from the URL and fell back to a heuristic
+  // year match over every photo title, so /photo-albums/2026-lazy-daze-sale —
+  // a URL with no album behind it — returned 200 and 51 loosely-matched photos.
+  // That is a soft 404, and it also meant unpublishing an album could not
+  // actually hide it, because findAlbumBySlug returning null just re-entered
+  // the fallback. All 85 real albums have a record, so nothing legitimate
+  // relies on that path.
+  if (!album) notFound();
+
+  const title = album.title || fallbackTitle(slug);
   const photos = getPhotosForAlbum(slug);
 
   return (

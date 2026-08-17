@@ -81,10 +81,15 @@ function getYearFromTitle(title) {
   return 0;
 }
 
+// Public-facing album list. Unpublished albums are dropped here rather than at
+// each call site, so the index and findAlbumBySlug() (and therefore the album
+// page) agree without anyone having to remember. The admin side reads through
+// adminStore instead, so it still sees them and can toggle them back.
 export function getCleanAlbums() {
   const { albumsObj } = loadData();
   const filtered = albumsObj.filter(a => {
     if (!a || !a.title || !a.slug) return false;
+    if (!isPublished(a)) return false;
     const t = a.title.toLowerCase();
     const s = a.slug.toLowerCase();
     return !t.endsWith('/feed') && !s.endsWith('/feed');

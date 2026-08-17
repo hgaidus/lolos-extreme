@@ -82,9 +82,12 @@ export default function sitemap() {
     add(cleanPath(p.slug), { lastModified: toDate(p.created), changeFrequency: 'yearly', priority: 0.5 });
   }
 
-  // Photo album pages (album.slug already includes the "photo-albums/" prefix)
+  // Photo album pages (album.slug already includes the "photo-albums/" prefix).
+  // Drafts excluded, same as every other type — without this an unpublished
+  // album would 404 while still being advertised here, which is exactly the
+  // mismatch that had the sitemap listing the two lazy-daze pages.
   for (const a of albums) {
-    if (!a.slug) continue;
+    if (!a.slug || !isPublished(a)) continue;
     add(cleanPath(a.slug), { changeFrequency: 'yearly', priority: 0.5 });
   }
 

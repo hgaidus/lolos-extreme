@@ -14,18 +14,33 @@ const nextConfig = {
     proxyClientMaxBodySize: '32mb',
   },
 
-  // Canonicalize the domain: 301 any www request to the non-www origin,
-  // preserving the path. Both hostnames hit this same Passenger app, so the
-  // app sees the Host header and can redirect. Non-www is the canonical
-  // domain (matches the rel=canonical tags). No loop: the destination host
-  // never matches the www condition.
-  async redirects() {
+  // Origin canonicalisation used to live here as a redirect naming exactly one
+  // bad host (www). That missed mail.cross-country-trips.com — a ServerAlias
+  // cPanel puts on this vhost, serving an identical copy of the site — and it
+  // covered no scheme at all. Both now live as one allowlist rule in
+  // src/proxy.js, which already runs on every request. It is not in the web
+  // server because .htaccess is inert for this docroot (nginx → Passenger, no
+  // Apache in the path) — see the note there.
+
+  // HSTS. Sent from here rather than the web server for three reasons: every
+  // response goes through Node under Passenger (even /photos/*), so coverage is
+  // complete; it stays in version control; and mod_headers is not demonstrably
+  // available on this host, while this is.
+  //
+  // Deliberately NOT includeSubDomains — that would force https on webmail.,
+  // cpanel. and mail., and locking yourself out of webmail is a real way for
+  // this to go wrong. Deliberately NOT preload — that list is effectively
+  // one-way, and everything here should be revertible.
+  //
+  // max-age starts short on purpose. Once the redirect is confirmed working,
+  // raise it to 31536000 (one year); until then a mistake ages out in minutes.
+  async headers() {
     return [
       {
         source: '/:path*',
-        has: [{ type: 'host', value: 'www.cross-country-trips.com' }],
-        destination: 'https://cross-country-trips.com/:path*',
-        permanent: true,
+        headers: [
+          { key: 'Strict-Transport-Security', value: 'max-age=300' },
+        ],
       },
     ];
   },

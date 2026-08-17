@@ -12,6 +12,7 @@ import { DATA_DIR } from '@/lib/dataPaths';
 import { photoFileExists } from '@/lib/photoExists';
 import { getTripRegionInfo } from '@/lib/tripRegions';
 import { getTripMapImage, getTripAuthor } from '@/lib/tripMeta';
+import { makeVersioned, getDataVersion } from '@/lib/dataVersion';
 
 // Every content page on the site renders live from the JSON on disk, so a CMS
 // save shows up within the ~2s mtime window. This page was dynamic only as a
@@ -35,7 +36,16 @@ export async function generateMetadata({ params }) {
     return { title: "Not Found | Lolo's Extreme Cross Country RV Trips" };
   }
   const title = cleanTitle(item.title);
-  const fullTitle = `${title} | Lolo's Extreme Cross Country RV Trips`;
+  // Stops carry the trip instead of the site name. Google truncates a title
+  // around 60 characters and the site suffix is 38 of them, so keeping both
+  // would push the part that actually distinguishes one "Home" from the other
+  // 42 past the cut — fixing the duplication in the markup but not in a search
+  // result. Every other page type keeps the suffix; their titles are already
+  // distinct.
+  const tripTitle = tripTitleForStop(item);
+  const fullTitle = tripTitle
+    ? `${title} — ${tripTitle}`
+    : `${title} | Lolo's Extreme Cross Country RV Trips`;
 
   // Drafts: the page 404s for the public; the admin preview render must not
   // be indexable if a crawler ever saw it, and needs no canonical/OG.
@@ -164,7 +174,14 @@ function formatStopDateOnly(ts) {
   });
 }
 
-function getExportedData() {
+// Rebuilt only when the content JSON changes on disk, so a CMS save is still
+// visible within the usual ~2s mtime window. Previously this re-read and
+// re-parsed five files — stops.json alone is 9.9MB — on every request, and
+// twice per request now that generateMetadata needs the trip a stop belongs to.
+//
+// Safe to share the parsed arrays: nothing sorts, reverses or pushes them in
+// place (checked); every caller filters first, which copies.
+const exportedDataCache = makeVersioned(() => {
   try {
     const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
     const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
@@ -178,6 +195,23 @@ function getExportedData() {
     console.warn("Could not load ETL data in catch-all", err);
     return { stops: [], trips: [], pages: [], comments: [], photoTitles: [], activities: [] };
   }
+}, getDataVersion);
+
+function getExportedData() {
+  return exportedDataCache.get();
+}
+
+// A stop's <title> is disambiguated by the trip it belongs to: 284 of 874 stops
+// share a title with another stop ("Home" x43, "Bishop" x14, "Yosemite Valley"
+// x10), which shipped 43 byte-identical <title> tags and is what Search Console
+// clusters as "Duplicate without user-selected canonical". Appending the trip
+// makes 257 of those 284 unique; the remaining 27 repeat a title within a
+// single trip and would need the date to separate them.
+function tripTitleForStop(item) {
+  if (!item || item.itemType !== "stop" || !item.parent_trip_nid) return null;
+  const { trips } = getExportedData();
+  const trip = trips.find(t => String(t.nid) === String(item.parent_trip_nid));
+  return trip ? cleanTitle(trip.title) : null;
 }
 
 // decodeURIComponent throws URIError on a percent-escape that doesn't decode to
@@ -287,6 +321,13 @@ export default async function CatchAllPage({ params }) {
 
   const displayTitle = cleanTitle(displayItem.title);
 
+  // Same disambiguation as the <title> tag, for the structured data. The <h1>
+  // deliberately keeps the short form: the breadcrumb directly above it already
+  // names the trip, so repeating it in the heading would just be noise on the
+  // page. This only affects what a machine reads.
+  const stopTripTitle = tripTitleForStop(displayItem);
+  const structuredTitle = stopTripTitle ? `${displayTitle} — ${stopTripTitle}` : displayTitle;
+
   // Structured data (schema.org) for the article-style pages (trip/stop/page).
   // Rendered as a JSON-LD <script> in the main content column below.
   const canonicalUrl = "https://cross-country-trips.com/" + safeDecodeURIComponent(slugStr, slugStr).replace(/^\/+/, "");
@@ -296,7 +337,7 @@ export default async function CatchAllPage({ params }) {
         "@graph": [
           {
             "@type": "BlogPosting",
-            headline: displayTitle,
+            headline: structuredTitle,
             description: plainExcerpt(displayItem.travelogue || displayItem.description || displayItem.body) || undefined,
             datePublished: toIsoDate(displayItem.arrival_date || displayItem.created),
             author: { "@type": "Person", name: displayItem.author || "Lolo" },
@@ -311,7 +352,7 @@ export default async function CatchAllPage({ params }) {
             "@type": "BreadcrumbList",
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "Home", item: "https://cross-country-trips.com/" },
-              { "@type": "ListItem", position: 2, name: displayTitle, item: canonicalUrl },
+              { "@type": "ListItem", position: 2, name: structuredTitle, item: canonicalUrl },
             ],
           },
         ],

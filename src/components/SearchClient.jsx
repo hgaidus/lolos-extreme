@@ -117,7 +117,7 @@ export default function SearchClient({ searchIndex, menus = {} }) {
                   className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
                     activeRegion === r.key
                       ? "bg-[#c1593a] text-white border-[#c1593a]"
-                      : "bg-white text-[#3f5c4c] border-[#c1593a]/30 hover:bg-[#faf6ee]"
+                      : "bg-white text-[#3f5c4c] border-[#c1593a]/30 hover:bg-[var(--bg-main)]"
                   }`}
                 >
                   {r.label}

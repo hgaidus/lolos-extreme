@@ -71,7 +71,7 @@ export default function LightboxViewer({ photos = [], albumTitle = "Photo Galler
               type="button"
               onClick={(e) => openLightbox(idx, e)}
               aria-label={`Open photo${photo.title ? `: ${photo.title}` : ` ${idx + 1}`}`}
-              className="appearance-none p-0 text-left bg-white hover:bg-[#faf6ee] border border-[#e4dcc8] hover:border-[#c1593a]/50 rounded overflow-hidden cursor-pointer transition-all duration-200 flex flex-col group shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c1593a]"
+              className="appearance-none p-0 text-left bg-white hover:bg-[var(--bg-main)] border border-[#e4dcc8] hover:border-[#c1593a]/50 rounded overflow-hidden cursor-pointer transition-all duration-200 flex flex-col group shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c1593a]"
             >
               <div className="w-full h-44 sm:h-48 md:h-52 bg-[#f2ede1] p-2 flex items-center justify-center overflow-hidden relative">
                 <img
@@ -86,7 +86,7 @@ export default function LightboxViewer({ photos = [], albumTitle = "Photo Galler
                 />
               </div>
               {photo.title && (
-                <div className="p-2.5 text-center flex-1 flex items-center justify-center bg-white group-hover:bg-[#faf6ee] transition-colors">
+                <div className="p-2.5 text-center flex-1 flex items-center justify-center bg-white group-hover:bg-[var(--bg-main)] transition-colors">
                   <p className="text-xs sm:text-sm font-medium text-[#2e2c26] line-clamp-2 leading-snug m-0">
                     {photo.title}
                   </p>

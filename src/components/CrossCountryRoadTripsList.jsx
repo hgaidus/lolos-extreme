@@ -69,7 +69,7 @@ export default function CrossCountryRoadTripsList({ region }) {
                   // the td onto the link). The year link is hidden from
                   // assistive tech and skipped in the tab order so the row is
                   // still announced once, as a single destination.
-                  <tr key={trip.slug} className={`group ${idx % 2 === 0 ? "bg-[#faf6ee]" : "bg-white"} hover:bg-[#f2ede1] transition-colors`}>
+                  <tr key={trip.slug} className={`group ${idx % 2 === 0 ? "bg-[var(--bg-main)]" : "bg-white"} hover:bg-[var(--bg-main-shade)] transition-colors`}>
                     <td className="p-0 font-semibold">
                       <Link
                         href={`/${trip.slug}`}

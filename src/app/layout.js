@@ -66,7 +66,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${lora.variable}`}>
       <body style={{
-        backgroundColor: "#faf6ee",
+        backgroundColor: "var(--bg-main)",
         color: "#2e2c26",
         fontFamily: 'var(--font-inter), system-ui, -apple-system, sans-serif',
         margin: 0,

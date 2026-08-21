@@ -86,7 +86,15 @@
      anyway. */
   --color-link-hover: #8f3f28;
 
-  --bg-main: #faf6ee;
+  /* Very light sage, in the family of --color-green-primary #7c9880 and the
+     #3f5c4c headings. Replaced the old cream #faf6ee, which read as someone
+     else's palette. Every text role keeps its contrast: links 5.38 -> 5.16,
+     body 12.95 -> 12.41, all still AA. Cards are translucent white, so they
+     tint toward this too.
+     NOTE: --text-inverse below is still #faf6ee on purpose - that is cream
+     TEXT on the dark green banner, not a background. */
+  --bg-main: #eef3ec;
+  --bg-main-shade: #e3ebe1;
   --bg-card: rgba(255, 255, 255, 0.78);
   --bg-card-hover: rgba(255, 255, 255, 0.94);
 

@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function SlideCard({ title, subtitle, imageUrl, href, onClick }) {
   const content = (
-    <div className="bg-white hover:bg-[#faf6ee] border border-[#e4dcc8] hover:border-[#c1593a]/50 rounded overflow-hidden transition-all duration-200 flex flex-col group shadow-md h-full w-full">
+    <div className="bg-white hover:bg-[var(--bg-main)] border border-[#e4dcc8] hover:border-[#c1593a]/50 rounded overflow-hidden transition-all duration-200 flex flex-col group shadow-md h-full w-full">
       {/* Thumbnail image container with fixed aspect ratio / height so grid stays perfectly aligned */}
       <div className="w-full h-44 sm:h-48 md:h-52 bg-[#f2ede1] p-2 flex items-center justify-center overflow-hidden relative">
         {imageUrl ? (
@@ -20,7 +20,7 @@ export default function SlideCard({ title, subtitle, imageUrl, href, onClick }) 
       </div>
 
       {/* Caption container */}
-      <div className="p-2.5 text-center flex-1 flex flex-col items-center justify-center bg-white group-hover:bg-[#faf6ee] transition-colors">
+      <div className="p-2.5 text-center flex-1 flex flex-col items-center justify-center bg-white group-hover:bg-[var(--bg-main)] transition-colors">
         <div className="text-xs sm:text-sm font-medium text-[#2e2c26] line-clamp-2 leading-snug m-0">
           {title}
         </div>

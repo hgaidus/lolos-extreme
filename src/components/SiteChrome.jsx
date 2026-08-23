@@ -95,8 +95,26 @@ export default function SiteChrome({ tripTitles, menus, children }) {
         background: "#58B195",
       }}>
         <div style={{ maxWidth: "1380px", margin: "0 auto" }}>
+          {/* The copyright symbol is the way in to the CMS, as it was on the
+              Drupal site. It inherits colour, weight and decoration from the
+              footer, and its cursor is overridden back to the default — a
+              pointer on hover is what would otherwise give it away.
+
+              Points at /admin rather than /admin/login: signed in, that lands
+              on the dashboard; signed out, the proxy redirects to the login
+              form. One link, right behaviour either way.
+
+              This is obscurity, not security. Anyone reading the HTML can see
+              it. The login itself is what protects the CMS. */}
           <p style={{ margin: 0 }}>
-            Copyright © 1998–{new Date().getFullYear()}, Lorraine E. &amp; Herbert H. Gaidus — All Rights Reserved.
+            Copyright{' '}
+            <Link
+              href="/admin"
+              style={{ color: 'inherit', textDecoration: 'inherit', cursor: 'auto' }}
+            >
+              ©
+            </Link>{' '}
+            1998–{new Date().getFullYear()}, Lorraine E. &amp; Herbert H. Gaidus — All Rights Reserved.
           </p>
         </div>
       </footer>

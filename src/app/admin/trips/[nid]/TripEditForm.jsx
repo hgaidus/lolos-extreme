@@ -154,7 +154,17 @@ export default function TripEditForm({ trip, authors = [] }) {
         >
           {status === 'saving' ? 'Saving…' : 'Save'}
         </button>
-        {status === 'saved' && <span className="text-green-700 text-sm">Saved &amp; pushed to GitHub</span>}
+        {status === 'saved' && (
+          <span className="text-green-700 text-sm">
+            Saved &amp; pushed to GitHub
+            {trip?.slug && (
+              <>
+                {' — '}
+                <a href={`/${trip.slug}`} className="text-blue-700 underline">View the page</a>
+              </>
+            )}
+          </span>
+        )}
         {status === 'error' && <span className="text-red-600 text-sm">Save failed</span>}
         {status === 'invalid' && <span className="text-red-600 text-sm">Not saved — fix the highlighted fields.</span>}
       </div>

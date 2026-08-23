@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { getTripIndexGroups } from '@/lib/tripMeta';
+import AdminEditBar from '@/components/AdminEditBar';
+import { viewerCanSeeDrafts } from '@/lib/publishState';
 
 // Reflect CMS edits (new trips, retitles, publish changes) within ~2s rather
 // than freezing this listing into static HTML until the next deploy.
@@ -18,10 +20,22 @@ const SECTIONS = [
   { key: 'international', label: 'International Trips', anchor: 'international' },
 ];
 
-export default function TripIndexPage() {
+export default async function TripIndexPage() {
+  const adminViewer = await viewerCanSeeDrafts();
   const tripIndex = getTripIndexGroups();
   return (
     <div>
+      {/* This page has no prose record behind it — every word below the
+          heading is generated from trips.json. So the edit link goes to the
+          Trips listing, which is the CMS view of exactly this content. */}
+      {adminViewer && (
+        <AdminEditBar
+          href="/admin"
+          label="Manage trips"
+          hint="This page is generated from the trip records."
+        />
+      )}
+
       <div className="mb-6 flex gap-2 items-center text-sm flex-wrap">
         <Link href="/" className="link-chrome">Home</Link>
         <span className="text-[#a89e8a]">/</span>

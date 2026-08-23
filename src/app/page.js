@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import Link from 'next/link';
 import CrossCountryExplorer from '@/components/CrossCountryExplorer';
+import AdminEditBar from '@/components/AdminEditBar';
+import { viewerCanSeeDrafts } from '@/lib/publishState';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { getMenuGroups } from '@/lib/tripMeta';
 import { resolveDrupalLinks } from '@/utils/cleanContent';
@@ -212,12 +214,16 @@ function getCrossCountryTrips() {
   }
 }
 
-function getHomeBody() {
+// Returns the body AND the nid of the record it came from. The nid is what the
+// signed-in edit link points at, so it is taken from the same lookup rather
+// than hardcoded — otherwise "edit the homepage text" could aim at a different
+// record than the one actually being rendered.
+function getHomePage() {
   try {
     const pages = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "standalone_pages.json"), "utf-8"));
     const home = pages.find(p => p.title && p.title.includes("Plan Your Route"));
-    return home ? home.body : "";
-  } catch { return ""; }
+    return { body: home ? home.body : "", nid: home ? home.nid : null };
+  } catch { return { body: "", nid: null }; }
 }
 
 // Drupal's "line break converter" filter normally wraps blank-line-separated
@@ -264,9 +270,10 @@ function cleanBody(html) {
   // with the rest of the site instead of overriding it with a one-off color.
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const adminViewer = await viewerCanSeeDrafts();
   const ccTrips = getCrossCountryTrips();
-  const rawBody = getHomeBody();
+  const { body: rawBody, nid: homeNid } = getHomePage();
   const cleanedBody = cleanBody(rawBody);
 
   // The raw body has its own "Contents of this site" list between the intro
@@ -290,6 +297,14 @@ export default function HomePage() {
 
   return (
     <div>
+      {adminViewer && (
+        <AdminEditBar
+          href={homeNid ? `/admin/pages/${homeNid}` : null}
+          label="Edit the homepage text"
+          hint="Only you can see this bar."
+        />
+      )}
+
       <h1 className="font-serif text-[1.5rem] mb-4" style={{ color: "#2e2c26" }}>
         Cross Country Road Trip Planner
       </h1>

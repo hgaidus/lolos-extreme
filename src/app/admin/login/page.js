@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import PasswordField from '@/components/PasswordField';
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState('');
@@ -57,15 +58,15 @@ export default function AdminLoginPage() {
         <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">
           Password
         </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div className="mb-3">
+          <PasswordField
+            id="password"
+            name="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
         {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
 

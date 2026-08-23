@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import PasswordField from '@/components/PasswordField';
 
 const MIN_LENGTH = 12;
 
@@ -71,29 +72,29 @@ function ResetForm() {
       <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">
         New password
       </label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        autoComplete="new-password"
-        value={password}
-        onChange={(e) => { setPassword(e.target.value); setError(''); }}
-        autoFocus
-        className="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+      <div className="mb-3">
+        <PasswordField
+          id="password"
+          name="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => { setPassword(e.target.value); setError(''); }}
+          autoFocus
+        />
+      </div>
 
       <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="confirm">
         Confirm password
       </label>
-      <input
-        id="confirm"
-        name="confirm"
-        type="password"
-        autoComplete="new-password"
-        value={confirm}
-        onChange={(e) => { setConfirm(e.target.value); setError(''); }}
-        className="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+      <div className="mb-3">
+        <PasswordField
+          id="confirm"
+          name="confirm"
+          autoComplete="new-password"
+          value={confirm}
+          onChange={(e) => { setConfirm(e.target.value); setError(''); }}
+        />
+      </div>
 
       {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
 

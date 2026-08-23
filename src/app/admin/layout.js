@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import LogoutButton from './LogoutButton';
+import { SURFACE, ROW, LABEL, LINK, LINK_PRIMARY, SEPARATOR } from '@/components/signedInBarStyles';
 
 export const metadata = {
   title: 'Admin',
@@ -17,10 +18,17 @@ export const dynamic = 'force-dynamic';
 export default function AdminLayout({ children }) {
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-gray-900 text-white px-6 py-3 flex items-center justify-between">
-        <Link href="/admin" className="font-bold">
-          Site Admin
-        </Link>
+      {/* Deliberately the same bar as the one on public pages: same tinted
+          surface, same SIGNED IN label, same terracotta links, so moving
+          between the site and the CMS does not feel like two applications.
+          Links left, Log out right. */}
+      <header className={`${SURFACE} ${ROW} justify-between border-b px-6 py-2.5`}>
+        <div className={ROW}>
+          <span className={LABEL}>Signed in</span>
+          <Link href="/admin" className={LINK_PRIMARY}>Site Admin</Link>
+          <span aria-hidden="true" className={SEPARATOR}>|</span>
+          <Link href="/" className={LINK}>View site &rarr;</Link>
+        </div>
         <LogoutButton />
       </header>
       <main className="p-6 max-w-6xl mx-auto">{children}</main>

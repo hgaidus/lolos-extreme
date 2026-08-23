@@ -59,7 +59,7 @@ export default function ActivitiesIndexPage() {
 
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-[#2e2c26] m-0">Activities</h1>
-        <p className="text-sm text-[#8a8272] mt-1">
+        <p className="text-sm text-[#6b6455] mt-1">
           {total.toLocaleString()} activities logged across 20+ years of motorhome travel.
           Pick one to see every place we did it.
         </p>
@@ -88,7 +88,7 @@ export default function ActivitiesIndexPage() {
       </div>
 
       {types.length === 0 && (
-        <div className="glass-card p-12 text-center text-[#8a8272]">
+        <div className="glass-card p-12 text-center text-[#6b6455]">
           <p className="text-base italic">No activities found.</p>
         </div>
       )}

@@ -33,4 +33,4 @@ export const LINK =
 
 export const SEPARATOR = 'text-[#c1593a]/40';
 
-export const HINT = 'text-[#8a8272]';
+export const HINT = 'text-[#6b6455]';

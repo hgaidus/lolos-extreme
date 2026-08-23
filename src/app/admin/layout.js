@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import LogoutButton from './LogoutButton';
+import LogoutButton from '@/components/LogoutButton';
 import { SURFACE, ROW, LABEL, LINK, LINK_PRIMARY, SEPARATOR } from '@/components/signedInBarStyles';
 
 export const metadata = {
@@ -29,7 +29,7 @@ export default function AdminLayout({ children }) {
           <span aria-hidden="true" className={SEPARATOR}>|</span>
           <Link href="/" className={LINK}>View site &rarr;</Link>
         </div>
-        <LogoutButton />
+        <LogoutButton redirectTo="/admin/login" />
       </header>
       <main className="p-6 max-w-6xl mx-auto">{children}</main>
     </div>

@@ -15,7 +15,7 @@ export default function SlideCard({ title, subtitle, imageUrl, href, onClick }) 
             loading="lazy"
           />
         ) : (
-          <span className="text-xs text-[#8a8272] italic px-2 text-center">No preview available</span>
+          <span className="text-xs text-[#6b6455] italic px-2 text-center">No preview available</span>
         )}
       </div>
 

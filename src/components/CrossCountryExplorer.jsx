@@ -54,7 +54,7 @@ export default function CrossCountryExplorer({ trips }) {
     >
       <div className="px-3.5 pt-3.5">
         <div className="flex items-center justify-between gap-2">
-          <div className="text-[0.62rem] uppercase tracking-wide text-[#8a8272] font-bold">1999–2016</div>
+          <div className="text-[0.62rem] uppercase tracking-wide text-[#6b6455] font-bold">1999–2016</div>
           {!reducedMotion && (
             <button
               type="button"
@@ -62,7 +62,7 @@ export default function CrossCountryExplorer({ trips }) {
               aria-label={autoPlay ? "Pause year auto-advance" : "Resume year auto-advance"}
               title={autoPlay ? "Pause auto-advance" : "Resume auto-advance"}
               className="text-[0.62rem] font-bold rounded-full px-2 py-0.5 border cursor-pointer flex items-center gap-1"
-              style={{ color: "#8a8272", borderColor: "rgba(90,74,50,0.14)", background: "rgba(0,0,0,0.03)" }}
+              style={{ color: "#6b6455", borderColor: "rgba(90,74,50,0.14)", background: "rgba(0,0,0,0.03)" }}
             >
               {autoPlay ? "⏸" : "▶"} {autoPlay ? "Auto" : "Paused"}
             </button>
@@ -109,7 +109,7 @@ export default function CrossCountryExplorer({ trips }) {
             className="text-[0.64rem] font-bold rounded-full px-2 py-0.5 border cursor-pointer"
             style={{
               background: i === idx ? "#c1593a" : "rgba(0,0,0,0.03)",
-              color: i === idx ? "#fff" : "#8a8272",
+              color: i === idx ? "#fff" : "#6b6455",
               borderColor: i === idx ? "#c1593a" : "rgba(90,74,50,0.14)",
             }}
           >
@@ -122,11 +122,11 @@ export default function CrossCountryExplorer({ trips }) {
         <div className="font-bold text-[0.92rem] text-[#2e2c26]">{trip.name}</div>
         <div className="flex items-baseline gap-1 ml-1">
           <span className="font-extrabold text-[0.78rem] text-[#a54a2f]">{trip.days}</span>
-          <span className="text-[0.58rem] uppercase tracking-wide text-[#8a8272]">days</span>
+          <span className="text-[0.58rem] uppercase tracking-wide text-[#6b6455]">days</span>
         </div>
         <div className="flex items-baseline gap-1">
           <span className="font-extrabold text-[0.78rem] text-[#a54a2f]">{trip.miles.toLocaleString()}</span>
-          <span className="text-[0.58rem] uppercase tracking-wide text-[#8a8272]">miles</span>
+          <span className="text-[0.58rem] uppercase tracking-wide text-[#6b6455]">miles</span>
         </div>
         <Link href={`/${trip.href}`} className="link-chrome ml-auto text-[0.76rem] whitespace-nowrap">
           View full trip →
@@ -134,12 +134,12 @@ export default function CrossCountryExplorer({ trips }) {
       </div>
 
       <div className="px-3.5 pb-4 pt-2.5 mt-2.5 border-t border-black/10 text-[0.78rem] leading-relaxed text-[#3d3a30]">
-        <div className="text-[0.62rem] uppercase tracking-wide text-[#8a8272] font-bold mb-1">About this trip</div>
+        <div className="text-[0.62rem] uppercase tracking-wide text-[#6b6455] font-bold mb-1">About this trip</div>
         {trip.teaser}
 
         {trip.highlights && trip.highlights.length > 0 && (
           <>
-            <div className="text-[0.62rem] uppercase tracking-wide text-[#8a8272] font-bold mt-3 mb-1">Trip highlights</div>
+            <div className="text-[0.62rem] uppercase tracking-wide text-[#6b6455] font-bold mt-3 mb-1">Trip highlights</div>
             <ul className="m-0 pl-4 space-y-0.5" style={{ listStyleType: "disc" }}>
               {trip.highlights.map((h) => (
                 <li key={h.slug}>

@@ -100,7 +100,14 @@
 
   --text-primary: #2e2c26;
   --text-secondary: #5c5648;
-  --text-muted: #8a8272;
+  /* Was #8a8272, which failed AA everywhere it appeared: 3.38:1 on the page,
+     3.12:1 on --bg-main-shade, 3.08:1 on the signed-in bar. #6b6455 is the
+     LIGHTEST value that clears 4.5:1 on all four surfaces muted text lands on
+     (worst case 4.75:1 on the bar), so it stays as close to the original
+     muted look as accessibility allows. Don't darken it further — past about
+     #635c4b it stops being distinguishable from --text-secondary and the
+     three-tier text hierarchy collapses to two. */
+  --text-muted: #6b6455;
   --text-inverse: #faf6ee;
 
   --border-gold: rgba(193, 89, 58, 0.35);

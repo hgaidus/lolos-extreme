@@ -156,7 +156,7 @@ export default async function ActivityTypePage({ params }) {
         <h1 className="text-2xl md:text-3xl font-bold text-[#2e2c26] m-0">
           {displayTypeName} Activities
         </h1>
-        <p className="text-sm text-[#8a8272] mt-1">
+        <p className="text-sm text-[#6b6455] mt-1">
           Showing {matchingActivities.length} {displayTypeName.toLowerCase()} activities logged during our motorhome cross-country adventures.
         </p>
       </div>
@@ -210,7 +210,7 @@ export default async function ActivityTypePage({ params }) {
                           when this wraps on narrow screens, and the weight and
                           colour already separate stop from trip. */}
                       {tripLabel && (
-                        <span className="text-xs text-[#8a8272]">{tripLabel}</span>
+                        <span className="text-xs text-[#6b6455]">{tripLabel}</span>
                       )}
                       {year && (
                         <span className="px-2 py-0.5 rounded-full bg-[#c1593a]/10 text-[#c1593a] text-[11px] font-extrabold tabular-nums">
@@ -238,7 +238,7 @@ export default async function ActivityTypePage({ params }) {
               );
             })
           ) : (
-            <div className="glass-card p-12 text-center text-[#8a8272]">
+            <div className="glass-card p-12 text-center text-[#6b6455]">
               <p className="text-base italic">No activities found matching category &quot;{displayTypeName}&quot;.</p>
             </div>
           )}

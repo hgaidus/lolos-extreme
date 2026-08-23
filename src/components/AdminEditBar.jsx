@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BAR, LABEL, LINK, LINK_PRIMARY, SEPARATOR, HINT } from './signedInBarStyles';
+import LogoutButton from './LogoutButton';
 
 // The contextual edit link the old Drupal site had: when you are signed in,
 // every page you are looking at offers a way straight into its editor, so
@@ -39,6 +40,11 @@ export default function AdminEditBar({ href, label, hint }) {
       )}
 
       {hint && <span className={HINT}>{hint}</span>}
+
+      {/* Pushed right by its own ml-auto, matching the CMS header. No
+          redirectTo: logging out from a public page should leave you on that
+          page, seeing it as a visitor does. */}
+      <LogoutButton />
     </div>
   );
 }

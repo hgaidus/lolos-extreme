@@ -442,7 +442,7 @@ export default async function CatchAllPage({ params }) {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="4" className="py-8 text-center text-[#8a8272]">No stops found.</td>
+                    <td colSpan="4" className="py-8 text-center text-[#6b6455]">No stops found.</td>
                   </tr>
                 )}
               </tbody>
@@ -664,7 +664,7 @@ export default async function CatchAllPage({ params }) {
                                 })
                               ) : (
                                 <tr>
-                                  <td className="py-6 text-center text-[#8a8272]">No stops logged.</td>
+                                  <td className="py-6 text-center text-[#6b6455]">No stops logged.</td>
                                 </tr>
                               )}
                             </tbody>
@@ -685,7 +685,7 @@ export default async function CatchAllPage({ params }) {
                                 tripStops.map((stop, idx) => {
                                   return (
                                     <tr key={stop.nid || idx} className={idx % 2 === 0 ? "bg-black/[0.02] hover:bg-[#c1593a]/5 transition-colors" : "bg-transparent hover:bg-[#c1593a]/5 transition-colors"}>
-                                      <td className="py-2.5 px-2 text-center font-bold text-[#8a8272] whitespace-nowrap">{idx + 1}</td>
+                                      <td className="py-2.5 px-2 text-center font-bold text-[#6b6455] whitespace-nowrap">{idx + 1}</td>
                                       <td className="py-2.5 px-2 font-medium">
                                         <Link href={`/${stop.slug}`} className="link-chrome block whitespace-normal break-words">
                                           {cleanTitle(stop.title)}
@@ -699,7 +699,7 @@ export default async function CatchAllPage({ params }) {
                                 })
                               ) : (
                                 <tr>
-                                  <td colSpan="5" className="py-6 text-center text-[#8a8272]">No stops logged.</td>
+                                  <td colSpan="5" className="py-6 text-center text-[#6b6455]">No stops logged.</td>
                                 </tr>
                               )}
                             </tbody>
@@ -747,7 +747,7 @@ export default async function CatchAllPage({ params }) {
               {displayItem.itemType === 'page' ? (
                 displayItem.author && (
                   <div className="mt-3 font-sans">
-                    <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272] border-t border-black/5 pt-3">
+                    <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#6b6455] border-t border-black/5 pt-3">
                       <div>
                         {formatPageDate(displayItem.created)} by {displayItem.author}
                       </div>
@@ -756,7 +756,7 @@ export default async function CatchAllPage({ params }) {
                 )
               ) : !isStop ? (
                 <div className="mt-3 font-sans">
-                  <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272] border-t border-black/5 pt-3">
+                  <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#6b6455] border-t border-black/5 pt-3">
                     <div>
                       {[
                         tripStops.length > 0
@@ -772,7 +772,7 @@ export default async function CatchAllPage({ params }) {
                 </div>
               ) : (
                 <div className="mt-3 font-sans">
-                  <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272]">
+                  <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#6b6455]">
                     <div>
                       {formatStopDate(displayItem.arrival_date || displayItem.created)}
                       {displayItem.author ? ` by ${displayItem.author}` : ''}

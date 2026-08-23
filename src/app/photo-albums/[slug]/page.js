@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import LightboxViewer from '@/components/LightboxViewer';
 import { getPhotosForAlbum, findAlbumBySlug } from '@/utils/albumPhotos';
+import { viewerCanSeeDrafts } from '@/lib/publishState';
+import AdminEditBar from '@/components/AdminEditBar';
 
 function fallbackTitle(slug) {
   return slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()).replace(/Photos$/i, '').replace(/Rv/g, 'RV').trim();
@@ -36,9 +38,17 @@ export default async function AlbumDetailPage({ params }) {
 
   const title = album.title || fallbackTitle(slug);
   const photos = getPhotosForAlbum(slug);
+  const adminViewer = await viewerCanSeeDrafts();
 
   return (
     <div className="w-full">
+      {adminViewer && album.tid && (
+        <AdminEditBar
+          href={`/admin/albums/${album.tid}`}
+          label="Edit this album"
+          hint="Only you can see this bar."
+        />
+      )}
       <div className="mb-6 pb-4 border-b border-black/10">
         <div className="mb-3 flex gap-2 items-center text-sm flex-wrap">
           <Link href="/" className="link-chrome">Home</Link>

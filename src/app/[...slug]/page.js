@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import InteractiveTravelogue from '@/components/InteractiveTravelogue';
 import OriginBreadcrumb from '@/components/OriginBreadcrumb';
 import StopOriginRecorder from '@/components/StopOriginRecorder';
+import AdminEditBar from '@/components/AdminEditBar';
 import { cleanDrupalContent, unescapeDrupalText } from '@/utils/cleanContent';
 import { buildContentRawText } from '@/lib/stopRawText';
 import { isPublished, viewerCanSeeDrafts } from '@/lib/publishState';
@@ -513,8 +514,29 @@ export default async function CatchAllPage({ params }) {
 
   const tripMapUrl = displayItem.itemType === 'trip' ? getTripMapUrl(displayItem) : null;
 
+  // Where the editor for this record lives. Stops sit under their trip, which
+  // is why this needs parent_trip_nid rather than just the stop's own nid.
+  // Synthetic state/category listings have no record behind them and so get
+  // nothing — there is nothing to edit.
+  const editHref =
+    displayItem.itemType === 'stop' && displayItem.parent_trip_nid
+      ? `/admin/trips/${displayItem.parent_trip_nid}/stops/${displayItem.nid}`
+      : displayItem.itemType === 'trip'
+        ? `/admin/trips/${displayItem.nid}`
+        : displayItem.itemType === 'page'
+          ? `/admin/pages/${displayItem.nid}`
+          : null;
+  const editLabel =
+    displayItem.itemType === 'stop' ? 'Edit this stop'
+      : displayItem.itemType === 'trip' ? 'Edit this trip'
+        : 'Edit this page';
+
   return (
     <div className="w-full">
+      {adminViewer && (
+        <AdminEditBar href={editHref} label={editLabel} hint="Only you can see this bar." />
+      )}
+
       {/* Admin-only preview of an unpublished record at its real URL. The
           public never reaches this branch — drafts 404 above. */}
       {isDraft && adminViewer && (

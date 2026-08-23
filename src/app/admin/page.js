@@ -6,7 +6,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-3 mb-8 sm:max-w-2xl">
+      <div className="grid grid-cols-4 gap-3 mb-8 sm:max-w-3xl">
         <Link href="/admin/photos" className="bg-white rounded-lg shadow px-4 py-3 hover:bg-gray-50">
           <span className="block font-bold text-gray-800">Photos</span>
           <span className="block text-xs text-gray-500">Upload, retitle, assign to stops</span>
@@ -18,6 +18,10 @@ export default function AdminDashboardPage() {
         <Link href="/admin/pages" className="bg-white rounded-lg shadow px-4 py-3 hover:bg-gray-50">
           <span className="block font-bold text-gray-800">Pages</span>
           <span className="block text-xs text-gray-500">About, Contact, homepage text, stories</span>
+        </Link>
+        <Link href="/admin/users" className="bg-white rounded-lg shadow px-4 py-3 hover:bg-gray-50">
+          <span className="block font-bold text-gray-800">Accounts</span>
+          <span className="block text-xs text-gray-500">Who can sign in, password links</span>
         </Link>
       </div>
 

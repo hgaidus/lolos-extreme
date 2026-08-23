@@ -38,6 +38,11 @@ function pathIsDecodable(pathname) {
 // unnoticed until Search Console reported it: cPanel puts it on this vhost as a
 // ServerAlias and it serves a byte-identical copy of the site. Aliases added
 // later are covered without being named.
+const PUBLIC_ADMIN_PATHS = new Set([
+  '/admin/login', '/admin/forgot', '/admin/reset',
+  '/api/admin/login', '/api/admin/forgot', '/api/admin/reset',
+]);
+
 const CANONICAL_HOST = 'cross-country-trips.com';
 const CANONICAL_ORIGIN = `https://${CANONICAL_HOST}`;
 // Exempted by name rather than by NODE_ENV, so the local production build
@@ -118,9 +123,9 @@ export function proxy(request) {
   const isAdminPath = pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
   if (!isAdminPath) return withDiagnostic(NextResponse.next());
 
-  const isLoginPage = pathname === '/admin/login';
-  const isLoginApi = pathname === '/api/admin/login';
-  if (isLoginPage || isLoginApi) return withDiagnostic(NextResponse.next());
+  // The account-recovery path has to work without a session, or the reset link
+  // would bounce to the very login page it exists to get you past.
+  if (PUBLIC_ADMIN_PATHS.has(pathname)) return withDiagnostic(NextResponse.next());
 
   const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!isValidSessionToken(token)) {

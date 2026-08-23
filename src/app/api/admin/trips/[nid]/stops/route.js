@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { currentUserName } from '@/lib/adminSession';
 import { getTrip, createStop, commitAndPush } from '@/lib/adminData';
 import { validateStopFields } from '@/lib/adminValidate';
 
@@ -20,6 +21,9 @@ export async function POST(request, { params }) {
     for (const key of CREATABLE_FIELDS) {
       if (key in body) fields[key] = body[key];
     }
+
+    // Attribute new content to whoever is signed in unless they said otherwise.
+    if (!fields.author) fields.author = await currentUserName();
 
     // Full (non-partial) validation on create: a stop must have a title —
     // otherwise it lands with the meaningless slug "new-stop" — and a real

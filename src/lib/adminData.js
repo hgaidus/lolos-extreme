@@ -115,9 +115,18 @@ export function getDistinctStates() {
   return Array.from(new Set(stops.map((s) => s.state).filter(Boolean))).sort();
 }
 
+// Spans every type that carries an author, not just stops. Trips now store one
+// on all 102 records and standalone pages can too, so a name used only on a
+// trip still appears as a suggestion when editing a stop — which is what keeps
+// Tommy and Andrew selectable rather than something you have to remember to
+// type exactly.
 export function getDistinctAuthors() {
-  const stops = readDataset('stops');
-  return Array.from(new Set(stops.map((s) => s.author).filter(Boolean))).sort();
+  const names = [
+    ...readDataset('stops').map((s) => s.author),
+    ...readDataset('trips').map((t) => t.author),
+    ...readDataset('pages').map((p) => p.author),
+  ];
+  return Array.from(new Set(names.filter(Boolean).map((n) => String(n).trim()))).sort();
 }
 
 export function updateStop(nid, fields) {

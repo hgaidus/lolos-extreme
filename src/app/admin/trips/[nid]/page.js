@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getTrip, getStopsForTrip } from '@/lib/adminData';
+import { getTrip, getStopsForTrip, getDistinctAuthors } from '@/lib/adminData';
 import TripEditForm from './TripEditForm';
 
 export default async function AdminTripEditPage({ params }) {
@@ -17,7 +17,7 @@ export default async function AdminTripEditPage({ params }) {
       </Link>
       <h1 className="text-2xl font-bold mt-2 mb-4 text-gray-800">{trip.title}</h1>
 
-      <TripEditForm trip={trip} />
+      <TripEditForm trip={trip} authors={getDistinctAuthors()} />
 
       <div className="mt-8">
         <div className="flex items-center justify-between mb-3">

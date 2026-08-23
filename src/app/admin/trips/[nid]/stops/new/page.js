@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTrip, STOP_CATEGORIES, getDistinctStates, getDistinctAuthors } from '@/lib/adminData';
+import { currentUserName } from '@/lib/adminSession';
 import StopForm from '../StopForm';
 
 export default async function AdminNewStopPage({ params }) {
@@ -21,6 +22,7 @@ export default async function AdminNewStopPage({ params }) {
         categories={STOP_CATEGORIES}
         states={getDistinctStates()}
         authors={getDistinctAuthors()}
+        defaultAuthor={await currentUserName()}
       />
     </div>
   );

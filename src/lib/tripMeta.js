@@ -80,8 +80,17 @@ export function getRegionBySlug(slug) {
   return trip?.region || 'crossCountry';
 }
 
+// Every trip record now stores its author explicitly — 99 were backfilled to
+// "Lolo" on 2026-08-23, which is exactly what the old `|| 'Lolo'` default had
+// been displaying. That was checked against stop-level authorship first: the
+// field had only ever been set when the author was NOT Lolo (Tommy, Andrew,
+// Herb), and 98 of the 99 unset trips had stops written overwhelmingly by her.
+//
+// No default here any more. A missing author renders no byline rather than
+// quietly asserting one, so a page can never claim something the data does not
+// actually say.
 export function getTripAuthor(trip) {
-  return trip?.author || 'Lolo';
+  return trip?.author || '';
 }
 
 export function getTripMapImage(trip) {

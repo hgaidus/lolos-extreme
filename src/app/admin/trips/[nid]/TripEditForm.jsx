@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import EditorPane from '../../EditorPane';
 
-export default function TripEditForm({ trip }) {
+export default function TripEditForm({ trip, authors = [] }) {
   const [title, setTitle] = useState(trip.title || '');
   const [year, setYear] = useState(trip.year || '');
+  const [author, setAuthor] = useState(trip.author || '');
   const [menuLabel, setMenuLabel] = useState(trip.menu_label || '');
   const [menuHover, setMenuHover] = useState(trip.menu_hover || '');
   const [travelogue, setTravelogue] = useState(trip.travelogue || '');
@@ -26,7 +27,7 @@ export default function TripEditForm({ trip }) {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title, year, travelogue, published,
+          title, year, author, travelogue, published,
           // Menu fields only ride along when the trip has them (all trips do
           // post-backfill, but stay safe for any hand-made record).
           ...(menuLabel ? { menu_label: menuLabel, menu_hover: menuHover || title } : {}),
@@ -69,13 +70,27 @@ export default function TripEditForm({ trip }) {
         />
         {fieldError('title')}
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-        <input
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-          className="w-32 border border-gray-300 rounded px-3 py-2"
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+          <input
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            className="w-32 border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
+          <input
+            list="trip-author-options" value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+          <datalist id="trip-author-options">
+            {authors.map((a) => <option key={a} value={a} />)}
+          </datalist>
+          <p className="text-xs text-gray-500 mt-1">Shown as "by ..." on the trip overview.</p>
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>

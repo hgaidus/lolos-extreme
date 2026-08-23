@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { currentUserName } from '@/lib/adminSession';
 import { createTrip, commitAndPush } from '@/lib/adminData';
 import { validateNewTripFields } from '@/lib/adminValidate';
 
@@ -12,6 +13,9 @@ export async function POST(request) {
     for (const key of ['title', 'year', 'region', 'menu_label', 'menu_hover', 'author', 'map_image', 'travelogue']) {
       if (key in body) fields[key] = body[key];
     }
+
+    // Attribute new content to whoever is signed in unless they said otherwise.
+    if (!fields.author) fields.author = await currentUserName();
 
     const { ok, errors, values } = validateNewTripFields(fields);
     if (!ok) {

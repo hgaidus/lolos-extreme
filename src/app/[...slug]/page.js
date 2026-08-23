@@ -349,7 +349,11 @@ export default async function CatchAllPage({ params }) {
             headline: structuredTitle,
             description: plainExcerpt(displayItem.travelogue || displayItem.description || displayItem.body) || undefined,
             datePublished: toIsoDate(displayItem.arrival_date || displayItem.created),
-            author: { "@type": "Person", name: displayItem.author || "Lolo" },
+            // Omitted rather than defaulted: structured data asserting an
+            // author the record does not name is worse than none at all.
+            author: displayItem.author
+              ? { "@type": "Person", name: displayItem.author }
+              : undefined,
             mainEntityOfPage: canonicalUrl,
             publisher: {
               "@type": "Organization",
@@ -712,12 +716,18 @@ export default async function CatchAllPage({ params }) {
               <h1 className="text-2xl md:text-3xl font-bold text-[#2e2c26] m-0">
                 {displayTitle}{isStop && displayItem.state && !displayTitle.includes(displayItem.state) ? `, ${displayItem.state}` : ''}
               </h1>
+              {/* Standalone pages used to hardcode "by Herb", and only on
+                  type=story. Both story pages were given an explicit author on
+                  2026-08-23 so nothing changed on screen, and the byline now
+                  follows the field — which means any page can carry one, and a
+                  page with no author simply shows none rather than asserting
+                  someone wrote it. */}
               {displayItem.itemType === 'page' ? (
-                displayItem.type === 'story' && (
+                displayItem.author && (
                   <div className="mt-3 font-sans">
                     <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272] border-t border-black/5 pt-3">
                       <div>
-                        {formatPageDate(displayItem.created)} by Herb
+                        {formatPageDate(displayItem.created)} by {displayItem.author}
                       </div>
                     </div>
                   </div>
@@ -726,7 +736,12 @@ export default async function CatchAllPage({ params }) {
                 <div className="mt-3 font-sans">
                   <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272] border-t border-black/5 pt-3">
                     <div>
-                      {tripStops.length > 0 ? `${formatStopDateOnly(tripStops[0].arrival_date || tripStops[0].created)} to ${formatStopDateOnly(tripStops[tripStops.length-1].arrival_date || tripStops[tripStops.length-1].created)} by ${getTripAuthor(displayItem)}` : (yr ? `${yr} by ${getTripAuthor(displayItem)}` : `by ${getTripAuthor(displayItem)}`)}
+                      {[
+                        tripStops.length > 0
+                          ? `${formatStopDateOnly(tripStops[0].arrival_date || tripStops[0].created)} to ${formatStopDateOnly(tripStops[tripStops.length - 1].arrival_date || tripStops[tripStops.length - 1].created)}`
+                          : (yr ? String(yr) : ''),
+                        getTripAuthor(displayItem) ? `by ${getTripAuthor(displayItem)}` : '',
+                      ].filter(Boolean).join(' ')}
                     </div>
                     <Link href={getTripRegionInfo(displayItem.slug).href} className="link-chrome">
                       {getTripRegionInfo(displayItem.slug).label}
@@ -738,7 +753,7 @@ export default async function CatchAllPage({ params }) {
                   <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#8a8272]">
                     <div>
                       {formatStopDate(displayItem.arrival_date || displayItem.created)}
-                      {displayItem.author ? ` by ${displayItem.author}` : ' by Lolo'}
+                      {displayItem.author ? ` by ${displayItem.author}` : ''}
                     </div>
                     {(displayItem.state || displayItem.category) && (
                       <div className="flex items-center gap-2">

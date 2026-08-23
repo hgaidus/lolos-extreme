@@ -14,7 +14,7 @@ function fromDateInputValue(dateStr) {
 }
 
 // mode: 'edit' (PATCH /api/admin/stops/:nid) or 'create' (POST /api/admin/trips/:tripNid/stops)
-export default function StopForm({ mode, tripNid, stop, categories, states, authors }) {
+export default function StopForm({ mode, tripNid, stop, categories, states, authors, defaultAuthor = '' }) {
   const [title, setTitle] = useState(stop?.title || '');
   const [description, setDescription] = useState(stop?.description || '');
   const [travelogue, setTravelogue] = useState(stop?.travelogue || '');
@@ -22,7 +22,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
   const [hours, setHours] = useState(stop?.hours ?? 0);
   const [nights, setNights] = useState(stop?.nights ?? 0);
   const [arrivalDate, setArrivalDate] = useState(toDateInputValue(stop?.arrival_date));
-  const [author, setAuthor] = useState(stop?.author || '');
+  const [author, setAuthor] = useState(stop?.author || defaultAuthor);
   const [state, setState] = useState(stop?.state || '');
   const [category, setCategory] = useState(stop?.category || categories[0]);
   // New stops start as drafts; existing stops keep their current state

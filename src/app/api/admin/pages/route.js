@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { currentUserName } from '@/lib/adminSession';
 import { commitAndPush } from '@/lib/adminData';
 import { createPage } from '@/lib/adminPages';
 import { validateNewPageFields } from '@/lib/adminValidate';
@@ -9,9 +10,12 @@ export async function POST(request) {
   try {
     const body = await request.json();
     const fields = {};
-    for (const key of ['title', 'type', 'body']) {
+    for (const key of ['title', 'type', 'body', 'author']) {
       if (key in body) fields[key] = body[key];
     }
+
+    // Attribute new content to whoever is signed in unless they said otherwise.
+    if (!fields.author) fields.author = await currentUserName();
 
     const { ok, errors, values } = validateNewPageFields(fields);
     if (!ok) {

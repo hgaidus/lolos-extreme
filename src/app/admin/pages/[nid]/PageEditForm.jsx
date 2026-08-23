@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import EditorPane from '../../EditorPane';
 
-export default function PageEditForm({ page, publiclyRendered }) {
+export default function PageEditForm({ page, publiclyRendered, authors = [] }) {
   const [title, setTitle] = useState(page.title || '');
   const [body, setBody] = useState(page.body || '');
+  const [author, setAuthor] = useState(page.author || '');
   const [published, setPublished] = useState(page.published !== false);
   const [status, setStatus] = useState(null); // 'saving' | 'saved' | 'error' | 'invalid'
   const [gitWarning, setGitWarning] = useState('');
@@ -22,7 +23,7 @@ export default function PageEditForm({ page, publiclyRendered }) {
       const res = await fetch(`/api/admin/pages/${page.nid}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, body, published }),
+        body: JSON.stringify({ title, body, author, published }),
       });
       if (res.status === 400) {
         const data = await res.json();
@@ -68,6 +69,19 @@ export default function PageEditForm({ page, publiclyRendered }) {
           className="w-full border border-gray-300 rounded px-3 py-2"
         />
         {fieldError('title')}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
+        <input
+          list="page-author-options" value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          className="w-full border border-gray-300 rounded px-3 py-2"
+        />
+        <datalist id="page-author-options">
+          {authors.map((a) => <option key={a} value={a} />)}
+        </datalist>
+        <p className="text-xs text-gray-500 mt-1">Shown as "by ..." under the title. Leave blank for no byline.</p>
       </div>
 
       <EditorPane

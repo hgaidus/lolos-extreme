@@ -87,6 +87,7 @@ const STOP_RULES = {
 
 const TRIP_RULES = {
   title: nonEmptyString,
+  author: optionalString,
   year: {
     check(v) {
       if (typeof v !== 'string' && typeof v !== 'number') return { error: 'Must be text.' };
@@ -156,6 +157,7 @@ export function validateActivityFields(fields, opts) {
 const PAGE_RULES = {
   title: nonEmptyString,
   body: optionalString,
+  author: optionalString,
   published: publishedFlag,
 };
 

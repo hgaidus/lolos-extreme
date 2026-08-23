@@ -13,14 +13,16 @@ const REGION_OPTIONS = [
 // from the trip editor, but slotted into the nav menu and trip index by year
 // the moment they go live. The optional overview map uploads to the
 // uploads repo (kind=map) before the trip record is created.
-export default function NewTripForm({ authors }) {
+export default function NewTripForm({ authors, defaultAuthor = '' }) {
   const [title, setTitle] = useState('');
   const [year, setYear] = useState('');
   const [yearTouched, setYearTouched] = useState(false);
   const [region, setRegion] = useState('westCoast');
   const [menuLabel, setMenuLabel] = useState('');
   const [menuHover, setMenuHover] = useState('');
-  const [author, setAuthor] = useState('Lolo');
+  // Whoever is signed in, not a hardcoded name. Still free text so Tommy and
+  // Andrew stay attributable.
+  const [author, setAuthor] = useState(defaultAuthor);
   const [mapFile, setMapFile] = useState(null);
   const [status, setStatus] = useState(null); // null | 'saving' | 'error' | 'invalid'
   const [notice, setNotice] = useState('');

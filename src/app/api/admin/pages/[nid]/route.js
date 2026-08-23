@@ -15,7 +15,7 @@ export async function PATCH(request, { params }) {
 
     const body = await request.json();
     const fields = {};
-    for (const key of ['title', 'body', 'published']) {
+    for (const key of ['title', 'body', 'author', 'published']) {
       if (key in body) fields[key] = body[key];
     }
 

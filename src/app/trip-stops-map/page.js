@@ -4,7 +4,7 @@ import { DATA_DIR } from '@/lib/dataPaths';
 
 export const metadata = {
   title: "Interactive Trip Stops Map | Cross-Country Trips",
-  description: "Explore 809+ GPS coordinates and campsite locations visited across North America and around the world in our Lazy Daze motorhome and overseas travels.",
+  description: "Explore 800+ GPS coordinates and campsite locations visited across North America and around the world in our Lazy Daze motorhome and overseas travels.",
   alternates: { canonical: "/trip-stops-map" },
 };
 

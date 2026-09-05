@@ -316,11 +316,18 @@ export default async function HomePage() {
           <div className="content-prose" dangerouslySetInnerHTML={{ __html: introPart }} />
 
           <h2 style={{ color: "var(--color-green-dark)", fontSize: "1.05rem", fontWeight: 700, margin: "20px 0 10px" }}>
-            Contents of this 2,000+ page site include&hellip;
+            {/* Counted 2026-09-05: 1,216 distinct public pages — 1,128 in the
+                sitemap (874 stops, 102 trips, 85 albums, 47 activity-type
+                listings, 11 landing, 9 standalone) plus 67 state and 21
+                category listings that resolve but are kept out of it.
+                "1,200+" so adding a trip doesn't falsify the number; revisit
+                if the site ever approaches 1,300. The old "2,000+" was
+                inherited from Drupal, where every photo was a node. */}
+            Contents of this 1,200+ page site include&hellip;
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5 text-sm mb-2" style={{ color: "#3d3a30" }}>
             <div>&bull; <Link href="/travel-itineraries" className="link-chrome">Travelogues</Link> &mdash; a detailed account of our personal experiences at each stop</div>
-            <div>&bull; <Link href="/trip-stops-map" className="link-chrome">Overview Map</Link> &mdash; 809+ push-pin GPS stops</div>
+            <div>&bull; <Link href="/trip-stops-map" className="link-chrome">Overview Map</Link> &mdash; 800+ push-pin GPS stops</div>
             <div>&bull; <Link href="/activities" className="link-chrome">Activities</Link> &mdash; hikes, mountain biking, fishing &amp; rafting</div>
             <div>&bull; <Link href="/photo-albums" className="link-chrome">Photographs</Link> &mdash; photo albums from each trip</div>
             <div>&bull; <Link href="/about-lolo-and-herb" className="link-chrome">About Lolo &amp; Herb</Link> &mdash; our story &amp; the Lazy Daze</div>

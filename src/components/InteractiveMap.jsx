@@ -32,7 +32,12 @@ const TILE_LAYERS = {
 };
 
 const REGION_PRESETS = [
-  { key: 'ALL', label: "🌍 Worldwide (809 stops)", center: [20.0, 0.0], zoom: 2 },
+  // The worldwide count is filled in from the real data at render time — it
+  // sits inches from the live "Showing N Waypoints" readout, so a hardcoded
+  // number here would visibly disagree with it the moment a stop is added.
+  // The regional counts below are still hardcoded; they were verified correct
+  // on 2026-09-05 and change only when a whole new country is visited.
+  { key: 'ALL', label: null, center: [20.0, 0.0], zoom: 2 },
   { key: 'NA', label: "🇺🇸 North America (693 stops)", center: [39.8283, -98.5795], zoom: 4 },
   { key: 'NZ', label: "🇳🇿 New Zealand (24 stops)", center: [-43.0, 171.0], zoom: 6 },
   { key: 'EU', label: "🇪🇺 Europe & Iceland (73 stops)", center: [48.0, 10.0], zoom: 4 },
@@ -254,7 +259,9 @@ export default function InteractiveMap({
               style={{ padding: "8px 14px", borderRadius: "6px", background: "rgba(0,0,0,0.6)", border: "1px solid var(--border-gold)", color: "var(--color-gold-light)", fontWeight: "700", fontSize: "0.9rem", cursor: "pointer" }}
             >
               {REGION_PRESETS.map(r => (
-                <option key={r.key} value={r.key}>{r.label}</option>
+                <option key={r.key} value={r.key}>
+                  {r.label ?? `🌍 Worldwide (${locations.length} stops)`}
+                </option>
               ))}
             </select>
             

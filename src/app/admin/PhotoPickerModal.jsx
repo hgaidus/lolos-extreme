@@ -28,6 +28,7 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onAddMany
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [chosen, setChosen] = useState([]); // multi mode: the accumulating set
+  const [justUploaded, setJustUploaded] = useState(''); // confirmation after an upload
   const [caption, setCaption] = useState('');
   const [align, setAlign] = useState('right'); // the site's img_assist default
 
@@ -164,6 +165,16 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onAddMany
       setUploadState('idle');
       setFile(null);
       setConflict(null);
+      if (multi) {
+        // The grid still holds the list fetched before this upload, so without
+        // a reload the photo you just added is nowhere on screen and the only
+        // evidence it worked is a number in the footer — which reads exactly
+        // like nothing happened. Re-running the search puts it at the top (it
+        // has the highest image_nid) and shows it ticked.
+        setJustUploaded(data.photo.title || data.photo.filename);
+        setUploadTitle('');
+        load(q.trim());
+      }
       if (data.git?.status === 'commit_failed' || data.gitUploads?.status === 'commit_failed') {
         setUploadNotice('Uploaded but NOT committed to git — investigate before further edits.');
       }
@@ -209,12 +220,19 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onAddMany
                 <input
                   ref={searchRef}
                   value={q}
-                  onChange={(e) => setQ(e.target.value)}
+                  onChange={(e) => { setQ(e.target.value); setJustUploaded(''); }}
                   placeholder="Search all photos by title or filename…"
                   className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm"
                 />
                 <span className="text-xs text-gray-400 shrink-0">{loading ? 'Loading…' : scope}</span>
               </div>
+
+              {justUploaded && (
+                <p className="mb-3 rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+                  Uploaded <strong>{justUploaded}</strong>{' '}— it&apos;s ticked below and counted in
+                  your selection. Click <strong>Add to album</strong> to finish, or upload another.
+                </p>
+              )}
               <ul className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                 {photos.map((p) => (
                   <li key={p.image_nid}>

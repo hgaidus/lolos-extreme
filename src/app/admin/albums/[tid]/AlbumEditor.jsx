@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PhotoPickerModal from '../../PhotoPickerModal';
 
 // Reorder with ▲/▼ buttons (keyboard-friendly, dependency-free), cover = the
 // first image, remove-from-album leaves the photo's record and file intact.
@@ -10,6 +11,8 @@ export default function AlbumEditor({ tid, initialTitle, initialImages, slug }) 
   const [images, setImages] = useState(initialImages);
   const [status, setStatus] = useState(null); // null|'saving'|'saved'|'error'
   const [notice, setNotice] = useState('');
+  const [picking, setPicking] = useState(false);
+  const [adding, setAdding] = useState(false);
 
   const dirty =
     title !== initialTitle ||
@@ -33,6 +36,45 @@ export default function AlbumEditor({ tid, initialTitle, initialImages, slug }) 
   const remove = (idx) => {
     setImages((prev) => prev.filter((_, i) => i !== idx));
   };
+
+  // Adding commits immediately rather than staging into the Save button. Two
+  // reasons: an upload made inside the picker has already written a file and a
+  // photo record, so leaving the album entry unsaved would be a half-done
+  // state; and the ordering edits you make afterwards want the new photos
+  // already present to move around.
+  async function addPhotos(photos) {
+    setPicking(false);
+    setAdding(true);
+    setNotice('');
+    try {
+      const res = await fetch(`/api/admin/albums/${tid}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addImageNids: photos.map((p) => String(p.image_nid)) }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setNotice(
+          data.error === 'Validation failed'
+            ? Object.values(data.fields || {}).join(' ')
+            : data.error || 'Could not add photos.'
+        );
+        setAdding(false);
+        return;
+      }
+      if (data.git?.status === 'commit_failed') {
+        setNotice('Added to disk but NOT committed to git — investigate before further edits.');
+        setAdding(false);
+        return;
+      }
+      // Reload so the list, the cover badge and initialImages all come from
+      // server truth — the same reason save() reloads.
+      window.location.reload();
+    } catch {
+      setNotice('Could not add photos.');
+      setAdding(false);
+    }
+  }
 
   async function save() {
     setStatus('saving');
@@ -73,8 +115,16 @@ export default function AlbumEditor({ tid, initialTitle, initialImages, slug }) 
         </div>
         <button
           type="button"
+          onClick={() => setPicking(true)}
+          disabled={adding || status === 'saving'}
+          className="border-2 border-blue-600 text-blue-700 rounded px-4 py-2 font-semibold disabled:opacity-40"
+        >
+          {adding ? 'Adding…' : '+ Add photos'}
+        </button>
+        <button
+          type="button"
           onClick={save}
-          disabled={!dirty || status === 'saving'}
+          disabled={!dirty || status === 'saving' || adding}
           className="bg-blue-600 text-white rounded px-4 py-2 font-semibold disabled:opacity-40"
         >
           {status === 'saving' ? 'Saving…' : 'Save changes'}
@@ -113,7 +163,19 @@ export default function AlbumEditor({ tid, initialTitle, initialImages, slug }) 
             </div>
           </li>
         ))}
+        {images.length === 0 && (
+          <li className="col-span-full text-sm text-gray-500 italic bg-white rounded-lg shadow px-4 py-8 text-center">
+            This album has no photos yet — use “Add photos” above.
+          </li>
+        )}
       </ul>
+
+      {picking && (
+        <PhotoPickerModal
+          onAddMany={addPhotos}
+          onClose={() => setPicking(false)}
+        />
+      )}
     </div>
   );
 }

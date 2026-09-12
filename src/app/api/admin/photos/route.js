@@ -61,6 +61,21 @@ export async function GET(request) {
       );
     }
 
+    // Newest first, for when there is no stop or trip to narrow by (the album
+    // picker) — without it an unfiltered listing hands back the oldest 60 of
+    // 7,000+.
+    //
+    // Sorted by image_nid, NOT by position in the file. File order looked like
+    // append order but is not: the last 119 records are untitled duplicates
+    // from the original Drupal export, so reversing the array surfaced those
+    // instead of anything recent. allocateNid hands out max+1, so the highest
+    // nid really is the newest record.
+    if (searchParams.get('sort') === 'recent') {
+      photos = photos
+        .slice()
+        .sort((a, b) => (Number(b.image_nid) || 0) - (Number(a.image_nid) || 0));
+    }
+
     const total = photos.length;
     const results = photos.slice(0, limit).map((p) => {
       const stop = stopByNid.get(String(p.trip_stop_nid));

@@ -50,11 +50,58 @@ export async function PATCH(request, { params }) {
       album.images = next;
     }
 
+    // Adding is a separate field from `images` on purpose. `images` stays a
+    // strict permutation/subset of what the album already holds, so the
+    // reorder/remove path cannot be used to inject anything. New photos come
+    // in here as bare nids and the entry is built server-side from the
+    // canonical photo record — the client never supplies url/title/filename,
+    // so it cannot fabricate an entry pointing at a file that isn't there.
+    // Applied after `images` so additions land at the end regardless of order.
+    let added = 0;
+    if ('addImageNids' in body) {
+      if (!Array.isArray(body.addImageNids)) {
+        return NextResponse.json(
+          { error: 'Validation failed', fields: { addImageNids: 'Must be an array.' } },
+          { status: 400 }
+        );
+      }
+      const photos = readDataset('photos');
+      if (!Array.isArray(album.images)) album.images = [];
+      const present = new Set(album.images.map((i) => String(i.image_nid)));
+
+      for (const raw of body.addImageNids) {
+        const nid = String(raw ?? '');
+        const photo = photos.find((p) => String(p.image_nid) === nid);
+        if (!photo) {
+          return NextResponse.json(
+            { error: 'Validation failed', fields: { addImageNids: `No photo with image_nid ${nid}.` } },
+            { status: 400 }
+          );
+        }
+        // Silently skip duplicates rather than erroring: adding a photo the
+        // album already has is a no-op the user meant, not a mistake.
+        if (present.has(nid)) continue;
+        present.add(nid);
+        album.images.push({
+          url: `/photos/${photo.filename}`,
+          title: photo.title || '',
+          filename: photo.filename,
+          image_nid: String(photo.image_nid),
+        });
+        added += 1;
+      }
+    }
+
     writeDataset('albums', albums);
-    const git = await commitAndPush(`Edit album: ${album.title} (tid ${tid})`);
+    const git = await commitAndPush(
+      added > 0
+        ? `Add ${added} photo${added === 1 ? '' : 's'} to album: ${album.title} (tid ${tid})`
+        : `Edit album: ${album.title} (tid ${tid})`
+    );
 
     return NextResponse.json({
       album: { tid: album.tid, title: album.title, count: (album.images || []).length },
+      added,
       git,
     });
   } catch (err) {

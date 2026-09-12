@@ -9,13 +9,25 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 // caption can never break the tag it rides in.
 const scrubCaption = (s) => s.replace(/\|/g, '/').replace(/\]/g, ')');
 
-export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onClose }) {
+// Two modes, because the same "find or upload a photo" problem shows up in two
+// places and the upload path (name collisions, near-duplicate detection, git
+// commits) is far too much logic to duplicate:
+//
+//   default   — pick ONE photo, give it a caption and alignment, and emit an
+//               [img_assist] tag through onInsert. Used by the travelogue editor.
+//   onAddMany — pick SEVERAL photos and hand the raw records back. Used by the
+//               album editor, where caption and alignment are meaningless
+//               because the album lays photos out itself.
+export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onAddMany, onClose }) {
+  const multi = typeof onAddMany === 'function';
+
   const [tab, setTab] = useState('existing'); // 'existing' | 'upload'
   const [photos, setPhotos] = useState([]);
   const [scope, setScope] = useState(''); // human-readable note on what's listed
   const [q, setQ] = useState('');
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [chosen, setChosen] = useState([]); // multi mode: the accumulating set
   const [caption, setCaption] = useState('');
   const [align, setAlign] = useState('right'); // the site's img_assist default
 
@@ -53,6 +65,9 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onClose }
           : [
               stopNid && [{ stop: String(stopNid), limit: '60' }, 'Photos from this stop'],
               tripNid && [{ trip: String(tripNid), limit: '60' }, 'Photos from this trip'],
+              // No stop or trip to narrow by (the album picker): open on the
+              // most recent uploads rather than an empty grid.
+              !stopNid && !tripNid && [{ sort: 'recent', limit: '60' }, 'Most recent photos — search to find others'],
             ].filter(Boolean);
         let shown = false;
         for (const [params, label] of attempts) {
@@ -88,10 +103,23 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onClose }
     return () => clearTimeout(debounceRef.current);
   }, [q, load]);
 
+  // Multi mode keeps a running set that survives re-searching, so you can
+  // gather photos from several different searches before adding them. Single
+  // mode keeps its original behaviour exactly.
   function pick(photo) {
+    if (multi) {
+      setChosen((prev) =>
+        prev.some((p) => String(p.image_nid) === String(photo.image_nid))
+          ? prev.filter((p) => String(p.image_nid) !== String(photo.image_nid))
+          : [...prev, photo]
+      );
+      return;
+    }
     setSelected(photo);
     setCaption(photo.title || '');
   }
+
+  const isChosen = (photo) => chosen.some((p) => String(p.image_nid) === String(photo.image_nid));
 
   function insertSelected() {
     if (!selected) return;
@@ -163,7 +191,7 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onClose }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Insert photo" className="bg-gray-50 rounded-lg shadow-xl w-full max-w-3xl max-h-[85vh] flex flex-col">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={multi ? 'Add photos to album' : 'Insert photo'} className="bg-gray-50 rounded-lg shadow-xl w-full max-w-3xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
           <div className="flex rounded overflow-hidden border border-gray-300">
             {tabButton('existing', 'Existing photo')}
@@ -193,14 +221,26 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onClose }
                     <button
                       type="button"
                       onClick={() => pick(p)}
-                      className={`w-full text-left rounded-lg p-1 border-2 ${selected?.image_nid === p.image_nid ? 'border-blue-600 bg-blue-50' : 'border-transparent hover:border-gray-300'}`}
+                      aria-pressed={multi ? isChosen(p) : undefined}
+                      className={`w-full text-left rounded-lg p-1 border-2 ${
+                        (multi ? isChosen(p) : selected?.image_nid === p.image_nid)
+                          ? 'border-blue-600 bg-blue-50'
+                          : 'border-transparent hover:border-gray-300'
+                      }`}
                     >
-                      <img
-                        src={`/api/admin/photos/thumb?f=${encodeURIComponent(p.filename)}`}
-                        alt={p.title || p.filename}
-                        loading="lazy"
-                        className="w-full h-20 object-cover rounded bg-gray-100"
-                      />
+                      <div className="relative">
+                        <img
+                          src={`/api/admin/photos/thumb?f=${encodeURIComponent(p.filename)}`}
+                          alt={p.title || p.filename}
+                          loading="lazy"
+                          className="w-full h-20 object-cover rounded bg-gray-100"
+                        />
+                        {multi && isChosen(p) && (
+                          <span className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[11px] font-bold text-white">
+                            ✓
+                          </span>
+                        )}
+                      </div>
                       <span className="block text-[11px] text-gray-600 truncate mt-0.5">{p.title || <em className="text-gray-400">untitled</em>}</span>
                     </button>
                   </li>
@@ -240,6 +280,11 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onClose }
               </div>
               {stopNid ? (
                 <p className="text-xs text-gray-500">Will be assigned to this stop and added to the trip's album.</p>
+              ) : multi ? (
+                <p className="text-xs text-gray-500">
+                  Uploads straight into your selection — click Add below to put it in this album. It
+                  won&apos;t be tied to a trip stop; you can assign that later under Photos.
+                </p>
               ) : (
                 <p className="text-xs text-amber-700">No stop context — the photo will upload without a stop (assign later in Photos).</p>
               )}
@@ -282,7 +327,43 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onClose }
           )}
         </div>
 
-        {selected && tab === 'existing' && (
+        {multi && chosen.length > 0 && (
+          <div className="border-t border-gray-200 bg-white rounded-b-lg px-4 py-3 flex flex-wrap items-center gap-3">
+            <ul className="flex flex-wrap gap-1 flex-1 min-w-48">
+              {chosen.slice(0, 8).map((p) => (
+                <li key={p.image_nid}>
+                  <img
+                    src={`/api/admin/photos/thumb?f=${encodeURIComponent(p.filename)}`}
+                    alt={p.title || p.filename}
+                    className="h-10 w-14 object-cover rounded bg-gray-100"
+                  />
+                </li>
+              ))}
+              {chosen.length > 8 && (
+                <li className="self-center text-xs text-gray-500">+{chosen.length - 8} more</li>
+              )}
+            </ul>
+            <span className="text-sm text-gray-600 shrink-0">
+              {chosen.length} selected
+            </span>
+            <button
+              type="button"
+              onClick={() => setChosen([])}
+              className="text-sm text-gray-500 hover:text-gray-800 hover:underline shrink-0"
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              onClick={() => onAddMany(chosen)}
+              className="bg-blue-600 text-white rounded px-4 py-2 text-sm font-semibold shrink-0"
+            >
+              Add {chosen.length} to album
+            </button>
+          </div>
+        )}
+
+        {!multi && selected && tab === 'existing' && (
           <div className="border-t border-gray-200 bg-white rounded-b-lg px-4 py-3 flex flex-wrap items-end gap-3">
             <img src={`/api/admin/photos/thumb?f=${encodeURIComponent(selected.filename)}`} alt="" className="h-12 w-16 object-cover rounded bg-gray-100 shrink-0" />
             <div className="flex-1 min-w-48">

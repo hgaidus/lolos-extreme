@@ -147,23 +147,31 @@ function formatPageDate(ts) {
   return d.toLocaleDateString("en-US", { timeZone: "America/Los_Angeles", weekday: "long", year: "numeric", month: "long", day: "numeric" });
 }
 
+// The travel line under a stop's byline, as the Drupal site printed it:
+//   "375 miles and 6.5 hours from our last stop - 1 night stay"
+// This helper existed from the migration but was never called, so the line
+// silently disappeared from every stop page until Lolo noticed.
+//
+// Matches the original wording, including "3 night stay" (adjectival, so no
+// plural) and dropping the stay part when nights is 0 or absent. Two
+// deliberate departures from the original, which printed zeros verbatim:
+//   - "0 miles and 0 hours from our last stop" (55 stops — ferries, hikes,
+//     day trips from camp) is omitted rather than shown.
+//   - a lone zero is dropped: "12 miles and 0 hours" becomes "12 miles".
+// Miles get a thousands separator (the longest leg is 6,776).
 function formatStopStats(miles, hours, nights) {
+  const m = Number(miles) || 0;
+  const h = Number(hours) || 0;
+  const n = Number(nights) || 0;
+
+  const legs = [];
+  if (m > 0) legs.push(`${m.toLocaleString("en-US")} ${m === 1 ? "mile" : "miles"}`);
+  if (h > 0) legs.push(`${h} ${h === 1 ? "hour" : "hours"}`);
+
   const parts = [];
-  if (miles !== null && miles !== undefined && Number(miles) > 0) parts.push(`${miles} miles`);
-  if (hours !== null && hours !== undefined && Number(hours) > 0) parts.push(`${hours} hours`);
-  
-  let str = "";
-  if (parts.length > 0) {
-    str = parts.join(" and ") + " from our last stop";
-  }
-  
-  if (nights !== null && nights !== undefined) {
-    const n = Number(nights);
-    const nightStr = `${n} night stay`;
-    if (str) str += ` - ${nightStr}`;
-    else str = nightStr;
-  }
-  return str;
+  if (legs.length) parts.push(`${legs.join(" and ")} from our last stop`);
+  if (n > 0) parts.push(`${n} night stay`);
+  return parts.join(" - ");
 }
 
 // Overview map and author now live on the trip record itself (map_image /
@@ -795,6 +803,11 @@ export default async function CatchAllPage({ params }) {
                       </div>
                     )}
                   </div>
+                  {formatStopStats(displayItem.miles, displayItem.hours, displayItem.nights) && (
+                    <div className="mt-0.5 text-[13px] font-semibold text-[#6b6455]">
+                      {formatStopStats(displayItem.miles, displayItem.hours, displayItem.nights)}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

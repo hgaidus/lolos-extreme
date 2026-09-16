@@ -2,16 +2,9 @@
 
 import { useState } from 'react';
 import EditorPane from '../../../EditorPane';
-
-function toDateInputValue(unixSeconds) {
-  if (!unixSeconds) return '';
-  return new Date(unixSeconds * 1000).toISOString().slice(0, 10);
-}
-
-function fromDateInputValue(dateStr) {
-  if (!dateStr) return 0;
-  return Math.floor(new Date(`${dateStr}T00:00:00Z`).getTime() / 1000);
-}
+// Pacific-time conversions for the date box. These replaced UTC ones that
+// moved a stop's date back a day, and set its time to 5:00pm, on every save.
+import { toSiteDateInput, fromSiteDateInput } from '@/lib/siteDates';
 
 // mode: 'edit' (PATCH /api/admin/stops/:nid) or 'create' (POST /api/admin/trips/:tripNid/stops)
 export default function StopForm({ mode, tripNid, stop, categories, states, authors, defaultAuthor = '' }) {
@@ -21,7 +14,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
   const [miles, setMiles] = useState(stop?.miles ?? 0);
   const [hours, setHours] = useState(stop?.hours ?? 0);
   const [nights, setNights] = useState(stop?.nights ?? 0);
-  const [arrivalDate, setArrivalDate] = useState(toDateInputValue(stop?.arrival_date));
+  const [arrivalDate, setArrivalDate] = useState(toSiteDateInput(stop?.arrival_date));
   const [author, setAuthor] = useState(stop?.author || defaultAuthor);
   const [state, setState] = useState(stop?.state || '');
   const [category, setCategory] = useState(stop?.category || categories[0]);
@@ -44,7 +37,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
     const fields = {
       title, description, travelogue,
       miles: Number(miles), hours: Number(hours), nights: Number(nights),
-      arrival_date: fromDateInputValue(arrivalDate),
+      arrival_date: fromSiteDateInput(arrivalDate, stop?.arrival_date),
       author, state, category,
       published,
     };

@@ -1,6 +1,11 @@
 "use client";
 
 import React from 'react';
+import { photoSrc, photoSrcSet } from '@/lib/photoSrc';
+
+// Thumbnails render into a box ~200px tall, so they ask the photo route for a
+// 400px copy (800 on high-density screens) rather than the full original.
+const THUMB_WIDTH = 400;
 
 export default function SlideCard({ title, subtitle, imageUrl, href, onClick }) {
   const content = (
@@ -9,7 +14,8 @@ export default function SlideCard({ title, subtitle, imageUrl, href, onClick }) 
       <div className="w-full h-44 sm:h-48 md:h-52 bg-[#f2ede1] p-2 flex items-center justify-center overflow-hidden relative">
         {imageUrl ? (
           <img
-            src={imageUrl}
+            src={photoSrc(imageUrl, THUMB_WIDTH)}
+            srcSet={photoSrcSet(imageUrl, THUMB_WIDTH)}
             alt={title || "Archive Slide"}
             className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 block"
             loading="lazy"

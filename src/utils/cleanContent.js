@@ -186,7 +186,13 @@ export function cleanDrupalContent(text, photoTitles = []) {
             : "float-right ml-6 mb-4 clear-right";
         const caption = title || unescapeDrupalText(imgData.title) || "";
 
-        return `\n\n<figure class="drupal-figure ${floatClass} max-w-xs w-80 bg-[#0c1d15] p-2.5 rounded-lg border border-amber-500/30 shadow-lg">\n  <img src="/photos/${cleanFilename}" alt="${caption}" class="w-full h-auto rounded" onerror="this.style.display='none'" />\n  ${caption ? `<figcaption class="text-xs text-gray-300 italic text-center mt-2 leading-tight">${caption}</figcaption>` : ""}\n</figure>\n\n`;
+        // The figure is w-80 (320px), so it asks the photo route for a 400px
+        // copy and an 800px one for high-density screens, rather than the full
+        // original — these were multi-megabyte files rendered into a thumbnail.
+        // If a derivative can't be made the route serves the original anyway,
+        // so this can't break an image that would otherwise have shown.
+        const src = `/photos/${cleanFilename}`;
+        return `\n\n<figure class="drupal-figure ${floatClass} max-w-xs w-80 bg-[#0c1d15] p-2.5 rounded-lg border border-amber-500/30 shadow-lg">\n  <img src="${src}?w=400" srcset="${src}?w=400 1x, ${src}?w=800 2x" alt="${caption}" class="w-full h-auto rounded" onerror="this.style.display='none'" />\n  ${caption ? `<figcaption class="text-xs text-gray-300 italic text-center mt-2 leading-tight">${caption}</figcaption>` : ""}\n</figure>\n\n`;
       }
     }
 

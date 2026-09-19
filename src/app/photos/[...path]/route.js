@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
 import { FILES_DIR, UPLOADS_DIR } from '@/lib/dataPaths';
+import { parseWidth, resizedImage } from '@/lib/imageResize';
 
 const MIME_TYPES = {
   '.jpg': 'image/jpeg',
@@ -11,6 +12,35 @@ const MIME_TYPES = {
   '.webp': 'image/webp',
   '.svg': 'image/svg+xml',
 };
+
+// Serve `filePath`, honouring ?w= when the caller asked for a known width.
+// Falls back to the untouched original whenever a derivative can't be made,
+// so this can never turn a working image into a broken one.
+async function serveImage(filePath, request) {
+  const width = parseWidth(new URL(request.url).searchParams.get('w'));
+  if (width) {
+    const preferWebp = (request.headers.get('accept') || '').includes('image/webp');
+    const resized = await resizedImage(filePath, width, { preferWebp });
+    if (resized) {
+      return new NextResponse(resized.buffer, {
+        status: 200,
+        headers: {
+          'Content-Type': resized.contentType,
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          // Same URL can answer webp or jpeg depending on the client.
+          Vary: 'Accept',
+        },
+      });
+    }
+  }
+  return new NextResponse(fs.readFileSync(filePath), {
+    status: 200,
+    headers: {
+      'Content-Type': MIME_TYPES[path.extname(filePath).toLowerCase()] || 'application/octet-stream',
+      'Cache-Control': 'public, max-age=31536000, immutable',
+    },
+  });
+}
 
 export async function GET(request, { params }) {
   try {
@@ -32,13 +62,7 @@ export async function GET(request, { params }) {
       if (!fs.existsSync(uploadPath) || !fs.statSync(uploadPath).isFile()) {
         return new NextResponse('Image Not Found', { status: 404 });
       }
-      return new NextResponse(fs.readFileSync(uploadPath), {
-        status: 200,
-        headers: {
-          'Content-Type': MIME_TYPES[path.extname(uploadPath).toLowerCase()] || 'application/octet-stream',
-          'Cache-Control': 'public, max-age=31536000, immutable',
-        },
-      });
+      return await serveImage(uploadPath, request);
     }
 
     // Check candidate directories including subdirectories
@@ -210,19 +234,7 @@ export async function GET(request, { params }) {
       return new NextResponse("Image Not Found", { status: 404 });
     }
 
-    const fileBuffer = fs.readFileSync(filePath);
-
-    // Determine mime type
-    const extReal = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[extReal] || 'application/octet-stream';
-
-    return new NextResponse(fileBuffer, {
-      status: 200,
-      headers: {
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000, immutable'
-      }
-    });
+    return await serveImage(filePath, request);
   } catch (err) {
     console.error("Error serving photo:", err);
     return new NextResponse("Internal Server Error", { status: 500 });

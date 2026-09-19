@@ -3,6 +3,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import SlideCard from './SlideCard';
+import { photoSrc, photoSrcSet } from '@/lib/photoSrc';
+
+// Grid tiles sit in a ~200px-tall box; the lightbox fills the viewport. Asking
+// for these instead of the originals is what takes an album page from tens of
+// megabytes to a couple.
+const GRID_WIDTH = 400;
+const LIGHTBOX_WIDTH = 1600;
 
 export default function LightboxViewer({ photos = [], albumTitle = "Photo Gallery", use35mmSlides = true }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -75,13 +82,18 @@ export default function LightboxViewer({ photos = [], albumTitle = "Photo Galler
             >
               <div className="w-full h-44 sm:h-48 md:h-52 bg-[#f2ede1] p-2 flex items-center justify-center overflow-hidden relative">
                 <img
-                  src={photo.url}
+                  src={photoSrc(photo.url, GRID_WIDTH)}
+                  srcSet={photoSrcSet(photo.url, GRID_WIDTH)}
                   alt={photo.title || `Photo ${idx + 1}`}
                   className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 block"
                   loading="lazy"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = fallbackImg;
+                    // Drop back to the untouched original before the generic
+                    // placeholder: a failed derivative shouldn't hide a photo
+                    // that exists.
+                    e.target.srcset = '';
+                    e.target.src = e.target.src.includes('?w=') ? photo.url : fallbackImg;
                   }}
                 />
               </div>
@@ -146,7 +158,7 @@ export default function LightboxViewer({ photos = [], albumTitle = "Photo Galler
               }}
             >
               <img
-                src={currentPhoto.url}
+                src={photoSrc(currentPhoto.url, LIGHTBOX_WIDTH)}
                 alt={currentPhoto.title || "Full resolution slide"}
                 style={{
                   maxHeight: "calc(92vh - 80px)",

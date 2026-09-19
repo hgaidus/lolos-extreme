@@ -18,3 +18,12 @@ export const FILES_DIR = path.normalize(
 export const UPLOADS_DIR = path.normalize(
   process.env.PHOTO_UPLOADS_DIR || path.join(process.cwd(), '..', 'uploads')
 );
+
+// Resized copies of photos, generated on demand. Deliberately a sibling of the
+// app rather than inside it: a deploy replaces app/ wholesale, and a cache that
+// died on every deploy would have every album page rebuilding its thumbnails
+// from multi-megabyte originals. Also outside the uploads and content repos, so
+// git never sees derivatives. Safe to delete at any time; it refills itself.
+export const IMAGE_CACHE_DIR = path.normalize(
+  process.env.IMAGE_CACHE_DIR || path.join(process.cwd(), '..', 'image-cache')
+);

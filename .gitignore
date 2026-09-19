@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Deploy staging artifacts. Also kept out of the build: `output: 'standalone'`
+# copies the whole project tree, so a stage/ or deploy.tar.gz left over from a
+# previous deploy gets baked INTO the next payload (caught once at 20MB of a
+# nested prior payload). Always remove them before `npm run build`.
+/stage/
+/deploy.tar.gz

@@ -46,12 +46,39 @@ export default function sitemap() {
 
   const entries = [];
   const seen = new Set();
-  const add = (urlPath, { lastModified, changeFrequency, priority } = {}) => {
+  const add = (urlPath, { lastModified, changeFrequency, priority, images } = {}) => {
     const url = BASE_URL + urlPath;
     if (seen.has(url)) return;
     seen.add(url);
-    entries.push({ url, lastModified, changeFrequency, priority });
+    entries.push({ url, lastModified, changeFrequency, priority, images });
   };
+
+  // Image sitemap entries. Google finds images by crawling the pages that hold
+  // them, but these photos sit in galleries the crawler reaches only after
+  // rendering, and an image sitemap states them outright. Photos are the
+  // strongest thing this site has in search: Google Images already serves twice
+  // the impressions of web search (167K vs 82.6K), so making every photo
+  // discoverable is worth the extra bytes here.
+  //
+  // Full-size URLs are listed, not the ?w= derivatives — the derivative is a
+  // rendering convenience, the original is the thing to index.
+  //
+  // Capped per page: Google allows 1,000 images per URL, but a handful of
+  // enormous entries would bloat the file for no gain.
+  const MAX_IMAGES_PER_PAGE = 100;
+  const imageUrls = (urls) => {
+    const unique = Array.from(new Set(urls.filter(Boolean))).slice(0, MAX_IMAGES_PER_PAGE);
+    return unique.length ? unique.map((u) => BASE_URL + encodeURI(u)) : undefined;
+  };
+
+  // Photos grouped by the stop they were taken at, for the stop pages.
+  const photosByStop = new Map();
+  for (const p of readJSON('photo_titles.json')) {
+    const stopNid = String(p.trip_stop_nid || '');
+    if (!stopNid || stopNid === '0' || !p.filename) continue;
+    if (!photosByStop.has(stopNid)) photosByStop.set(stopNid, []);
+    photosByStop.get(stopNid).push(`/photos/${p.filename}`);
+  }
 
   // Homepage + key section landing pages
   add('/', { changeFrequency: 'weekly', priority: 1.0 });
@@ -72,7 +99,12 @@ export default function sitemap() {
   // Stops (drafts excluded)
   for (const s of stops) {
     if (!s.slug || !isPublished(s)) continue;
-    add(cleanPath(s.slug), { lastModified: toDate(s.arrival_date || s.created), changeFrequency: 'yearly', priority: 0.6 });
+    add(cleanPath(s.slug), {
+      lastModified: toDate(s.arrival_date || s.created),
+      changeFrequency: 'yearly',
+      priority: 0.6,
+      images: imageUrls(photosByStop.get(String(s.nid)) || []),
+    });
   }
 
   // Standalone pages (skip the excluded 'tips' type — those 404 by design —
@@ -88,7 +120,11 @@ export default function sitemap() {
   // mismatch that had the sitemap listing the two lazy-daze pages.
   for (const a of albums) {
     if (!a.slug || !isPublished(a)) continue;
-    add(cleanPath(a.slug), { changeFrequency: 'yearly', priority: 0.5 });
+    add(cleanPath(a.slug), {
+      changeFrequency: 'yearly',
+      priority: 0.5,
+      images: imageUrls((a.images || []).map((i) => i.url)),
+    });
   }
 
   // Activity-type listing pages

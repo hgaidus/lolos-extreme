@@ -2,6 +2,12 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import SlideCard from './SlideCard';
+import { photoSrc } from '@/lib/photoSrc';
+
+// The lightbox fills the viewport, so it asks for a 1600px copy — matching the
+// album lightbox. Not the untouched original: these are multi-megabyte files
+// and 1600px is already more than any screen here shows.
+const LIGHTBOX_WIDTH = 1600;
 
 export default function InteractiveTravelogue({
   htmlContent = "",
@@ -13,6 +19,13 @@ export default function InteractiveTravelogue({
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [extraSlides, setExtraSlides] = useState([]);
   const contentRef = useRef(null);
+
+  // Inline article images now carry a ?w= size hint (they render into a 320px
+  // figure, so the page asks for a 400px copy). The slideshow is built from
+  // those same tags, so without stripping the hint the lightbox would open the
+  // 400px thumbnail instead of a full-size photo. Slides always store the base
+  // URL; the size to display is chosen at render time.
+  const withoutSizeHint = (u) => (typeof u === 'string' ? u.split('?')[0] : u);
 
   // Helper to normalize image URLs or filenames for comparison
   const getNormalizeKey = (u) => {
@@ -54,7 +67,7 @@ export default function InteractiveTravelogue({
           // Try to find matching photo in archive photos to inherit rich descriptions, captions, and node IDs
           const matchedPhoto = photos.find(p => getNormalizeKey(p.url || p.filename || "") === key);
           list.push({
-            url: src,
+            url: withoutSizeHint(src),
             title: matchedPhoto ? (matchedPhoto.title || label) : label,
             caption: matchedPhoto ? (matchedPhoto.caption || "") : "",
             nid: matchedPhoto ? (matchedPhoto.nid || matchedPhoto.image_nid) : null,
@@ -139,7 +152,7 @@ export default function InteractiveTravelogue({
     if (idx === -1) {
       const alt = img.getAttribute('alt') || "";
       idx = combinedSlides.length;
-      setExtraSlides((prev) => [...prev, { url: src, title: alt || `${albumTitle || ''} Photo` }]);
+      setExtraSlides((prev) => [...prev, { url: withoutSizeHint(src), title: alt || `${albumTitle || ''} Photo` }]);
     }
     setSelectedIndex(idx);
   };
@@ -206,7 +219,7 @@ export default function InteractiveTravelogue({
               }}
             >
               <img
-                src={currentPhoto.url}
+                src={photoSrc(currentPhoto.url, LIGHTBOX_WIDTH)}
                 alt={currentPhoto.title || "Full resolution slide"}
                 style={{
                   maxHeight: "calc(92vh - 80px)",

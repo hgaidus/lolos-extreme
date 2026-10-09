@@ -180,6 +180,32 @@ function getTripMapUrl(trip) {
   return getTripMapImage(trip);
 }
 
+// A trip's own start/end dates are stored as YYYY-MM-DD calendar days. Format
+// them in UTC from UTC-built dates so the day printed is the day stored,
+// whatever timezone the server runs in.
+function formatCalendarDay(day) {
+  const m = String(day || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return "";
+  return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).toLocaleDateString("en-US", {
+    timeZone: "UTC",
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  });
+}
+
+// The "March 3, 2026 to March 9, 2026" line on a trip overview. The trip's own
+// dates win when it has them; otherwise it is the first and last stop, which
+// is all the migrated trips have. With neither, just the year.
+function formatTripDates(trip, tripStops, yr) {
+  const stopDay = (s) => formatStopDateOnly(s.arrival_date || s.created);
+  const start = formatCalendarDay(trip.start_date) || (tripStops.length ? stopDay(tripStops[0]) : "");
+  const end = formatCalendarDay(trip.end_date) ||
+    (tripStops.length ? stopDay(tripStops[tripStops.length - 1]) : "");
+  if (start && end) return `${start} to ${end}`;
+  return start || (yr ? String(yr) : "");
+}
+
 function formatStopDateOnly(ts) {
   if (!ts) return "";
   const d = new Date(ts * 1000);
@@ -767,9 +793,7 @@ export default async function CatchAllPage({ params }) {
                   <div className="flex flex-wrap items-center justify-between text-sm gap-2 text-[#6b6455] border-t border-black/5 pt-3">
                     <div>
                       {[
-                        tripStops.length > 0
-                          ? `${formatStopDateOnly(tripStops[0].arrival_date || tripStops[0].created)} to ${formatStopDateOnly(tripStops[tripStops.length - 1].arrival_date || tripStops[tripStops.length - 1].created)}`
-                          : (yr ? String(yr) : ''),
+                        formatTripDates(displayItem, tripStops, yr),
                         getTripAuthor(displayItem) ? `by ${getTripAuthor(displayItem)}` : '',
                       ].filter(Boolean).join(' ')}
                     </div>

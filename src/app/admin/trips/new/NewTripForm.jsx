@@ -10,8 +10,10 @@ import AuthorSelect from '../../AuthorSelect';
 // uploads repo (kind=map) before the trip record is created.
 export default function NewTripForm({ authors, defaultAuthor = '' }) {
   const [title, setTitle] = useState('');
-  const [year, setYear] = useState('');
-  const [yearTouched, setYearTouched] = useState(false);
+  // Plain YYYY-MM-DD strings, exactly what <input type="date"> produces. The
+  // trip's year is taken from the start date on the server.
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   // No pre-selected region: a default is a silent choice, and a trip filed
   // under the wrong one lands in the wrong menu.
   const [region, setRegion] = useState('');
@@ -23,14 +25,6 @@ export default function NewTripForm({ authors, defaultAuthor = '' }) {
   const [status, setStatus] = useState(null); // null | 'saving' | 'error' | 'invalid'
   const [notice, setNotice] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
-
-  function onTitleChange(v) {
-    setTitle(v);
-    if (!yearTouched) {
-      const m = v.match(/\b(19|20)\d\d\b/);
-      if (m) setYear(m[0]);
-    }
-  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -64,7 +58,8 @@ export default function NewTripForm({ authors, defaultAuthor = '' }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title.trim(),
-          year,
+          start_date: startDate,
+          end_date: endDate || undefined,
           region,
           menu_label: menuLabel.trim(),
           menu_hover: menuHover.trim() || undefined,
@@ -108,7 +103,7 @@ export default function NewTripForm({ authors, defaultAuthor = '' }) {
         <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
         <input
           value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
+          onChange={(e) => setTitle(e.target.value)}
           placeholder='e.g. "2026 Yellowstone in Winter"'
           className="w-full border border-gray-300 rounded px-3 py-2"
         />
@@ -117,14 +112,28 @@ export default function NewTripForm({ authors, defaultAuthor = '' }) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-          <input
-            value={year}
-            onChange={(e) => { setYear(e.target.value); setYearTouched(true); }}
-            className="w-32 border border-gray-300 rounded px-3 py-2"
-          />
-          <p className="text-xs text-gray-400 mt-1">Decides where the trip slots into the menu and index.</p>
-          {fieldError('year')}
+          <label className="block text-sm font-medium text-gray-700 mb-1">Trip dates</label>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="date"
+              aria-label="Trip start date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2"
+            />
+            <span className="text-sm text-gray-500">to</span>
+            <input
+              type="date"
+              aria-label="Trip end date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-1">The start year decides where the trip slots into the menu and index. Leave the end blank while the trip is under way.</p>
+          {fieldError('start_date')}
+          {fieldError('end_date')}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Trip type</label>

@@ -94,8 +94,32 @@ const regionRule = {
   },
 };
 
+// A calendar day as YYYY-MM-DD, or '' to clear it. Kept as a plain string end
+// to end — no Date object, no timezone — because a trip's dates are days on a
+// calendar, and converting them through UTC is what shifted the stop dates.
+const calendarDay = {
+  check(v) {
+    if (typeof v !== 'string') return { error: 'Must be a date.' };
+    if (v === '') return { value: '' };
+    const m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const d = m && new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    if (!d || d.getUTCMonth() !== +m[2] - 1 || +m[1] < 1900 || +m[1] > 2100) {
+      return { error: 'Must be a valid date.' };
+    }
+    return { value: v };
+  },
+};
+
+// Cross-field check the per-field rules cannot express. ISO days compare
+// correctly as strings.
+export function tripDateOrderError(start, end) {
+  return start && end && end < start ? 'Must not be before the start date.' : null;
+}
+
 const TRIP_RULES = {
   title: nonEmptyString,
+  start_date: calendarDay,
+  end_date: calendarDay,
   region: regionRule,
   author: optionalString,
   year: {
@@ -130,6 +154,13 @@ const NEW_TRIP_RULES = {
     },
   },
   region: { required: true, ...regionRule },
+  start_date: {
+    required: true,
+    check(v) {
+      if (v === '') return { error: 'Choose the day the trip starts.' };
+      return calendarDay.check(v);
+    },
+  },
   author: optionalString,
   map_image: optionalString,
 };

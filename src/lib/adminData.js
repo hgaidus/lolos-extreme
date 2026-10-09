@@ -47,6 +47,13 @@ export function updateTrip(nid, fields) {
 
   const { published, ...rest } = fields;
   const updated = { ...trips[idx], ...rest };
+  // Trip dates are optional — the 102 migrated trips have none and show their
+  // first and last stop dates instead — so a cleared date is removed rather
+  // than stored as ''. A start date carries the trip's year with it.
+  for (const key of ['start_date', 'end_date']) {
+    if (updated[key] === '') delete updated[key];
+  }
+  if (rest.start_date) updated.year = rest.start_date.slice(0, 4);
   // Moving a trip to another region gives it a new slot there, by year, the
   // same way a new trip gets one — its old order numbers mean nothing in the
   // other region's sequence. index_group (a legacy override that listed a trip
@@ -93,6 +100,8 @@ export function createTrip(fields) {
     published: false,
   };
   if (fields.author) newTrip.author = fields.author;
+  if (fields.start_date) newTrip.start_date = fields.start_date;
+  if (fields.end_date) newTrip.end_date = fields.end_date;
   if (fields.map_image) newTrip.map_image = fields.map_image;
 
   trips.push(newTrip);

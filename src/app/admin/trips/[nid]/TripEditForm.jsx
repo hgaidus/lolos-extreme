@@ -7,7 +7,8 @@ import AuthorSelect from '../../AuthorSelect';
 
 export default function TripEditForm({ trip, authors = [] }) {
   const [title, setTitle] = useState(trip.title || '');
-  const [year, setYear] = useState(trip.year || '');
+  const [startDate, setStartDate] = useState(trip.start_date || '');
+  const [endDate, setEndDate] = useState(trip.end_date || '');
   const [author, setAuthor] = useState(trip.author || '');
   const [region, setRegion] = useState(trip.region || '');
   const [menuLabel, setMenuLabel] = useState(trip.menu_label || '');
@@ -30,7 +31,8 @@ export default function TripEditForm({ trip, authors = [] }) {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title, year, author, travelogue, published,
+          title, author, travelogue, published,
+          start_date: startDate, end_date: endDate,
           // Only when it actually changed: moving a trip re-slots it in the
           // menu and index, which an ordinary save must never do.
           ...(region && region !== trip.region ? { region } : {}),
@@ -78,12 +80,28 @@ export default function TripEditForm({ trip, authors = [] }) {
       </div>
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-          <input
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            className="w-32 border border-gray-300 rounded px-3 py-2"
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-1">Trip dates</label>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="date"
+              aria-label="Trip start date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2"
+            />
+            <span className="text-sm text-gray-500">to</span>
+            <input
+              type="date"
+              aria-label="Trip end date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-1">Shown on the trip page. Left blank, the page shows the first and last stop dates instead.</p>
+          {fieldError('start_date')}
+          {fieldError('end_date')}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Trip type</label>

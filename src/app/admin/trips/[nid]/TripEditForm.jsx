@@ -99,7 +99,7 @@ export default function TripEditForm({ trip, authors = [] }) {
               className="border border-gray-300 rounded px-3 py-2"
             />
           </div>
-          <p className="text-xs text-gray-400 mt-1">Shown on the trip page. Left blank, the page shows the first and last stop dates instead.</p>
+          <p className="text-xs text-gray-400 mt-1">Shown on the trip page. Left blank, the page works them out from the stops: first arrival to the last night stayed.</p>
           {fieldError('start_date')}
           {fieldError('end_date')}
         </div>

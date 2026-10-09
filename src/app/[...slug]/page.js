@@ -14,6 +14,7 @@ import { photoFileExists } from '@/lib/photoExists';
 import { getTripRegionInfo } from '@/lib/tripRegions';
 import { getTripMapImage, getTripAuthor } from '@/lib/tripMeta';
 import { makeVersioned, getDataVersion } from '@/lib/dataVersion';
+import { toSiteDateInput } from '@/lib/siteDates';
 
 // Every content page on the site renders live from the JSON on disk, so a CMS
 // save shows up within the ~2s mtime window. This page was dynamic only as a
@@ -194,14 +195,34 @@ function formatCalendarDay(day) {
   });
 }
 
+// The day a trip's stops say it ended, as YYYY-MM-DD: the latest "arrival plus
+// nights stayed" across all of them — the morning you pack up and leave.
+//
+// This used to be the last stop's ARRIVAL, which ignored the stay entirely: a
+// one-stop trip read "December 25 to December 25", and every trip ended early
+// by the length of its final stop. Taking the latest across all stops, not
+// just the last one, also covers a trip whose final entry is a same-day event
+// inside a longer stay (Burning Man's closing night).
+function lastDayOfStops(tripStops) {
+  let latest = "";
+  for (const s of tripStops) {
+    const arrived = toSiteDateInput(Number(s.arrival_date) || Number(s.created) || 0);
+    if (!arrived) continue;
+    const [y, m, d] = arrived.split("-").map(Number);
+    const nights = Math.max(0, Math.round(Number(s.nights) || 0));
+    const leaves = new Date(Date.UTC(y, m - 1, d + nights)).toISOString().slice(0, 10);
+    if (leaves > latest) latest = leaves;
+  }
+  return latest;
+}
+
 // The "March 3, 2026 to March 9, 2026" line on a trip overview. The trip's own
-// dates win when it has them; otherwise it is the first and last stop, which
-// is all the migrated trips have. With neither, just the year.
+// dates win when it has them; otherwise they come from its stops, which is all
+// the migrated trips have. With neither, just the year.
 function formatTripDates(trip, tripStops, yr) {
-  const stopDay = (s) => formatStopDateOnly(s.arrival_date || s.created);
-  const start = formatCalendarDay(trip.start_date) || (tripStops.length ? stopDay(tripStops[0]) : "");
-  const end = formatCalendarDay(trip.end_date) ||
-    (tripStops.length ? stopDay(tripStops[tripStops.length - 1]) : "");
+  const start = formatCalendarDay(trip.start_date) ||
+    (tripStops.length ? formatStopDateOnly(tripStops[0].arrival_date || tripStops[0].created) : "");
+  const end = formatCalendarDay(trip.end_date) || formatCalendarDay(lastDayOfStops(tripStops));
   if (start && end) return `${start} to ${end}`;
   return start || (yr ? String(yr) : "");
 }

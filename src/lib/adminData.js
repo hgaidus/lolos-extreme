@@ -154,6 +154,11 @@ export function updateStop(nid, fields) {
 
   const { published, ...rest } = fields;
   const updated = { ...stops[idx], ...rest };
+  // No position is stored as no keys at all, as it is on the 66 stops that
+  // never had one — not as nulls.
+  for (const key of ['lat', 'lng']) {
+    if (updated[key] === null) delete updated[key];
+  }
   applyPublished(updated, published);
   updated.body = updated.description || updated.travelogue;
   stops[idx] = updated;
@@ -190,6 +195,10 @@ export function createStop(parentTripNid, fields) {
     state: fields.state || '',
     category: fields.category || '',
   };
+  if (fields.lat != null && fields.lng != null) {
+    newStop.lat = fields.lat;
+    newStop.lng = fields.lng;
+  }
   // The create form defaults new stops to draft; without this the flag was
   // silently dropped and "drafts" went straight to the live site.
   applyPublished(newStop, fields.published);

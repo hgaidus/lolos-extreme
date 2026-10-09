@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTrip, STOP_CATEGORIES, getDistinctStates, getDistinctAuthors } from '@/lib/adminData';
 import { currentUserName } from '@/lib/adminSession';
+import { nearbyCoordinates } from '@/lib/stopLocations';
 import StopForm from '../StopForm';
 
 export default async function AdminNewStopPage({ params }) {
@@ -20,6 +21,7 @@ export default async function AdminNewStopPage({ params }) {
         mode="create"
         tripNid={trip.nid}
         stop={null}
+        nearby={nearbyCoordinates(trip.nid)}
         categories={STOP_CATEGORIES}
         states={getDistinctStates()}
         authors={Array.from(new Set([me, ...getDistinctAuthors()].filter(Boolean)))}

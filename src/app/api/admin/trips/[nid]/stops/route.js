@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { currentUserName } from '@/lib/adminSession';
 import { getTrip, createStop, commitAndPush } from '@/lib/adminData';
-import { validateStopFields } from '@/lib/adminValidate';
+import { validateStopFields, coordinatePairError } from '@/lib/adminValidate';
 
 const CREATABLE_FIELDS = [
   'title', 'description', 'travelogue', 'miles', 'hours', 'nights',
-  'arrival_date', 'author', 'state', 'category', 'published',
+  'arrival_date', 'author', 'state', 'category', 'published', 'lat', 'lng',
 ];
 
 export async function POST(request, { params }) {
@@ -28,7 +28,12 @@ export async function POST(request, { params }) {
     // Full (non-partial) validation on create: a stop must have a title —
     // otherwise it lands with the meaningless slug "new-stop" — and a real
     // category, or it silently vanishes from its category listing page.
-    const { ok, errors, values } = validateStopFields(fields, { partial: false });
+    const { ok: fieldsOk, errors, values } = validateStopFields(fields, { partial: false });
+    // Only when each half is individually valid — otherwise this would bury
+    // "must be between -90 and 90" under "needed along with the longitude".
+    const pairError = errors.lat || errors.lng ? {} : coordinatePairError(values.lat, values.lng);
+    Object.assign(errors, pairError);
+    const ok = fieldsOk && !Object.keys(pairError).length;
     if (!ok) {
       return NextResponse.json({ error: 'Validation failed', fields: errors }, { status: 400 });
     }

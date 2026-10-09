@@ -63,8 +63,31 @@ const publishedFlag = {
   },
 };
 
+// A coordinate, or null/'' for "no position". A stop with no position is
+// normal (66 have none); it simply is not on the map.
+const coordinate = (limit) => ({
+  check(v) {
+    if (v === null || v === '') return { value: null };
+    const n = typeof v === 'number' ? v : Number(String(v).trim());
+    if (typeof v === 'boolean' || !Number.isFinite(n) || Math.abs(n) > limit) {
+      return { error: `Must be a number between -${limit} and ${limit}.` };
+    }
+    return { value: n };
+  },
+});
+
+// Half a position is not a position. Returns {field: message} for whichever
+// half is missing, or {} when both or neither are set.
+export function coordinatePairError(lat, lng) {
+  const has = (v) => v !== null && v !== undefined;
+  if (has(lat) === has(lng)) return {};
+  return has(lat) ? { lng: 'Needed along with the latitude.' } : { lat: 'Needed along with the longitude.' };
+}
+
 const STOP_RULES = {
   title: nonEmptyString,
+  lat: coordinate(90),
+  lng: coordinate(180),
   description: optionalString,
   travelogue: optionalString,
   miles: finiteNonNegative,

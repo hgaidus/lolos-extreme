@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import EditorPane from '../../../EditorPane';
 import AuthorSelect from '../../../AuthorSelect';
+import LocationField from '../../../LocationField';
 // Pacific-time conversions for the date box. These replaced UTC ones that
 // moved a stop's date back a day, and set its time to 5:00pm, on every save.
 import { toSiteDateInput, fromSiteDateInput } from '@/lib/siteDates';
 
 // mode: 'edit' (PATCH /api/admin/stops/:nid) or 'create' (POST /api/admin/trips/:tripNid/stops)
-export default function StopForm({ mode, tripNid, stop, categories, states, authors, defaultAuthor = '' }) {
+export default function StopForm({ mode, tripNid, stop, categories, states, authors, defaultAuthor = '', nearby = null }) {
   const [title, setTitle] = useState(stop?.title || '');
   const [description, setDescription] = useState(stop?.description || '');
   const [travelogue, setTravelogue] = useState(stop?.travelogue || '');
@@ -19,6 +20,9 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
   const [author, setAuthor] = useState(stop?.author || defaultAuthor);
   const [state, setState] = useState(stop?.state || '');
   const [category, setCategory] = useState(stop?.category || categories[0]);
+  // Kept as the text in the boxes; turned into numbers (or null) on save.
+  const [lat, setLat] = useState(stop?.lat ?? '');
+  const [lng, setLng] = useState(stop?.lng ?? '');
   // New stops start as drafts; existing stops keep their current state
   // (absence of the field means published — none of the legacy records
   // carry it).
@@ -40,6 +44,10 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
       miles: Number(miles), hours: Number(hours), nights: Number(nights),
       arrival_date: fromSiteDateInput(arrivalDate, stop?.arrival_date),
       author, state, category,
+      // null clears the position; anything unparseable is sent as typed so the
+      // server can say what is wrong with it rather than it silently vanishing.
+      lat: String(lat).trim() === '' ? null : (Number.isFinite(Number(lat)) ? Number(lat) : lat),
+      lng: String(lng).trim() === '' ? null : (Number.isFinite(Number(lng)) ? Number(lng) : lng),
       published,
     };
 
@@ -187,6 +195,14 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
           {fieldError('category')}
         </div>
       </div>
+
+      <LocationField
+        lat={String(lat)}
+        lng={String(lng)}
+        onChange={(a, b) => { setLat(a); setLng(b); }}
+        nearby={nearby}
+        errors={fieldErrors}
+      />
 
       <div className="flex items-start gap-2 border-t border-gray-100 pt-4">
         <input

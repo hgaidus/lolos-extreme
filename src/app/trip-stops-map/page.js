@@ -1,6 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-import { DATA_DIR } from '@/lib/dataPaths';
+import { getMapLocations } from '@/lib/stopLocations';
 
 export const metadata = {
   title: "Interactive Trip Stops Map | Cross-Country Trips",
@@ -8,43 +6,16 @@ export const metadata = {
   alternates: { canonical: "/trip-stops-map" },
 };
 
-function getMapData() {
-  try {
-    const geojson = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "locations.geojson"), "utf-8"));
-    const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
-    
-    // Map nid to stop title and travelogue snippet
-    const stopMap = {};
-    stops.forEach(s => {
-      stopMap[s.nid] = s;
-    });
-
-    return geojson.features.map(f => {
-      const stop = stopMap[f.properties.nid] || {};
-      return {
-        nid: f.properties.nid,
-        lat: f.geometry.coordinates[1],
-        lng: f.geometry.coordinates[0],
-        url: f.properties.url || `/${stop.slug || ''}`,
-        title: stop.title || `Campsite Location #${f.properties.lid}`,
-        travelogue: stop.travelogue ? stop.travelogue.substring(0, 140) + "..." : "Historical RV stop location logged via GPS."
-      };
-    });
-  } catch (err) {
-    console.warn("Could not load locations.geojson", err);
-    return [
-      { nid: "2105", lat: 38.5631, lng: -110.7090, title: "Goblin Valley State Park", url: "/goblin-valley-state-park", travelogue: "Amazing sandstone hoodoos and quiet desert camping under starry skies." },
-      { nid: "105", lat: 38.7331, lng: -109.5925, title: "Arches National Park - Devils Garden", url: "/arches-national-park-devils-garden", travelogue: "Camped right among the red rock fins at the end of the paved road." },
-      { nid: "305", lat: 48.7596, lng: -113.7870, title: "Glacier National Park - Many Glacier", url: "/glacier-national-park", travelogue: "Spectacular mountain views and wildlife right outside our camper door." }
-    ];
-  }
-}
+// Rendered per request, like every other content page: a stop given a
+// position in the CMS has to appear here without a redeploy. The pins come
+// from a cache keyed on the content files, so this costs a lookup, not a parse.
+export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import InteractiveMapWrapper from '../../components/InteractiveMapWrapper';
 
 export default function InteractiveMapPage() {
-  const locations = getMapData();
+  const locations = getMapLocations();
 
   return (
     <div>

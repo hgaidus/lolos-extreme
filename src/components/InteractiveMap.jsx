@@ -31,19 +31,32 @@ const TILE_LAYERS = {
   }
 };
 
+// Each region is one definition: its name, where the map flies to, and the box
+// of coordinates that counts as inside it. The stop count shown on the button
+// is worked out from that same box against the live pins, so the number on the
+// button, the pins the filter leaves on the map, and "Showing N Waypoints" can
+// never disagree. (The counts used to be typed in here, and had drifted: North
+// America said 693 with 702 on the map.)
+//
+// The boxes are deliberately loose rectangles and do not overlap. Ecuador's
+// mainland (Quito and the cloud forest, on the Galapagos trip) used to fall in
+// none of them, so two pins vanished under every region filter; the Galapagos
+// box now reaches the mainland.
 const REGION_PRESETS = [
-  // The worldwide count is filled in from the real data at render time — it
-  // sits inches from the live "Showing N Waypoints" readout, so a hardcoded
-  // number here would visibly disagree with it the moment a stop is added.
-  // The regional counts below are still hardcoded; they were verified correct
-  // on 2026-09-05 and change only when a whole new country is visited.
-  { key: 'ALL', label: null, center: [20.0, 0.0], zoom: 2 },
-  { key: 'NA', label: "🇺🇸 North America (693 stops)", center: [39.8283, -98.5795], zoom: 4 },
-  { key: 'NZ', label: "🇳🇿 New Zealand (24 stops)", center: [-43.0, 171.0], zoom: 6 },
-  { key: 'EU', label: "🇪🇺 Europe & Iceland (73 stops)", center: [48.0, 10.0], zoom: 4 },
-  { key: 'GAL', label: "🏝️ Galapagos Islands (11 stops)", center: [-0.6, -90.3], zoom: 8 },
-  { key: 'TH', label: "🇹🇭 Thailand (6 stops)", center: [13.7, 100.5], zoom: 6 },
+  { key: 'ALL', name: "🌍 Worldwide", center: [20.0, 0.0], zoom: 2, contains: () => true },
+  { key: 'NA', name: "🇺🇸 North America", center: [39.8283, -98.5795], zoom: 4,
+    contains: (loc) => loc.lng < -50 && loc.lat > 15 },
+  { key: 'NZ', name: "🇳🇿 New Zealand", center: [-43.0, 171.0], zoom: 6,
+    contains: (loc) => loc.lng > 160 || loc.lat < -30 },
+  { key: 'EU', name: "🇪🇺 Europe & Iceland", center: [48.0, 10.0], zoom: 4,
+    contains: (loc) => loc.lng > -30 && loc.lng < 40 && loc.lat > 35 },
+  { key: 'GAL', name: "🏝️ Galapagos & Ecuador", center: [-0.6, -84.5], zoom: 6,
+    contains: (loc) => loc.lng > -95 && loc.lng < -75 && loc.lat > -5 && loc.lat < 5 },
+  { key: 'TH', name: "🇹🇭 Thailand", center: [13.7, 100.5], zoom: 6,
+    contains: (loc) => loc.lng > 90 && loc.lng < 110 && loc.lat > 0 && loc.lat < 25 },
 ];
+
+const hasPosition = (loc) => !!loc.lat && !!loc.lng && !isNaN(loc.lat) && !isNaN(loc.lng);
 
 const createPinIcon = (isSelected = false) => {
   const color = isSelected ? "#ef4444" : "#f59e0b";
@@ -93,10 +106,17 @@ export default function InteractiveMap({
     return Array.from(states).sort();
   }, [locations]);
 
+  // Stops per region, for the button labels.
+  const regionCounts = React.useMemo(() => {
+    const placed = locations.filter(hasPosition);
+    return Object.fromEntries(REGION_PRESETS.map(r => [r.key, placed.filter(r.contains).length]));
+  }, [locations]);
+
   // Filtered locations
   const filteredLocations = React.useMemo(() => {
+    const region = REGION_PRESETS.find(r => r.key === selectedRegion) || REGION_PRESETS[0];
     return locations.filter(loc => {
-      if (!loc.lat || !loc.lng || isNaN(loc.lat) || isNaN(loc.lng)) return false;
+      if (!hasPosition(loc)) return false;
 
       const matchesSearch = !searchTerm || 
         (loc.title && loc.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -105,13 +125,8 @@ export default function InteractiveMap({
       const matchesState = selectedState === 'ALL' || 
         (loc.title && loc.title.includes(`, ${selectedState}`));
 
-      const matchesRegion = selectedRegion === 'ALL' || 
-        (selectedRegion === 'NA' && loc.lng < -50 && loc.lat > 15) ||
-        (selectedRegion === 'NZ' && (loc.lng > 160 || loc.lat < -30)) ||
-        (selectedRegion === 'EU' && loc.lng > -30 && loc.lng < 40 && loc.lat > 35) ||
-        (selectedRegion === 'GAL' && loc.lng > -95 && loc.lng < -85 && loc.lat > -5 && loc.lat < 5) ||
-        (selectedRegion === 'TH' && loc.lng > 90 && loc.lng < 110 && loc.lat > 0 && loc.lat < 25);
-        
+      const matchesRegion = region.contains(loc);
+
       return matchesSearch && matchesState && matchesRegion;
     });
   }, [locations, searchTerm, selectedState, selectedRegion]);
@@ -283,7 +298,7 @@ export default function InteractiveMap({
             >
               {REGION_PRESETS.map(r => (
                 <option key={r.key} value={r.key}>
-                  {r.label ?? `🌍 Worldwide (${locations.length} stops)`}
+                  {`${r.name} (${regionCounts[r.key]} ${regionCounts[r.key] === 1 ? 'stop' : 'stops'})`}
                 </option>
               ))}
             </select>

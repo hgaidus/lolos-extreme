@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getTrip, updateTrip, commitAndPush } from '@/lib/adminData';
 import { validateTripFields, tripDateOrderError } from '@/lib/adminValidate';
+import { publishTripAlbum } from '@/lib/adminPhotos';
 
 export async function PATCH(request, { params }) {
   try {
@@ -28,6 +29,7 @@ export async function PATCH(request, { params }) {
     }
 
     const updated = updateTrip(nid, values);
+    if (values.published === true) publishTripAlbum(updated);
     const gitResult = await commitAndPush(`Edit trip: ${updated.title} (nid ${nid})`);
 
     return NextResponse.json({ trip: updated, git: gitResult });

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { currentUserName } from '@/lib/adminSession';
 import { getTrip, createStop, commitAndPush } from '@/lib/adminData';
 import { validateStopFields, coordinatePairError } from '@/lib/adminValidate';
+import { claimEmbeddedPhotos } from '@/lib/adminPhotos';
 
 const CREATABLE_FIELDS = [
   'title', 'description', 'travelogue', 'miles', 'hours', 'nights',
@@ -39,6 +40,9 @@ export async function POST(request, { params }) {
     }
 
     const created = createStop(nid, values);
+    // Photos added while writing the stop could not be given a stop — it did
+    // not exist yet. Now it does.
+    claimEmbeddedPhotos(created, trip);
     const gitResult = await commitAndPush(`Add stop: ${created.title} (nid ${created.nid}) to trip ${trip.title}`);
 
     return NextResponse.json({ stop: created, git: gitResult });

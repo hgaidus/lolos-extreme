@@ -141,6 +141,7 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onAddMany
       form.append('file', fileToSend);
       form.append('title', uploadTitle.trim());
       if (stopNid) form.append('trip_stop_nid', String(stopNid));
+      if (tripNid) form.append('trip_nid', String(tripNid));
       if (allowSimilar) form.append('allowSimilar', 'yes');
       const res = await fetch('/api/admin/photos', { method: 'POST', body: form });
       const data = await res.json();
@@ -298,6 +299,11 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onAddMany
               </div>
               {stopNid ? (
                 <p className="text-xs text-gray-500">Will be assigned to this stop and added to the trip's album.</p>
+              ) : tripNid && !multi ? (
+                <p className="text-xs text-gray-500">
+                  Will be added to the trip&apos;s album. If you are writing a new stop, it is linked
+                  to the stop when you save the stop with this photo in it.
+                </p>
               ) : multi ? (
                 <p className="text-xs text-gray-500">
                   Uploads straight into your selection — click Add below to put it in this album. It

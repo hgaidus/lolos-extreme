@@ -114,6 +114,10 @@ export async function POST(request) {
     const file = form.get('file');
     const title = String(form.get('title') || '').trim();
     const tripStopNid = String(form.get('trip_stop_nid') || '').trim();
+    // Sent when the photo is added from a trip's own editor, or from a stop
+    // that has not been created yet: there is no stop to assign, but the trip
+    // is known, and that is enough to put the photo in the trip's album.
+    const tripNid = String(form.get('trip_nid') || '').trim();
     const allowSimilar = form.get('allowSimilar') === 'yes';
     const kind = String(form.get('kind') || 'photo');
 
@@ -221,16 +225,14 @@ export async function POST(request) {
     const photo = createPhotoRecord({ filename, title, tripStopNid });
 
     let albumResult = null;
-    if (stop) {
-      const trip = getTrip(stop.parent_trip_nid);
-      if (trip) {
-        albumResult = appendToTripAlbum(trip, {
-          url: `/photos/uploads/${filename}`,
-          title,
-          filename: `uploads/${filename}`,
-          image_nid: photo.image_nid,
-        });
-      }
+    const trip = stop ? getTrip(stop.parent_trip_nid) : tripNid ? getTrip(tripNid) : null;
+    if (trip) {
+      albumResult = appendToTripAlbum(trip, {
+        url: `/photos/uploads/${filename}`,
+        title,
+        filename: `uploads/${filename}`,
+        image_nid: photo.image_nid,
+      });
     }
 
     invalidatePhotoIndex();

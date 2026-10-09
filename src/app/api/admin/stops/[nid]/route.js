@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getStop, updateStop, commitAndPush } from '@/lib/adminData';
+import { getStop, getTrip, updateStop, commitAndPush } from '@/lib/adminData';
+import { claimEmbeddedPhotos } from '@/lib/adminPhotos';
 import { validateStopFields, coordinatePairError } from '@/lib/adminValidate';
 
 const EDITABLE_FIELDS = [
@@ -35,6 +36,8 @@ export async function PATCH(request, { params }) {
     }
 
     const updated = updateStop(nid, values);
+    // Before the commit, so the stop and its photo links land together.
+    claimEmbeddedPhotos(updated, getTrip(updated.parent_trip_nid));
     const gitResult = await commitAndPush(`Edit stop: ${updated.title} (nid ${nid})`);
 
     return NextResponse.json({ stop: updated, git: gitResult });

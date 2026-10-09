@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getStop, commitAndPush } from '@/lib/adminData';
-import { getPhoto, updatePhotoRecord } from '@/lib/adminPhotos';
+import { getStop, getTrip, commitAndPush } from '@/lib/adminData';
+import { getPhoto, updatePhotoRecord, appendToTripAlbum, albumEntryFor } from '@/lib/adminPhotos';
 import { findReferencesToImageNid } from '@/lib/adminRefs';
 
 // No DELETE by design: photos are unpublished, never deleted. Unpublishing
@@ -41,6 +41,14 @@ export async function PATCH(request, { params }) {
     }
 
     const updated = updatePhotoRecord(imageNid, fields);
+    // Giving a stop to a photo that had none is the same event as uploading it
+    // to that stop, so it joins the trip's album the same way. Moving a photo
+    // between stops does not touch albums.
+    const hadNoStop = !existing.trip_stop_nid || String(existing.trip_stop_nid) === '0';
+    if (fields.trip_stop_nid && hadNoStop) {
+      const trip = getTrip(getStop(fields.trip_stop_nid).parent_trip_nid);
+      if (trip) appendToTripAlbum(trip, albumEntryFor(updated));
+    }
     const references = findReferencesToImageNid(imageNid);
     const git = await commitAndPush(`Edit photo: ${updated.title} (image_nid ${imageNid})`);
 

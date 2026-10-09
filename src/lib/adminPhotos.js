@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { FILES_DIR, UPLOADS_DIR } from './dataPaths';
+import { FILES_DIR, UPLOADS_DIR } from './dataPaths.js';
 import {
   readDataset,
   writeDataset,
@@ -150,7 +150,15 @@ export function appendToTripAlbum(trip, imageEntry) {
   let created = false;
 
   if (!album) {
-    album = { tid: allocateTid(), title: trip.title, weight: 0, slug: wantSlug, images: [] };
+    // The albums index sorts by weight, then newest tid first, and the trip
+    // albums all sit at the lowest weight — so a new album takes that weight
+    // to land at the top of the list rather than among the odds and ends at 0.
+    const weight = albums.reduce((min, a) => Math.min(min, Number(a.weight) || 0), 0);
+    album = { tid: allocateTid(), title: trip.title, weight, slug: wantSlug, images: [] };
+    // A draft trip's photos are not public yet either. There is no publish
+    // switch for albums in the admin, so this one follows its trip: hidden
+    // now, shown by publishTripAlbum when the trip is published.
+    if (trip.published === false) album.published = false;
     albums.push(album);
     created = true;
   }
@@ -161,6 +169,60 @@ export function appendToTripAlbum(trip, imageEntry) {
 
   writeDataset('albums', albums);
   return { album: { tid: album.tid, title: album.title, slug: album.slug }, created, alreadyPresent };
+}
+
+/** The album images[] entry for a photo record. */
+export function albumEntryFor(photo) {
+  return {
+    url: `/photos/${photo.filename}`,
+    title: photo.title || '',
+    filename: photo.filename,
+    image_nid: photo.image_nid,
+  };
+}
+
+/** Show a trip's album once the trip itself goes public. No-op if it has none. */
+export function publishTripAlbum(trip) {
+  const albums = readDataset('albums');
+  const album = albums.find((a) => a.slug === `photo-albums/${trip.slug}`);
+  if (!album || album.published !== false) return false;
+  delete album.published;
+  writeDataset('albums', albums);
+  return true;
+}
+
+const unassigned = (photo) => !photo.trip_stop_nid || String(photo.trip_stop_nid) === '0';
+
+/**
+ * Claim the photos a stop's text embeds that belong to no stop yet: set their
+ * trip_stop_nid (which is what the album lightbox's "Go to Trip Stop" link
+ * reads) and add them to the trip's album, oldest upload first.
+ *
+ * This is what makes the link automatic. A photo can only be told its stop at
+ * upload if the stop already exists, and the natural way to write a new stop
+ * is to add its photos BEFORE pressing Create — so every one of them used to
+ * land with no stop and in no album.
+ *
+ * Deliberately limited to unassigned photos. A photo that already has a stop
+ * keeps it, and nothing already-assigned is added to an album here: the
+ * migrated albums are hand-picked subsets, and re-adding every embedded photo
+ * on each save would undo that curation.
+ */
+export function claimEmbeddedPhotos(stop, trip) {
+  const text = `${stop.travelogue || ''}\n${stop.description || ''}`;
+  const embedded = new Set([...text.matchAll(/\[img_assist\|nid=(\d+)/g)].map((m) => m[1]));
+  if (!embedded.size) return { linked: [] };
+
+  const photos = readDataset('photos');
+  const claimed = photos
+    .filter((p) => embedded.has(String(p.image_nid)) && unassigned(p))
+    .sort((a, b) => Number(a.image_nid) - Number(b.image_nid));
+  if (!claimed.length) return { linked: [] };
+
+  for (const p of claimed) p.trip_stop_nid = String(stop.nid);
+  writeDataset('photos', photos);
+  if (trip) for (const p of claimed) appendToTripAlbum(trip, albumEntryFor(p));
+  return { linked: claimed.map((p) => String(p.image_nid)) };
 }
 
 /**

@@ -51,7 +51,7 @@ export default function ActivitiesSection({ stopNid, tripNid, initialActivities,
         </button>
       </div>
       <p className="text-sm text-gray-500 mb-3">
-        {activities.length} activit{activities.length === 1 ? 'y' : 'ies'} on this stop. Click one to edit it.
+        {activities.length} activit{activities.length === 1 ? 'y' : 'ies'} on this stop. Press <strong>Edit</strong> on one to change it here — each has its own Save button.
       </p>
       {notice && (
         <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2 mb-3">{notice}</p>
@@ -79,7 +79,7 @@ export default function ActivitiesSection({ stopNid, tripNid, initialActivities,
             <button
               type="button"
               onClick={() => setOpenNid(openNid === a.nid ? null : a.nid)}
-              className="w-full text-left px-4 py-3 flex items-center gap-3"
+              className="w-full text-left px-4 py-3 flex items-center gap-3 rounded-lg hover:bg-blue-50 cursor-pointer"
               aria-expanded={openNid === a.nid}
             >
               <span className="text-xs font-extrabold uppercase tracking-wider text-[#c1593a] shrink-0">
@@ -94,7 +94,15 @@ export default function ActivitiesSection({ stopNid, tripNid, initialActivities,
                   Unpublished
                 </span>
               )}
-              <span className="text-gray-400 text-sm shrink-0">{openNid === a.nid ? '▲' : '▼'}</span>
+              {/* Looks like a button on purpose: the whole row is clickable, but
+                  a bare arrow did not say so and the editor went unfound. */}
+              <span className={`shrink-0 rounded border px-3 py-1 text-sm font-semibold ${
+                openNid === a.nid
+                  ? 'border-gray-300 bg-gray-100 text-gray-700'
+                  : 'border-blue-600 bg-blue-600 text-white'
+              }`}>
+                {openNid === a.nid ? 'Close ▲' : 'Edit ▼'}
+              </span>
             </button>
             {openNid === a.nid && (
               <div className="border-t border-gray-100 p-4">

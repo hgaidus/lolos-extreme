@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import EditorPane from '../../../EditorPane';
+import AuthorSelect from '../../../AuthorSelect';
 // Pacific-time conversions for the date box. These replaced UTC ones that
 // moved a stop's date back a day, and set its time to 5:00pm, on every save.
 import { toSiteDateInput, fromSiteDateInput } from '@/lib/siteDates';
@@ -158,14 +159,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
-          <input
-            list="author-options" value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-          <datalist id="author-options">
-            {authors.map((a) => <option key={a} value={a} />)}
-          </datalist>
+          <AuthorSelect value={author} onChange={setAuthor} authors={authors} />
         </div>
       </div>
 

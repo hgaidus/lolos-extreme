@@ -8,6 +8,7 @@ export default async function AdminNewStopPage({ params }) {
   const { nid } = await params;
   const trip = getTrip(nid);
   if (!trip) notFound();
+  const me = await currentUserName();
 
   return (
     <div>
@@ -21,8 +22,8 @@ export default async function AdminNewStopPage({ params }) {
         stop={null}
         categories={STOP_CATEGORIES}
         states={getDistinctStates()}
-        authors={getDistinctAuthors()}
-        defaultAuthor={await currentUserName()}
+        authors={Array.from(new Set([me, ...getDistinctAuthors()].filter(Boolean)))}
+        defaultAuthor={me}
       />
     </div>
   );

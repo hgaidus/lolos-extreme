@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTrip, getStop, STOP_CATEGORIES, getDistinctStates, getDistinctAuthors } from '@/lib/adminData';
 import { getActivitiesForStop, getDistinctActivityTypes } from '@/lib/adminActivities';
+import { currentUserName } from '@/lib/adminSession';
 import StopForm from '../StopForm';
 import ActivitiesSection from '../ActivitiesSection';
 
@@ -24,7 +25,7 @@ export default async function AdminStopEditPage({ params }) {
         stop={stop}
         categories={STOP_CATEGORIES}
         states={getDistinctStates()}
-        authors={getDistinctAuthors()}
+        authors={Array.from(new Set([...getDistinctAuthors(), await currentUserName()].filter(Boolean)))}
       />
       <ActivitiesSection
         stopNid={stop.nid}

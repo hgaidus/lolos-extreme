@@ -9,7 +9,10 @@ const OTHER = '__other__';
 // typed, so with "Lolo" filled in it looked like there was nothing to choose.
 // "Someone else…" keeps it open-ended — Tommy and Andrew have bylines but no
 // accounts, and a new name has to be possible without a code change.
-export default function AuthorSelect({ value, onChange, authors = [] }) {
+//
+// allowNone keeps "(no byline)" on offer permanently, for standalone pages,
+// where having no author is a normal state rather than a gap to fill.
+export default function AuthorSelect({ value, onChange, authors = [], allowNone = false }) {
   const [custom, setCustom] = useState(false);
   // While a new name is being typed it stays out of the list, or the select
   // would grow an option per keystroke.
@@ -30,7 +33,7 @@ export default function AuthorSelect({ value, onChange, authors = [] }) {
         }}
         className="w-full border border-gray-300 rounded px-3 py-2"
       >
-        {!value && !custom && <option value="">(no byline)</option>}
+        {(allowNone || (!value && !custom)) && <option value="">(no byline)</option>}
         {names.map((a) => <option key={a} value={a}>{a}</option>)}
         <option value={OTHER}>Someone else…</option>
       </select>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import EditorPane from '../../EditorPane';
+import AuthorSelect from '../../AuthorSelect';
 
 export default function PageEditForm({ page, publiclyRendered, authors = [] }) {
   const [title, setTitle] = useState(page.title || '');
@@ -73,15 +74,8 @@ export default function PageEditForm({ page, publiclyRendered, authors = [] }) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
-        <input
-          list="page-author-options" value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          className="w-full border border-gray-300 rounded px-3 py-2"
-        />
-        <datalist id="page-author-options">
-          {authors.map((a) => <option key={a} value={a} />)}
-        </datalist>
-        <p className="text-xs text-gray-500 mt-1">Shown as "by ..." under the title. Leave blank for no byline.</p>
+        <AuthorSelect value={author} onChange={setAuthor} authors={authors} allowNone />
+        <p className="text-xs text-gray-500 mt-1">Shown as "by ..." under the title. Choose (no byline) for none.</p>
       </div>
 
       <EditorPane

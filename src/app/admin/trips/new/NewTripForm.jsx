@@ -1,13 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-
-const REGION_OPTIONS = [
-  { value: 'crossCountry', label: 'Cross Country' },
-  { value: 'westCoast', label: 'West Coast' },
-  { value: 'eastCoast', label: 'East Coast' },
-  { value: 'international', label: 'International' },
-];
+import { REGION_OPTIONS } from '@/lib/regionOptions';
+import AuthorSelect from '../../AuthorSelect';
 
 // New trips are created as DRAFTS: invisible to the public until published
 // from the trip editor, but slotted into the nav menu and trip index by year
@@ -17,11 +12,12 @@ export default function NewTripForm({ authors, defaultAuthor = '' }) {
   const [title, setTitle] = useState('');
   const [year, setYear] = useState('');
   const [yearTouched, setYearTouched] = useState(false);
-  const [region, setRegion] = useState('westCoast');
+  // No pre-selected region: a default is a silent choice, and a trip filed
+  // under the wrong one lands in the wrong menu.
+  const [region, setRegion] = useState('');
   const [menuLabel, setMenuLabel] = useState('');
   const [menuHover, setMenuHover] = useState('');
-  // Whoever is signed in, not a hardcoded name. Still free text so Tommy and
-  // Andrew stay attributable.
+  // Whoever is signed in, not a hardcoded name.
   const [author, setAuthor] = useState(defaultAuthor);
   const [mapFile, setMapFile] = useState(null);
   const [status, setStatus] = useState(null); // null | 'saving' | 'error' | 'invalid'
@@ -131,12 +127,13 @@ export default function NewTripForm({ authors, defaultAuthor = '' }) {
           {fieldError('year')}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Region</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Trip type</label>
           <select
             value={region}
             onChange={(e) => setRegion(e.target.value)}
             className="w-full border border-gray-300 rounded px-3 py-2"
           >
+            <option value="" disabled>Choose one…</option>
             {REGION_OPTIONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
           </select>
           {fieldError('region')}
@@ -171,15 +168,7 @@ export default function NewTripForm({ authors, defaultAuthor = '' }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
-          <input
-            list="new-trip-authors"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-          <datalist id="new-trip-authors">
-            {authors.map((a) => <option key={a} value={a} />)}
-          </datalist>
+          <AuthorSelect value={author} onChange={setAuthor} authors={authors} />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Overview map (optional)</label>

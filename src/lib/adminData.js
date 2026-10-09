@@ -9,7 +9,7 @@ import {
   ensureUniqueSlug,
   allContentSlugs,
 } from './adminStore';
-import { computeInsertOrders } from './tripMeta';
+import { computeInsertOrders, parseTripYear } from './tripMeta';
 
 // Facade over adminStore: keeps the exported API the routes/pages already use,
 // while reads/writes/nid-allocation go through the shared write layer (per-file
@@ -47,6 +47,15 @@ export function updateTrip(nid, fields) {
 
   const { published, ...rest } = fields;
   const updated = { ...trips[idx], ...rest };
+  // Moving a trip to another region gives it a new slot there, by year, the
+  // same way a new trip gets one — its old order numbers mean nothing in the
+  // other region's sequence. index_group (a legacy override that listed a trip
+  // under a different index section than its menu) is dropped so the index
+  // follows the region just chosen.
+  if (rest.region && rest.region !== trips[idx].region) {
+    Object.assign(updated, computeInsertOrders(rest.region, parseTripYear(updated)));
+    delete updated.index_group;
+  }
   applyPublished(updated, published);
   updated.body = updated.travelogue;
   trips[idx] = updated;
@@ -83,7 +92,7 @@ export function createTrip(fields) {
     index_order,
     published: false,
   };
-  if (fields.author && fields.author !== 'Lolo') newTrip.author = fields.author;
+  if (fields.author) newTrip.author = fields.author;
   if (fields.map_image) newTrip.map_image = fields.map_image;
 
   trips.push(newTrip);

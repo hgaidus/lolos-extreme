@@ -14,8 +14,12 @@ import { makeVersioned, getDataVersion } from './dataVersion.js';
 export const REGIONS = ['crossCountry', 'eastCoast', 'westCoast', 'international'];
 
 const cache = makeVersioned(() => {
-  const trips = readDataset('trips').filter((t) => isPublished(t));
-  const bySlug = new Map(trips.map((t) => [t.slug, t]));
+  const all = readDataset('trips');
+  const trips = all.filter((t) => isPublished(t));
+  // Drafts included: a draft is still rendered for whoever is signed in, and
+  // looking its region up among published trips only made every draft claim to
+  // be a Cross Country trip until the moment it was published.
+  const bySlug = new Map(all.map((t) => [t.slug, t]));
 
   const menus = { crossCountry: [], eastCoast: [], westCoast: [], international: [] };
   for (const t of trips) {

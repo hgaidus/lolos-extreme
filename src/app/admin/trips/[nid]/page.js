@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTrip, getStopsForTrip, getDistinctAuthors } from '@/lib/adminData';
+import { currentUserName } from '@/lib/adminSession';
 import TripEditForm from './TripEditForm';
 
 export default async function AdminTripEditPage({ params }) {
@@ -8,6 +9,7 @@ export default async function AdminTripEditPage({ params }) {
   const trip = getTrip(nid);
   if (!trip) notFound();
 
+  const authors = Array.from(new Set([...getDistinctAuthors(), await currentUserName()].filter(Boolean)));
   const stops = getStopsForTrip(nid).sort((a, b) => (a.arrival_date || 0) - (b.arrival_date || 0));
 
   return (
@@ -17,7 +19,7 @@ export default async function AdminTripEditPage({ params }) {
       </Link>
       <h1 className="text-2xl font-bold mt-2 mb-4 text-gray-800">{trip.title}</h1>
 
-      <TripEditForm trip={trip} authors={getDistinctAuthors()} />
+      <TripEditForm trip={trip} authors={authors} />
 
       <div className="mt-8">
         <div className="flex items-center justify-between mb-3">

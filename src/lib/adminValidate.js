@@ -85,8 +85,18 @@ const STOP_RULES = {
   },
 };
 
+const REGIONS = ['crossCountry', 'eastCoast', 'westCoast', 'international'];
+
+const regionRule = {
+  check(v) {
+    if (!REGIONS.includes(v)) return { error: 'Must be one of the four regions.' };
+    return { value: v };
+  },
+};
+
 const TRIP_RULES = {
   title: nonEmptyString,
+  region: regionRule,
   author: optionalString,
   year: {
     check(v) {
@@ -106,8 +116,6 @@ const TRIP_RULES = {
   menu_hover: optionalString,
 };
 
-const REGIONS = ['crossCountry', 'eastCoast', 'westCoast', 'international'];
-
 // Creation is stricter than editing: a trip must land in a region with a
 // menu label and a real four-digit year, or it can't appear in navigation.
 const NEW_TRIP_RULES = {
@@ -121,13 +129,7 @@ const NEW_TRIP_RULES = {
       return { value: String(n) };
     },
   },
-  region: {
-    required: true,
-    check(v) {
-      if (!REGIONS.includes(v)) return { error: 'Must be one of the four regions.' };
-      return { value: v };
-    },
-  },
+  region: { required: true, ...regionRule },
   author: optionalString,
   map_image: optionalString,
 };

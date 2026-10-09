@@ -3,18 +3,48 @@
 import { readDataset } from './adminStore.js';
 import { isPublished } from './publishState.js';
 import { makeVersioned, getDataVersion } from './dataVersion.js';
+import { toSiteDateInput } from './siteDates.js';
 
 // Server-only derivation of everything src/data/menuTrips.js, tripIndex.js,
 // and tripMaps.js used to hardcode, now read from the trip records themselves
 // (backfilled by scripts/backfill-trip-meta.mjs, asserted byte-equal).
-// Ordering is explicit data: menu_order / index_order are spaced by 10 and
-// assigned at creation time (computeInsertOrders), so rendering is a plain
-// sort and never re-guesses the hand-curated sequence.
+//
+// Ordering is by DATE: menus newest-first, the index oldest-first, on the day
+// each trip started. menu_order / index_order (spaced by 10, assigned at
+// creation by computeInsertOrders) only break ties between trips that started
+// the same day.
+//
+// It used to be those stored numbers alone, and they were assigned by year:
+// a new trip went after every existing trip of its year, so one that started
+// in August was listed below one from April. Sorting on the date itself also
+// means correcting a trip's dates moves it, with nothing to re-slot by hand.
+// Checked before switching: the stored index order was already exactly date
+// order in every region, and the menus differed only where they were wrong
+// (2019's six West Coast trips ran oldest-first, and one 2017 trip sat below
+// a 2016 one).
 
 export const REGIONS = ['crossCountry', 'eastCoast', 'westCoast', 'international'];
 
+// The day a trip started, as YYYY-MM-DD: its own start date, else its first
+// published stop, else the end of its year — a trip with neither is one just
+// created, which belongs at the newest end of its year.
+function tripStartDay(trip, firstArrival) {
+  if (trip.start_date) return trip.start_date;
+  const ts = firstArrival.get(String(trip.nid));
+  if (ts) return toSiteDateInput(ts);
+  return `${String(parseTripYear(trip)).padStart(4, '0')}-12-31`;
+}
+
 const cache = makeVersioned(() => {
   const all = readDataset('trips');
+  const firstArrival = new Map();
+  for (const s of readDataset('stops')) {
+    if (!isPublished(s)) continue;
+    const ts = Number(s.arrival_date) || Number(s.created) || 0;
+    const key = String(s.parent_trip_nid);
+    if (ts && (!firstArrival.has(key) || ts < firstArrival.get(key))) firstArrival.set(key, ts);
+  }
+  const startDay = new Map(all.map((t) => [t.nid, tripStartDay(t, firstArrival)]));
   const trips = all.filter((t) => isPublished(t));
   // Drafts included: a draft is still rendered for whoever is signed in, and
   // looking its region up among published trips only made every draft claim to
@@ -28,7 +58,7 @@ const cache = makeVersioned(() => {
   }
   for (const region of Object.keys(menus)) {
     menus[region] = menus[region]
-      .sort((a, b) => a.menu_order - b.menu_order)
+      .sort((a, b) => startDay.get(b.nid).localeCompare(startDay.get(a.nid)) || a.menu_order - b.menu_order)
       .map((t) => {
         const item = { title: t.menu_label, href: `/${t.slug}` };
         if (t.menu_hover) item.hover = t.menu_hover;
@@ -36,7 +66,7 @@ const cache = makeVersioned(() => {
       });
   }
 
-  return { trips, bySlug, menus };
+  return { trips, bySlug, menus, startDay };
 }, getDataVersion);
 
 /** Nav dropdown groups — same shape menuTrips.js exported: {title, href, hover?}[] per region. */
@@ -59,7 +89,7 @@ const stopTitlesCache = makeVersioned(() => {
 
 /** Trip-index groups — same shape tripIndex.js exported: {href, title, desc}[] per region. */
 export function getTripIndexGroups() {
-  const { trips } = cache.get();
+  const { trips, startDay } = cache.get();
   const groups = { crossCountry: [], eastCoast: [], westCoast: [], international: [] };
   for (const t of trips) {
     if (t.index_order === undefined) continue;
@@ -68,7 +98,7 @@ export function getTripIndexGroups() {
   const stopTitles = stopTitlesCache.get();
   for (const g of Object.keys(groups)) {
     groups[g] = groups[g]
-      .sort((a, b) => a.index_order - b.index_order)
+      .sort((a, b) => startDay.get(a.nid).localeCompare(startDay.get(b.nid)) || a.index_order - b.index_order)
       .map((t) => ({
         href: `/${t.slug}`,
         title: t.index_title || t.title,

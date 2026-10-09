@@ -68,6 +68,10 @@ Each of these cost real time or came close to costing data:
   `.next` before each build is cheap insurance.
 - **InMotion refuses SSH after about three quick connections.** These steps
   use three in total. A refused connection ran nothing; wait a few minutes.
+- **A restart is not instant.** Passenger notices the restart only on a later
+  request, and the old app can keep answering for several seconds. Step 3
+  therefore waits until the homepage names the new build id before it runs
+  its page checks; without that, the checks can pass against the OLD app.
 - **The remote steps are files piped over SSH, never typed inline.** Inline
   quoting mangles backslashes and quotes on this machine.
 

@@ -22,10 +22,31 @@ if [ "${PULL_CONTENT:-0}" = "1" ]; then
   cd ~/new.cross-country-trips.com
 fi
 
-sleep 3
 # A browser user agent: the host answers curl's default one with 406.
 UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36"
-echo "--- live checks (the first is a cold start and will be slow)"
+
+# Wait until the NEW build is the one answering. Passenger only notices
+# restart.txt on a later request, and the old process can go on serving for
+# several seconds: on 2026-10-09 every check below came back 200 in
+# milliseconds from the OLD app, which proves nothing about the deploy. The
+# homepage names its build id, so look for the one just swapped in.
+BUILD_ID=$(cat app/.next/BUILD_ID)
+echo "--- waiting for build $BUILD_ID to be served"
+SERVING=no
+for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+  if curl -s -A "$UA" https://cross-country-trips.com/ | grep -q "$BUILD_ID"; then
+    SERVING=yes
+    echo "new build is live (attempt $attempt)"
+    break
+  fi
+  sleep 3
+done
+if [ "$SERVING" != "yes" ]; then
+  echo "WARNING: after 45s the site is still not serving build $BUILD_ID."
+  echo "The swap is done and the old app is in ~/deploy_backup_$TS; check the site before doing anything else."
+fi
+
+echo "--- live checks"
 for p in / /admin/login /2026-carmel /west-coast-road-trip /trip-stops-map /photo-albums "/photos/8k/2021-Carmel.gif"; do
   curl -s -o /dev/null -A "$UA" -w "%{http_code} %{time_total}s $p\n" "https://cross-country-trips.com$p"
 done

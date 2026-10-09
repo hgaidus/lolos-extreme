@@ -1,0 +1,4 @@
+# Shell scripts must keep Unix line endings even on Windows checkouts: with
+# autocrlf on, Git would hand them back with CRLF and bash would fail on them
+# (the deploy scripts are sourced and piped to the server as-is).
+*.sh text eol=lf

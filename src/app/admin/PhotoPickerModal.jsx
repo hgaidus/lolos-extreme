@@ -9,6 +9,26 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 // caption can never break the tag it rides in.
 const scrubCaption = (s) => s.replace(/\|/g, '/').replace(/\]/g, ')');
 
+// True when a photo's title is just its file name — "PXL 20260827 143401216"
+// for PXL_20260827_143401216.jpg — which is what the upload form pre-fills and
+// what it stays as if nobody types over it. Compared on letters and digits
+// only, so the spaces/underscores the pre-fill swaps don't matter.
+const squash = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+//
+// Two looser cases count as well. A file renamed on upload to dodge a name
+// clash ("…323-2.jpg") no longer matches its pre-filled title exactly, so a
+// title that is the START of the file name counts. And a bare camera name
+// (PXL/IMG/DSC… followed by digits) is never a real title, whatever the file
+// is called now.
+const CAMERA_NAME = /^(pxl|img|dsc|dscn|dscf|mvimg|gopr|sam|p)[ _-]?\d{4,}[\d _.~-]*$/i;
+export function titleIsFileName(photo) {
+  const title = String(photo?.title || '').trim();
+  if (!title) return true;
+  const stem = squash(String(photo?.filename || '').split('/').pop().replace(/\.[^.]+$/, ''));
+  const t = squash(title);
+  return t === stem || (t.length >= 8 && stem.startsWith(t)) || CAMERA_NAME.test(title);
+}
+
 // Two modes, because the same "find or upload a photo" problem shows up in two
 // places and the upload path (name collisions, near-duplicate detection, git
 // commits) is far too much logic to duplicate:
@@ -126,6 +146,21 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onAddMany
     if (!selected) return;
     const cap = scrubCaption(caption.trim() || selected.title || '');
     onInsert(`[img_assist|nid=${selected.image_nid}|title=${cap}|align=${align}]`);
+
+    // A caption typed here only ever lived in the page text; the album and the
+    // lightbox show the photo's own title. So a photo uploaded without a real
+    // title kept its camera file name in the album even though its page
+    // caption was right. When the title is still the file name, the caption
+    // IS the title — save it as one. A photo that already has a real title is
+    // left alone: a caption can reasonably differ from it page to page.
+    const typed = caption.trim();
+    if (typed && typed !== selected.title && titleIsFileName(selected)) {
+      fetch(`/api/admin/photos/${selected.image_nid}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: typed }),
+      }).catch(() => {});
+    }
   }
 
   async function doUpload(fileToSend, allowSimilar = false) {
@@ -393,6 +428,12 @@ export default function PhotoPickerModal({ stopNid, tripNid, onInsert, onAddMany
             <div className="flex-1 min-w-48">
               <label className="block text-xs font-medium text-gray-600 mb-0.5">Caption</label>
               <input value={caption} onChange={(e) => setCaption(e.target.value)} className="w-full border border-gray-300 rounded px-2 py-1 text-sm" />
+              {titleIsFileName(selected) && (
+                <p className="text-xs text-amber-700 mt-0.5">
+                  This photo&apos;s title is still its file name. The caption you type here will also
+                  become its title in the album.
+                </p>
+              )}
             </div>
             <fieldset className="shrink-0">
               <legend className="text-xs font-medium text-gray-600 mb-0.5">Align</legend>

@@ -17,7 +17,10 @@ export default function PhotoManager({ stopOptions, orphanCount }) {
   const load = useCallback(async (tabNow, qNow) => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ limit: '60' });
+      // Newest first, always: the photos anyone comes here to fix are the ones
+      // just uploaded. There is no stored upload date; image_nid is handed out
+      // in order, so it is the creation order.
+      const params = new URLSearchParams({ limit: '60', sort: 'recent' });
       if (tabNow === 'orphans') params.set('orphans', '1');
       if (qNow) params.set('q', qNow);
       const res = await fetch(`/api/admin/photos?${params}`);

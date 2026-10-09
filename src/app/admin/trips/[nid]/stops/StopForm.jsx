@@ -4,6 +4,7 @@ import { useState } from 'react';
 import EditorPane from '../../../EditorPane';
 import AuthorSelect from '../../../AuthorSelect';
 import LocationField from '../../../LocationField';
+import SavedNote from '../../../SavedNote';
 // Pacific-time conversions for the date box. These replaced UTC ones that
 // moved a stop's date back a day, and set its time to 5:00pm, on every save.
 import { toSiteDateInput, fromSiteDateInput } from '@/lib/siteDates';
@@ -28,6 +29,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
   // carry it).
   const [published, setPublished] = useState(mode === 'create' ? false : stop?.published !== false);
   const [status, setStatus] = useState(null);
+  const [savedGit, setSavedGit] = useState(null); // git status of the last successful save
   const [gitWarning, setGitWarning] = useState('');
   const [gitError, setGitError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
@@ -81,6 +83,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
         // soft-nav flakiness seen with the post-login redirect in prod).
         window.location.assign(`/admin/trips/${tripNid}/stops/${data.stop.nid}`);
       } else {
+        setSavedGit(gitStatus);
         setStatus('saved');
       }
     } catch (err) {
@@ -238,15 +241,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
           {status === 'saving' ? 'Saving…' : mode === 'create' ? 'Create Stop' : 'Save'}
         </button>
         {status === 'saved' && (
-          <span className="text-green-700 text-sm">
-            Saved &amp; pushed to GitHub
-            {mode === 'edit' && stop?.slug && (
-              <>
-                {' — '}
-                <a href={`/${stop.slug}`} className="text-blue-700 underline">View the page</a>
-              </>
-            )}
-          </span>
+          <SavedNote gitStatus={savedGit} viewHref={mode === 'edit' && stop?.slug ? `/${stop.slug}` : null} />
         )}
         {status === 'error' && <span className="text-red-600 text-sm">Save failed</span>}
         {status === 'invalid' && <span className="text-red-600 text-sm">Not saved — fix the highlighted fields.</span>}

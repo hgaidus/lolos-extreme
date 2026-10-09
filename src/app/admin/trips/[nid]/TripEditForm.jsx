@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { REGION_OPTIONS } from '@/lib/regionOptions';
 import EditorPane from '../../EditorPane';
 import AuthorSelect from '../../AuthorSelect';
+import SavedNote from '../../SavedNote';
 
 export default function TripEditForm({ trip, authors = [] }) {
   const [title, setTitle] = useState(trip.title || '');
@@ -16,6 +17,7 @@ export default function TripEditForm({ trip, authors = [] }) {
   const [travelogue, setTravelogue] = useState(trip.travelogue || '');
   const [published, setPublished] = useState(trip.published !== false);
   const [status, setStatus] = useState(null); // 'saving' | 'saved' | 'error' | 'invalid'
+  const [savedGit, setSavedGit] = useState(null); // git status of the last successful save
   const [gitWarning, setGitWarning] = useState('');
   const [gitError, setGitError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
@@ -58,6 +60,7 @@ export default function TripEditForm({ trip, authors = [] }) {
       } else if (gitStatus === 'push_failed') {
         setGitWarning('Saved, but not yet backed up to GitHub (push failed). The edit is safe on disk.');
       }
+      setSavedGit(gitStatus);
       setStatus('saved');
     } catch (err) {
       setStatus('error');
@@ -185,15 +188,7 @@ export default function TripEditForm({ trip, authors = [] }) {
           {status === 'saving' ? 'Saving…' : 'Save'}
         </button>
         {status === 'saved' && (
-          <span className="text-green-700 text-sm">
-            Saved &amp; pushed to GitHub
-            {trip?.slug && (
-              <>
-                {' — '}
-                <a href={`/${trip.slug}`} className="text-blue-700 underline">View the page</a>
-              </>
-            )}
-          </span>
+          <SavedNote gitStatus={savedGit} viewHref={trip?.slug ? `/${trip.slug}` : null} />
         )}
         {status === 'error' && <span className="text-red-600 text-sm">Save failed</span>}
         {status === 'invalid' && <span className="text-red-600 text-sm">Not saved — fix the highlighted fields.</span>}

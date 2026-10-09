@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import EditorPane from '../../../EditorPane';
+import SavedNote from '../../../SavedNote';
 
 // The stop's "What we did" sidebar entries, editable in place below the stop
 // form. Expand a row to edit it; activities are never deletable — unpublish
@@ -136,6 +137,7 @@ function ActivityEditor({ stopNid, tripNid, activity, activityTypes, onSaved }) 
   const [rating, setRating] = useState(activity?.rating || '');
   const [narrative, setNarrative] = useState(activity?.narrative || '');
   const [status, setStatus] = useState(null); // null | 'saving' | 'saved' | 'invalid' | 'error'
+  const [savedGit, setSavedGit] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
 
   // The legacy '_original' value stays selectable only on records that
@@ -169,6 +171,7 @@ function ActivityEditor({ stopNid, tripNid, activity, activityTypes, onSaved }) 
         setStatus('error');
         return;
       }
+      setSavedGit(data.git?.status);
       setStatus('saved');
       onSaved(data.activity, data.git);
     } catch {
@@ -252,7 +255,7 @@ function ActivityEditor({ stopNid, tripNid, activity, activityTypes, onSaved }) 
             {published ? 'Unpublish' : 'Publish'}
           </button>
         )}
-        {status === 'saved' && <span className="text-green-700 text-sm">Saved &amp; pushed to GitHub</span>}
+        {status === 'saved' && <SavedNote gitStatus={savedGit} />}
         {status === 'error' && <span className="text-red-600 text-sm">Save failed</span>}
         {status === 'invalid' && <span className="text-red-600 text-sm">Not saved — fix the highlighted fields.</span>}
       </div>

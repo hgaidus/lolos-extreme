@@ -73,7 +73,8 @@ export default function InteractiveMap({
   const mapInstanceRef = useRef(null);
   const markersLayerRef = useRef(null);
   const tileLayerRef = useRef(null);
-  
+  const focusedOnceRef = useRef(false);
+
   const [activeLayerKey, setActiveLayerKey] = useState('street');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('ALL');
@@ -147,6 +148,9 @@ export default function InteractiveMap({
     return () => {
       map.remove();
       mapInstanceRef.current = null;
+      // A new map instance has not been centred on anything yet. (React's dev
+      // mode mounts twice; without this the second, real map stayed zoomed out.)
+      focusedOnceRef.current = false;
     };
   }, []);
 
@@ -166,23 +170,35 @@ export default function InteractiveMap({
 
     const validLatLngs = [];
 
+    // A stop page's "View on map" link arrives as ?stop=<nid>. That stop gets
+    // the red pin with its name showing, and the map opens on it. Read from the
+    // address bar here rather than passed down from the server, so the page
+    // itself does not vary by query string.
+    const focusNid = new URLSearchParams(window.location.search).get('stop');
+    let focus = null;
+
     filteredLocations.forEach((loc) => {
       if (!loc.lat || !loc.lng || isNaN(loc.lat) || isNaN(loc.lng)) return;
 
       validLatLngs.push([loc.lat, loc.lng]);
 
+      const isFocus = focusNid !== null && String(loc.nid) === focusNid;
+      if (isFocus) focus = loc;
+
       const marker = L.marker([loc.lat, loc.lng], {
-        icon: createPinIcon(false),
-        title: loc.title
+        icon: createPinIcon(isFocus),
+        title: loc.title,
+        zIndexOffset: isFocus ? 1000 : 0
       });
 
       const targetUrl = loc.url ? (loc.url.startsWith('/') ? loc.url : `/${loc.url}`) : '#';
 
-      // Show title tooltip cleanly on hover
+      // Show title tooltip cleanly on hover (always, for the focused stop)
       marker.bindTooltip(`<strong>${loc.title || 'Campsite Stop'}</strong>`, {
         direction: 'top',
-        offset: [0, -28],
-        className: 'custom-map-tooltip'
+        offset: [0, isFocus ? -36 : -28],
+        className: 'custom-map-tooltip',
+        permanent: isFocus
       });
 
       // Clicking the pushpin goes directly to the trip stop without opening a popup box!
@@ -202,6 +218,13 @@ export default function InteractiveMap({
         animate: true,
         duration: 1.0
       });
+    }
+
+    // Once only: after that the visitor is free to pan, search and filter
+    // without being dragged back to the stop they arrived for.
+    if (focus && !focusedOnceRef.current) {
+      focusedOnceRef.current = true;
+      mapInstanceRef.current.setView([focus.lat, focus.lng], 11);
     }
   }, [filteredLocations, enableFilter]);
 

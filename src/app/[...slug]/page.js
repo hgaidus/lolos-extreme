@@ -830,23 +830,41 @@ export default async function CatchAllPage({ params }) {
                       {formatStopDate(displayItem.arrival_date || displayItem.created)}
                       {displayItem.author ? ` by ${displayItem.author}` : ''}
                     </div>
-                    {(displayItem.state || displayItem.category) && (
-                      <div className="flex items-center gap-2">
-                        {displayItem.state && (
-                          <Link href={`/state/${displayItem.state.toLowerCase()}`} className="link-chrome">
+                    {(() => {
+                      // "View on map" opens the trip stops map centred on this
+                      // stop, as the old site's stop pages did. Only when the
+                      // stop actually has a pin there: it needs a position, and
+                      // the map shows published stops only.
+                      const onMap = Number.isFinite(displayItem.lat) && Number.isFinite(displayItem.lng) && isPublished(displayItem);
+                      const links = [
+                        displayItem.state && (
+                          <Link key="state" href={`/state/${displayItem.state.toLowerCase()}`} className="link-chrome">
                             {displayItem.state}
                           </Link>
-                        )}
-                        {displayItem.state && displayItem.category && (
-                          <span className="text-[#a89e8a]">|</span>
-                        )}
-                        {displayItem.category && (
-                          <Link href={`/category/${slugifyCategory(displayItem.category)}`} className="link-chrome">
+                        ),
+                        displayItem.category && (
+                          <Link key="category" href={`/category/${slugifyCategory(displayItem.category)}`} className="link-chrome">
                             {displayItem.category}
                           </Link>
-                        )}
-                      </div>
-                    )}
+                        ),
+                        onMap && (
+                          // nofollow + no prefetch: 800 stop pages would otherwise
+                          // each advertise their own ?stop= variant of one map
+                          // page to crawlers, and preload it for every reader.
+                          <Link key="map" href={`/trip-stops-map?stop=${displayItem.nid}`} rel="nofollow" prefetch={false} className="link-chrome">
+                            View on map
+                          </Link>
+                        ),
+                      ].filter(Boolean);
+                      if (!links.length) return null;
+                      return (
+                        <div className="flex items-center gap-2">
+                          {links.flatMap((link, i) => (
+                            i === 0 ? [link] : [<span key={`sep-${i}`} className="text-[#a89e8a]">|</span>, link]
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                   {formatStopStats(displayItem.miles, displayItem.hours, displayItem.nights) && (
                     <div className="mt-0.5 text-[13px] font-semibold text-[#6b6455]">

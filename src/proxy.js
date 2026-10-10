@@ -50,24 +50,41 @@ const CANONICAL_ORIGIN = `https://${CANONICAL_HOST}`;
 // keeps working too.
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]', '0.0.0.0']);
 
-// NOTE — the scheme half of this is deliberately NOT implemented yet, and the
-// reason is worth keeping. Redirecting http→https from here requires knowing
-// the request was plain http, and the only signal available to the app is
-// X-Forwarded-Proto. Measured 2026-08-16: when a client sends no such header,
-// the server layer SYNTHESISES `x-forwarded-proto: http` rather than leaving it
-// absent. So "absent means unknown, don't redirect" is not a safety net that
-// exists. If nginx does not set the header in production, every https request
-// would look like http and redirect to itself — a site-wide loop.
+// The scheme half: plain http is redirected to https.
 //
-// That cannot be determined without deploying: the app's own redirects emit
-// relative Location headers, so nothing observable from outside reveals the
-// scheme it perceives. The `x-fwd-proto-seen` header below answers it from a
-// single live request; once it reads `https` over TLS and `http` over port 80,
-// the scheme redirect is safe to add and that header comes back out.
+// The only signal the app has is X-Forwarded-Proto, and it took a temporary
+// diagnostic header on production to learn how it behaves here (measured
+// 2026-08-16 and again 2026-10-09, identical both times):
 //
-// Little is lost by waiting. http URLs already carry a correct canonical to the
-// https original, so search is unaffected, and HSTS (set in next.config.mjs)
-// stops browsers issuing http requests at all after first contact.
+//   over https  ->  "https, https"   two proxy hops, each appending
+//   over http   ->  "http"
+//   a value sent by the client is discarded and replaced, either way
+//
+// So it is a LIST, and it cannot be spoofed from outside. The rule is the
+// conservative reading of it: redirect only when EVERY hop reports http. A
+// list with https anywhere in it is never redirected, so a change in how the
+// hops report themselves can fail to redirect, but cannot turn an https
+// request into a redirect to itself.
+//
+// That loop is the one way this can hurt, because the server layer synthesises
+// "http" when the header is missing altogether — "absent" is not a safe
+// default here. If nginx ever stopped setting it, every https request would
+// look like http. Hence the second guard: the redirect leaves a 20-second
+// marker cookie, and a request that still looks like http while carrying the
+// marker is served instead of redirected again. A browser therefore gets the
+// page after one wasted hop rather than an endless loop. (Clients that ignore
+// cookies would still loop; they give up after a few hops, and the fix would
+// be to revert this block.)
+const SCHEME_MARKER = '__to_https';
+
+function forwardedAsPlainHttp(request) {
+  const hops = (request.headers.get('x-forwarded-proto') || '')
+    .split(',')
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean);
+  return hops.length > 0 && hops.every((v) => v === 'http');
+}
+
 function canonicalOriginRedirect(request, pathname) {
   // Certificate validation has to keep working over http, on whatever host the
   // issuer probes. Never redirect it.
@@ -77,7 +94,7 @@ function canonicalOriginRedirect(request, pathname) {
   // The Host header is the client's own, never synthesised, so unlike the
   // scheme this can be acted on without risking a loop: the target host is by
   // definition not the one being redirected away from.
-  if (host === '' || host === CANONICAL_HOST) return null;
+  if (host === '') return null;
 
   // Loopback is not a wrong host, it is development. Without this, `next dev`
   // and the local production build both 308 every request straight to the live
@@ -85,12 +102,26 @@ function canonicalOriginRedirect(request, pathname) {
   // not show up in testing because those tests set Host explicitly.
   if (LOOPBACK_HOSTS.has(host)) return null;
 
+  const target = new URL(`${pathname}${request.nextUrl.search}`, CANONICAL_ORIGIN);
+
+  // Wrong host: always redirect. The target host is by definition not the one
+  // being redirected away from, so this cannot loop. It also lands on https,
+  // so a wrong host over http is still a single hop.
   // 308 rather than 301 so a POST is replayed to the canonical origin instead
   // of being silently downgraded to a GET.
-  return NextResponse.redirect(
-    new URL(`${pathname}${request.nextUrl.search}`, CANONICAL_ORIGIN),
-    308,
-  );
+  if (host !== CANONICAL_HOST) return NextResponse.redirect(target, 308);
+
+  // Right host, plain http: redirect to the same URL over https — unless the
+  // marker says we just did and it still arrived looking like http.
+  if (forwardedAsPlainHttp(request) && !request.cookies.has(SCHEME_MARKER)) {
+    const res = NextResponse.redirect(target, 308);
+    // Not Secure, on purpose: it has to come back on the https request to do
+    // its job. It carries no information.
+    res.cookies.set(SCHEME_MARKER, '1', { maxAge: 20, path: '/', sameSite: 'lax' });
+    return res;
+  }
+
+  return null;
 }
 
 export function proxy(request) {
@@ -108,24 +139,14 @@ export function proxy(request) {
   const originRedirect = canonicalOriginRedirect(request, pathname);
   if (originRedirect) return originRedirect;
 
-  // TEMPORARY diagnostic — reports the forwarded scheme this app actually
-  // receives in production, which cannot be observed any other way. Read it
-  // once over https and once over port 80, then delete this block and add the
-  // scheme redirect described above. Discloses nothing sensitive.
-  const observedProto = request.headers.get('x-forwarded-proto');
-  const withDiagnostic = (res) => {
-    res.headers.set('x-fwd-proto-seen', observedProto === null ? '(absent)' : observedProto);
-    return res;
-  };
-
   // Everything below is admin-only. The matcher now spans the whole site for
   // the decode guard above, so the auth check has to re-scope itself.
   const isAdminPath = pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
-  if (!isAdminPath) return withDiagnostic(NextResponse.next());
+  if (!isAdminPath) return NextResponse.next();
 
   // The account-recovery path has to work without a session, or the reset link
   // would bounce to the very login page it exists to get you past.
-  if (PUBLIC_ADMIN_PATHS.has(pathname)) return withDiagnostic(NextResponse.next());
+  if (PUBLIC_ADMIN_PATHS.has(pathname)) return NextResponse.next();
 
   const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (!isValidSessionToken(token)) {
@@ -135,7 +156,7 @@ export function proxy(request) {
     return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 
-  return withDiagnostic(NextResponse.next());
+  return NextResponse.next();
 }
 
 export const config = {

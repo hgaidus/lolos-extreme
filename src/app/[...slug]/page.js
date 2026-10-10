@@ -894,7 +894,10 @@ export default async function CatchAllPage({ params }) {
                 correct as stops are added or reordered; omitted for the odd
                 trip that has no stops. */}
             {displayItem.itemType === 'trip' && tripStops.length > 0 && (
-              <p className="mt-8 text-lg text-[#2e2c26] clear-both font-sans">
+              /* Same size and typeface as the narrative it follows (16px, the
+                 page's own font). It used to be text-lg + font-sans, which made
+                 it 18px in the system font — a line that looked pasted on. */
+              <p className="mt-8 text-base leading-relaxed text-[#2e2c26] clear-both">
                 Let&apos;s hit the road to{' '}
                 <Link
                   href={`/${tripStops[0].slug}`}

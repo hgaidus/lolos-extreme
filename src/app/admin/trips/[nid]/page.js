@@ -25,7 +25,12 @@ export default async function AdminTripEditPage({ params }) {
 
       <TripEditForm trip={trip} authors={authors} />
 
-      <RouteMapSection trip={mapInput.trip} stops={mapInput.stops} startDay={mapInput.startDay} />
+      <RouteMapSection
+        trip={mapInput.trip}
+        stops={mapInput.stops}
+        startDay={mapInput.startDay}
+        previousMaps={mapInput.previousMaps}
+      />
 
       <div className="mt-8">
         <div className="flex items-center justify-between mb-3">

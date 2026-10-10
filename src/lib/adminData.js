@@ -50,6 +50,17 @@ export function updateTrip(nid, fields) {
   // Trip dates are optional — the 102 migrated trips have none and show their
   // first and last stop dates instead — so a cleared date is removed rather
   // than stored as ''. A start date carries the trip's year with it.
+  // Switching a trip's overview map never loses the old one: its address goes
+  // to the front of map_history, so the editor can offer to put it back. This
+  // is the only record of which hand-made map a trip originally had. An entry
+  // that becomes the current map again leaves the history while it is current.
+  if ('map_image' in rest && (rest.map_image || '') !== (trips[idx].map_image || '')) {
+    const was = trips[idx].map_image || '';
+    const kept = (Array.isArray(trips[idx].map_history) ? trips[idx].map_history : [])
+      .filter((u) => u && u !== was && u !== rest.map_image);
+    updated.map_history = was ? [was, ...kept] : kept;
+    if (!updated.map_history.length) delete updated.map_history;
+  }
   for (const key of ['start_date', 'end_date', 'map_image']) {
     if (updated[key] === '') delete updated[key];
   }

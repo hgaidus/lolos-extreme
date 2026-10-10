@@ -56,13 +56,16 @@ function tracePath(ctx, line) {
   line.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
 }
 
-export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: startDayAtLoad }) {
+export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: startDayAtLoad, previousMaps = [] }) {
   // The stops as of the last time anyone looked: at page load to begin with,
   // then refreshed from the server every time the map is drawn.
   const [stops, setStops] = useState(stopsAtLoad);
   const canvasRef = useRef(null);
   const fileRef = useRef(null);
   const [mapUrl, setMapUrl] = useState(trip.map_image || '');
+  // Maps this trip had before the current one. Nothing is ever deleted, so any
+  // of them can be put back.
+  const [previous, setPrevious] = useState(previousMaps);
   const [busy, setBusy] = useState('');       // '' | 'drawing' | 'saving' | 'uploading'
   const [drawn, setDrawn] = useState(false);
   const [notes, setNotes] = useState([]);
@@ -182,6 +185,39 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
     }
   }
 
+  // After any change of map, ask the server what the trip has now: the current
+  // map and the list of earlier ones both move.
+  async function refreshMaps() {
+    try {
+      const res = await fetch(`/api/admin/trips/${trip.nid}/stops`, { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setMapUrl(data.trip.map_image || '');
+      setPrevious(data.previousMaps || []);
+    } catch {
+      // The change itself succeeded; the list will be right on the next load.
+    }
+  }
+
+  async function restoreMap(entry) {
+    setBusy('saving');
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/trips/${trip.nid}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ map_image: entry.url }),
+      });
+      if (!res.ok) throw new Error('the trip could not be pointed at it');
+      await refreshMaps();
+      setMessage({ tone: 'ok', text: `Switched back — "${entry.label}" is this trip's overview map again. The one it replaced is now in the list below.` });
+    } catch (err) {
+      setMessage({ tone: 'bad', text: `Not changed: ${err.message}.` });
+    } finally {
+      setBusy('');
+    }
+  }
+
   // Upload a picture and make it the trip's map. Used for both a generated map
   // and a file chosen from disk.
   async function saveAsMap(file, verb) {
@@ -202,6 +238,7 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
     });
     if (!res.ok) throw new Error('the picture uploaded, but the trip could not be pointed at it');
     setMapUrl(upData.url);
+    await refreshMaps();
     const pushFailed = upData.gitUploads?.status === 'push_failed' || (await res.json()).git?.status === 'push_failed';
     setMessage({
       tone: 'ok',
@@ -225,7 +262,7 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
       const ext = blob.type === 'image/webp' ? 'webp' : 'png';
       // A fresh name every time: nothing uploaded is ever overwritten, so an
       // earlier map can always be put back.
-      const stamp = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').slice(0, 13);
+      const stamp = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').slice(0, 15); // to the second: two saves in one minute must not collide
       await saveAsMap(new File([blob], `${trip.slug}-route-${stamp}.${ext}`, { type: blob.type }), 'Map saved');
     } catch (err) {
       setMessage({ tone: 'bad', text: `Not saved: ${err.message}.` });
@@ -303,6 +340,38 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
         </p>
       )}
 
+      {previous.length > 0 && (
+        <div className="mt-5 border-t border-gray-100 pt-4">
+          <div className="text-xs font-medium text-gray-600">Previous maps</div>
+          <p className="text-xs text-gray-500 mb-2">
+            Every map this trip has had is kept. Choosing one puts it back; the current map then joins this list.
+          </p>
+          <ul className="flex flex-wrap gap-4">
+            {previous.map((entry) => (
+              <li key={entry.url} className="text-xs text-gray-700" style={{ width: 180 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`${entry.url}?w=400`}
+                  alt={entry.label}
+                  width="180" height="120" loading="lazy"
+                  className="rounded border border-gray-300 bg-gray-100"
+                  style={{ width: 180, height: 'auto' }}
+                />
+                <div className="mt-1">{entry.label}</div>
+                <button
+                  type="button"
+                  onClick={() => restoreMap(entry)}
+                  disabled={!!busy}
+                  className="mt-1 border border-gray-300 rounded px-2 py-1 bg-gray-50 hover:bg-gray-100 font-semibold disabled:opacity-50"
+                >
+                  Use this one
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Kept in the page even before anything is drawn: the drawing needs a
           canvas to draw on. Hidden until there is something to look at. */}
       <div className={drawn ? 'mt-5' : 'hidden'}>
@@ -328,7 +397,7 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
           >
             {busy === 'saving' ? 'Saving…' : 'Use this as the trip’s map'}
           </button>
-          <span className="text-xs text-gray-500">The current map stays in the uploads folder, so it can be put back.</span>
+          <span className="text-xs text-gray-500">The current map is kept under Previous maps, so it can be put back.</span>
         </div>
       </div>
     </section>

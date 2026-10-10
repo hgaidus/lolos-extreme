@@ -6,7 +6,7 @@ import { claimEmbeddedPhotos } from '@/lib/adminPhotos';
 
 const CREATABLE_FIELDS = [
   'title', 'description', 'travelogue', 'miles', 'hours', 'nights',
-  'arrival_date', 'author', 'state', 'category', 'published', 'lat', 'lng',
+  'arrival_date', 'author', 'state', 'category', 'published', 'lat', 'lng', 'arrived_by',
 ];
 
 export async function POST(request, { params }) {

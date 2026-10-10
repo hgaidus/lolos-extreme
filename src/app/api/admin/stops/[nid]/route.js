@@ -5,7 +5,7 @@ import { validateStopFields, coordinatePairError } from '@/lib/adminValidate';
 
 const EDITABLE_FIELDS = [
   'title', 'description', 'travelogue', 'miles', 'hours', 'nights',
-  'arrival_date', 'author', 'state', 'category', 'published', 'lat', 'lng',
+  'arrival_date', 'author', 'state', 'category', 'published', 'lat', 'lng', 'arrived_by',
 ];
 
 export async function PATCH(request, { params }) {

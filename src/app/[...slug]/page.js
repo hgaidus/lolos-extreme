@@ -15,6 +15,7 @@ import { getTripRegionInfo } from '@/lib/tripRegions';
 import { getTripMapImage, getTripAuthor } from '@/lib/tripMeta';
 import { makeVersioned, getDataVersion } from '@/lib/dataVersion';
 import { toSiteDateInput } from '@/lib/siteDates';
+import { photoSrc, photoSrcSet } from '@/lib/photoSrc';
 
 // Every content page on the site renders live from the JSON on disk, so a CMS
 // save shows up within the ~2s mtime window. This page was dynamic only as a
@@ -668,8 +669,11 @@ export default async function CatchAllPage({ params }) {
                   {/* Route Map Image - ONLY ON TRIP OVERVIEWS THAT HAVE A ROUTE MAP */}
                   {displayItem.itemType === 'trip' && tripMapUrl && (
                     <div className="trip-sidebar-map-box">
+                      {/* Generated maps are 1200 px PNGs; ask the photo route for a
+                          right-sized copy. The old GIF maps pass through as they are. */}
                       <img
-                        src={tripMapUrl}
+                        src={photoSrc(tripMapUrl, 800)}
+                        srcSet={photoSrcSet(tripMapUrl, 800)}
                         alt={`Route Map for ${displayTitle}`}
                         width="450"
                         height="300"

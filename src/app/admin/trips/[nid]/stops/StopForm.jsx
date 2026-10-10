@@ -21,6 +21,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
   const [author, setAuthor] = useState(stop?.author || defaultAuthor);
   const [state, setState] = useState(stop?.state || '');
   const [category, setCategory] = useState(stop?.category || categories[0]);
+  const [arrivedBy, setArrivedBy] = useState(stop?.arrived_by || 'drive');
   // Kept as the text in the boxes; turned into numbers (or null) on save.
   const [lat, setLat] = useState(stop?.lat ?? '');
   const [lng, setLng] = useState(stop?.lng ?? '');
@@ -46,6 +47,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
       miles: Number(miles), hours: Number(hours), nights: Number(nights),
       arrival_date: fromSiteDateInput(arrivalDate, stop?.arrival_date),
       author, state, category,
+      arrived_by: arrivedBy,
       // null clears the position; anything unparseable is sent as typed so the
       // server can say what is wrong with it rather than it silently vanishing.
       lat: String(lat).trim() === '' ? null : (Number.isFinite(Number(lat)) ? Number(lat) : lat),
@@ -196,6 +198,27 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
             {categories.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
           {fieldError('category')}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="stop-arrived-by">How we got here</label>
+          <select
+            id="stop-arrived-by"
+            value={arrivedBy}
+            onChange={(e) => setArrivedBy(e.target.value)}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          >
+            <option value="drive">Drove</option>
+            <option value="flight">Flew</option>
+            <option value="ferry">Ferry</option>
+          </select>
+          <p className="text-xs text-gray-400 mt-1">
+            For the trip&rsquo;s overview map: a drive follows the roads from the previous stop; a flight
+            or ferry is drawn as a dashed line.
+          </p>
+          {fieldError('arrived_by')}
         </div>
       </div>
 

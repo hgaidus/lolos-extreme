@@ -84,8 +84,18 @@ export function coordinatePairError(lat, lng) {
   return has(lat) ? { lng: 'Needed along with the latitude.' } : { lat: 'Needed along with the longitude.' };
 }
 
+// How the leg INTO a stop was travelled. Only the generated overview map
+// reads it: a flight or ferry is drawn dashed instead of routed along roads.
+const arrivedBy = {
+  check(v) {
+    if (!['drive', 'flight', 'ferry'].includes(v)) return { error: 'Must be drive, flight or ferry.' };
+    return { value: v };
+  },
+};
+
 const STOP_RULES = {
   title: nonEmptyString,
+  arrived_by: arrivedBy,
   lat: coordinate(90),
   lng: coordinate(180),
   description: optionalString,
@@ -139,8 +149,23 @@ export function tripDateOrderError(start, end) {
   return start && end && end < start ? 'Must not be before the start date.' : null;
 }
 
+// A trip's overview map is always something this site serves from /photos/
+// (an upload, or one of the migrated maps), or '' to remove it. Not a free
+// URL: the trip page puts it straight into an <img>.
+const mapImagePath = {
+  check(v) {
+    if (typeof v !== 'string') return { error: 'Must be text.' };
+    // Spaces are allowed: an uploaded file keeps the ones in its name.
+    if (v !== '' && !/^\/photos\/[^?#]+\.(png|jpe?g|gif|webp)$/i.test(v)) {
+      return { error: 'Must be an uploaded picture.' };
+    }
+    return { value: v };
+  },
+};
+
 const TRIP_RULES = {
   title: nonEmptyString,
+  map_image: mapImagePath,
   start_date: calendarDay,
   end_date: calendarDay,
   region: regionRule,
@@ -185,7 +210,6 @@ const NEW_TRIP_RULES = {
     },
   },
   author: optionalString,
-  map_image: optionalString,
 };
 
 // Ratings: the five-star scale plus the two legacy values already present in

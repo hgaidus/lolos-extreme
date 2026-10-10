@@ -50,7 +50,7 @@ export function updateTrip(nid, fields) {
   // Trip dates are optional — the 102 migrated trips have none and show their
   // first and last stop dates instead — so a cleared date is removed rather
   // than stored as ''. A start date carries the trip's year with it.
-  for (const key of ['start_date', 'end_date']) {
+  for (const key of ['start_date', 'end_date', 'map_image']) {
     if (updated[key] === '') delete updated[key];
   }
   if (rest.start_date) updated.year = rest.start_date.slice(0, 4);
@@ -159,6 +159,9 @@ export function updateStop(nid, fields) {
   for (const key of ['lat', 'lng']) {
     if (updated[key] === null) delete updated[key];
   }
+  // Driving is the unstated default on all 870-odd existing stops; only a
+  // flight or a ferry is worth recording.
+  if (updated.arrived_by === 'drive') delete updated.arrived_by;
   applyPublished(updated, published);
   updated.body = updated.description || updated.travelogue;
   stops[idx] = updated;
@@ -199,6 +202,7 @@ export function createStop(parentTripNid, fields) {
     newStop.lat = fields.lat;
     newStop.lng = fields.lng;
   }
+  if (fields.arrived_by && fields.arrived_by !== 'drive') newStop.arrived_by = fields.arrived_by;
   // The create form defaults new stops to draft; without this the flag was
   // silently dropped and "drafts" went straight to the live site.
   applyPublished(newStop, fields.published);

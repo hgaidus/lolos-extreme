@@ -108,6 +108,7 @@ export function updatePhotoRecord(imageNid, fields) {
   const idx = photos.findIndex((p) => String(p.image_nid) === String(imageNid));
   if (idx === -1) throw new Error(`Photo image_nid ${imageNid} not found`);
 
+  const previousTitle = photos[idx].title || '';
   const updated = { ...photos[idx] };
   if ('title' in fields) updated.title = fields.title;
   if ('trip_stop_nid' in fields) updated.trip_stop_nid = fields.trip_stop_nid ? String(fields.trip_stop_nid) : '';
@@ -132,9 +133,93 @@ export function updatePhotoRecord(imageNid, fields) {
       }
     }
     if (touched) writeDataset('albums', albums);
+
+    // And into the captions on pages, where they were simply the old title.
+    if (fields.title !== previousTitle) {
+      updated.captionsUpdated = retitleMatchingCaptions(imageNid, previousTitle, fields.title).replaced;
+    }
   }
 
   return updated;
+}
+
+// A caption is stored inside the page text, in the photo's own embed tag, with
+// the tag's delimiters swapped out so it cannot break the tag. Same rule as
+// the photo picker applies when it writes one.
+const asCaption = (s) => String(s || '').replace(/\|/g, '/').replace(/\]/g, ')').trim();
+
+/**
+ * When a photo is retitled, update the caption on every page where the caption
+ * was just the old title.
+ *
+ * The caption under a photo on a page is not the photo's title — it is text in
+ * that page, written when the photo was placed, and it is allowed to differ
+ * (442 of the site's 5,819 placements do). So retitling a photo in the Photos
+ * screen used to change the album and leave the page showing the old words,
+ * which looks like the edit did not take.
+ *
+ * Only captions that MATCH the old title are touched: those were never a
+ * separate piece of writing, just the title repeated. A caption someone worded
+ * differently is theirs and stays. "Match" ignores capitalisation and runs of
+ * spaces, because a good share of the differing ones differ in nothing else
+ * ("Herb and Boys with Rental RV" on the page, "…boys with rental RV" as the
+ * title) and those are the same words. Covers every place a photo can be embedded:
+ * stop travelogue and description, trip travelogue, standalone page body.
+ * Activities never embed photos.
+ */
+export function retitleMatchingCaptions(imageNid, oldTitle, newTitle) {
+  const from = asCaption(oldTitle);
+  const to = asCaption(newTitle);
+  if (!from || from === to) return { replaced: 0 };
+
+  const loose = (s) => s.trim().replace(/\s+/g, ' ').toLowerCase();
+  const fromLoose = loose(from);
+  const tag = new RegExp(`(\\[img_assist\\|nid=${String(imageNid)}\\|title=)([^|\\]]*)`, 'g');
+  let replaced = 0;
+  const rewrite = (text) => {
+    if (typeof text !== 'string' || !text.includes(`nid=${String(imageNid)}|`)) return text;
+    return text.replace(tag, (whole, head, caption) => {
+      if (loose(caption) !== fromLoose) return whole;
+      replaced++;
+      return head + to;
+    });
+  };
+
+  const stops = readDataset('stops');
+  let stopsTouched = false;
+  for (const stop of stops) {
+    const before = replaced;
+    stop.travelogue = rewrite(stop.travelogue);
+    stop.description = rewrite(stop.description);
+    if (replaced !== before) {
+      stop.body = stop.description || stop.travelogue; // the mirror, as updateStop keeps it
+      stopsTouched = true;
+    }
+  }
+  if (stopsTouched) writeDataset('stops', stops);
+
+  const trips = readDataset('trips');
+  let tripsTouched = false;
+  for (const trip of trips) {
+    const before = replaced;
+    trip.travelogue = rewrite(trip.travelogue);
+    if (replaced !== before) {
+      trip.body = trip.travelogue;
+      tripsTouched = true;
+    }
+  }
+  if (tripsTouched) writeDataset('trips', trips);
+
+  const pages = readDataset('pages');
+  let pagesTouched = false;
+  for (const page of pages) {
+    const before = replaced;
+    page.body = rewrite(page.body);
+    if (replaced !== before) pagesTouched = true;
+  }
+  if (pagesTouched) writeDataset('pages', pages);
+
+  return { replaced };
 }
 
 /**

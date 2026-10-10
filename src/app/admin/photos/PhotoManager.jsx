@@ -12,6 +12,7 @@ export default function PhotoManager({ stopOptions, orphanCount }) {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState('');
+  const [info, setInfo] = useState(''); // good news, e.g. captions that followed a retitle
   const debounceRef = useRef(null);
 
   const load = useCallback(async (tabNow, qNow) => {
@@ -42,6 +43,7 @@ export default function PhotoManager({ stopOptions, orphanCount }) {
 
   async function patchPhoto(imageNid, fields, rowUpdate) {
     setNotice('');
+    setInfo('');
     try {
       const res = await fetch(`/api/admin/photos/${imageNid}`, {
         method: 'PATCH',
@@ -56,6 +58,12 @@ export default function PhotoManager({ stopOptions, orphanCount }) {
       setRows((prev) => prev.map((r) => (r.image_nid === imageNid ? { ...r, ...rowUpdate, references: data.references?.length ?? r.references } : r)));
       if (data.git?.status === 'commit_failed') setNotice('Saved to disk but NOT committed to git — investigate.');
       else if (data.git?.status === 'push_failed') setNotice('Saved; GitHub push failed (will ride along with the next successful save).');
+      // Say so when a retitle also rewrote captions on pages, so nobody has to
+      // go and look — and say how many, since it can be more than one page.
+      const captions = data.photo?.captionsUpdated || 0;
+      if (captions > 0) {
+        setInfo(`Title saved. The caption under this photo was the old title in ${captions} place${captions === 1 ? '' : 's'}, so ${captions === 1 ? 'it was' : 'those were'} updated too.`);
+      }
       return true;
     } catch {
       setNotice('Save failed.');
@@ -88,6 +96,7 @@ export default function PhotoManager({ stopOptions, orphanCount }) {
       </div>
 
       {notice && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2 mb-3">{notice}</p>}
+      {info && <p className="text-sm text-green-800 bg-green-50 border border-green-200 rounded px-3 py-2 mb-3">{info}</p>}
 
       <datalist id="pm-stop-options">
         {stopOptions.map((s) => (

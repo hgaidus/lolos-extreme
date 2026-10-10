@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTrip, getStopsForTrip, getDistinctAuthors } from '@/lib/adminData';
 import { currentUserName } from '@/lib/adminSession';
-import { toSiteDateInput } from '@/lib/siteDates';
+import { getRouteMapInput } from '@/lib/routeMapInput';
 import TripEditForm from './TripEditForm';
 import RouteMapSection from './RouteMapSection';
 
@@ -12,15 +12,9 @@ export default async function AdminTripEditPage({ params }) {
   if (!trip) notFound();
 
   const authors = Array.from(new Set([...getDistinctAuthors(), await currentUserName()].filter(Boolean)));
-  // Itinerary order, the same rule the trip page uses, so the numbers drawn on
-  // a generated map are the row numbers readers see.
   const when = (s) => Number(s.arrival_date) || Number(s.created) || 0;
   const stops = getStopsForTrip(nid).sort((a, b) => when(a) - when(b));
-  // Only what the map needs — not the travelogues — goes to the browser.
-  const mapStops = stops.map((s) => ({
-    nid: s.nid, title: s.title, lat: s.lat, lng: s.lng, arrived_by: s.arrived_by, published: s.published,
-  }));
-  const startDay = trip.start_date || (stops.length ? toSiteDateInput(when(stops[0])) : '');
+  const mapInput = getRouteMapInput(nid);
 
   return (
     <div>
@@ -31,11 +25,7 @@ export default async function AdminTripEditPage({ params }) {
 
       <TripEditForm trip={trip} authors={authors} />
 
-      <RouteMapSection
-        trip={{ nid: trip.nid, slug: trip.slug, map_image: trip.map_image || '' }}
-        stops={mapStops}
-        startDay={startDay}
-      />
+      <RouteMapSection trip={mapInput.trip} stops={mapInput.stops} startDay={mapInput.startDay} />
 
       <div className="mt-8">
         <div className="flex items-center justify-between mb-3">

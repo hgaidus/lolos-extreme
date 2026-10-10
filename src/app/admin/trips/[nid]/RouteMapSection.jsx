@@ -56,7 +56,10 @@ function tracePath(ctx, line) {
   line.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
 }
 
-export default function RouteMapSection({ trip, stops, startDay }) {
+export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: startDayAtLoad }) {
+  // The stops as of the last time anyone looked: at page load to begin with,
+  // then refreshed from the server every time the map is drawn.
+  const [stops, setStops] = useState(stopsAtLoad);
   const canvasRef = useRef(null);
   const fileRef = useRef(null);
   const [mapUrl, setMapUrl] = useState(trip.map_image || '');
@@ -73,7 +76,22 @@ export default function RouteMapSection({ trip, stops, startDay }) {
     setDrawn(false);
     const found = [];
     try {
-      const { points, skipped, offMap, home } = buildWaypoints(trip, stops, startDay);
+      // Ask for the stops as they are NOW. This page may have been open a
+      // while, and a stop changed elsewhere since — in another tab, or by the
+      // other person — would otherwise be drawn as it used to be. That is not
+      // hypothetical: the first map made on the live site showed a flight as
+      // a drive, because the "Flew" setting was saved after the page opened.
+      let current = { stops, startDay: startDayAtLoad };
+      let stale = false;
+      try {
+        const res = await fetch(`/api/admin/trips/${trip.nid}/stops`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(String(res.status));
+        current = await res.json();
+        setStops(current.stops);
+      } catch {
+        stale = true;
+      }
+      const { points, skipped, offMap, home } = buildWaypoints(trip, current.stops, current.startDay);
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(await loadImage(BASE_MAP.src), 0, 0, BASE_MAP.width, BASE_MAP.height);
@@ -146,10 +164,13 @@ export default function RouteMapSection({ trip, stops, startDay }) {
         ctx.fillText(label.label, label.x, label.y);
       }
 
-      found.push(`${points.length - 1} of ${stops.length} stops drawn, starting from home (${home.name}) as 0.`);
+      found.push(`${points.length - 1} of ${current.stops.length} stops drawn, starting from home (${home.name}) as 0.`);
+      const dashed = points.filter((p) => p.arrivedBy !== 'drive');
+      if (dashed.length) found.push(`Dashed, not driven: the leg${dashed.length === 1 ? '' : 's'} arriving at ${dashed.map((p) => `${p.label}. ${p.title}`).join('; ')}.`);
+      if (stale) found.push('Could not check the server for changes, so this uses the stops as they were when the page was opened. Reload the page if a stop was changed since.');
       if (skipped.length) found.push(`Left off — no location yet: ${skipped.join('; ')}.`);
       if (offMap.length) found.push(`Outside this map's area: ${offMap.join('; ')}.`);
-      const drafts = stops.filter((s) => s.published === false).length;
+      const drafts = current.stops.filter((s) => s.published === false).length;
       if (drafts) found.push(`${drafts} draft stop${drafts === 1 ? ' is' : 's are'} included. The numbers match the public itinerary once every stop is published.`);
       if (straightFallback) found.push('The routing service did not answer for part of the route, so those legs are straight lines. Try again later for roads.');
       setNotes(found);

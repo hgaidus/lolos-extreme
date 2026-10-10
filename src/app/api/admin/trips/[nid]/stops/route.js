@@ -3,6 +3,22 @@ import { currentUserName } from '@/lib/adminSession';
 import { getTrip, createStop, commitAndPush } from '@/lib/adminData';
 import { validateStopFields, coordinatePairError } from '@/lib/adminValidate';
 import { claimEmbeddedPhotos } from '@/lib/adminPhotos';
+import { getRouteMapInput } from '@/lib/routeMapInput';
+
+// The trip's stops as the overview-map generator needs them, read at the
+// moment of asking. The generator calls this every time it draws, so it never
+// works from the stops as they were when the page happened to be opened.
+export async function GET(request, { params }) {
+  try {
+    const { nid } = await params;
+    const input = getRouteMapInput(nid);
+    if (!input) return NextResponse.json({ error: 'Trip not found' }, { status: 404 });
+    return NextResponse.json(input, { headers: { 'Cache-Control': 'no-store' } });
+  } catch (err) {
+    console.error('Error reading trip stops:', err);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
 
 const CREATABLE_FIELDS = [
   'title', 'description', 'travelogue', 'miles', 'hours', 'nights',

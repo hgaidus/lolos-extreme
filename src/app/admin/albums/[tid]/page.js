@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { readDataset } from '@/lib/adminStore';
 import AlbumEditor from './AlbumEditor';
+import { ViewSiteTarget } from '../../ViewSiteContext';
 
 export const metadata = { title: 'Album — Admin', robots: { index: false, follow: false } };
 
@@ -22,6 +23,7 @@ export default async function AdminAlbumPage({ params }) {
       <Link href="/admin/albums" className="text-sm text-blue-700 hover:underline">
         &larr; All albums
       </Link>
+      {album.slug && <ViewSiteTarget href={`/${String(album.slug).replace(/^\/+/, '')}`} label="View this album" />}
       <AlbumEditor tid={String(album.tid)} initialTitle={album.title} initialImages={images} slug={album.slug} />
     </div>
   );

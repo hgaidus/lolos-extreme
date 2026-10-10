@@ -5,6 +5,7 @@ import { getActivitiesForStop, getDistinctActivityTypes } from '@/lib/adminActiv
 import { currentUserName } from '@/lib/adminSession';
 import { nearbyCoordinates } from '@/lib/stopLocations';
 import StopForm from '../StopForm';
+import { ViewSiteTarget } from '../../../../ViewSiteContext';
 import ActivitiesSection from '../ActivitiesSection';
 
 export default async function AdminStopEditPage({ params }) {
@@ -19,6 +20,7 @@ export default async function AdminStopEditPage({ params }) {
       <Link href={`/admin/trips/${trip.nid}`} className="text-sm text-blue-700 hover:underline">
         &larr; {trip.title}
       </Link>
+      <ViewSiteTarget href={`/${stop.slug}`} label="View this stop" />
       <h1 className="text-2xl font-bold mt-2 mb-4 text-gray-800">{stop.title}</h1>
       <StopForm
         mode="edit"

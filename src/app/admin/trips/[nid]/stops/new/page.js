@@ -4,6 +4,7 @@ import { getTrip, STOP_CATEGORIES, getDistinctStates, getDistinctAuthors } from 
 import { currentUserName } from '@/lib/adminSession';
 import { nearbyCoordinates } from '@/lib/stopLocations';
 import StopForm from '../StopForm';
+import { ViewSiteTarget } from '../../../../ViewSiteContext';
 
 export default async function AdminNewStopPage({ params }) {
   const { nid } = await params;
@@ -16,6 +17,7 @@ export default async function AdminNewStopPage({ params }) {
       <Link href={`/admin/trips/${trip.nid}`} className="text-sm text-blue-700 hover:underline">
         &larr; {trip.title}
       </Link>
+      <ViewSiteTarget href={`/${trip.slug}`} label="View this trip" />
       <h1 className="text-2xl font-bold mt-2 mb-4 text-gray-800">Add a stop to &ldquo;{trip.title}&rdquo;</h1>
       <StopForm
         mode="create"

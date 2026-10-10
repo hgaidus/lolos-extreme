@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import LogoutButton from '@/components/LogoutButton';
 import { SURFACE, ROW, LABEL, LINK, LINK_PRIMARY, SEPARATOR } from '@/components/signedInBarStyles';
+import { ViewSiteProvider, ViewSiteLink } from './ViewSiteContext';
 
 export const metadata = {
   title: 'Admin',
@@ -17,6 +18,7 @@ export const dynamic = 'force-dynamic';
 
 export default function AdminLayout({ children }) {
   return (
+    <ViewSiteProvider>
     <div className="min-h-screen bg-gray-100">
       {/* Deliberately the same bar as the one on public pages: same tinted
           surface, same SIGNED IN label, same terracotta links, so moving
@@ -27,11 +29,14 @@ export default function AdminLayout({ children }) {
           <span className={LABEL}>Signed in</span>
           <Link href="/admin" className={LINK_PRIMARY}>Site Admin</Link>
           <span aria-hidden="true" className={SEPARATOR}>|</span>
-          <Link href="/" className={LINK}>View site &rarr;</Link>
+          {/* Goes to the record being edited when the page names one,
+              otherwise to the home page. See ViewSiteContext. */}
+          <ViewSiteLink className={LINK} />
         </div>
         <LogoutButton redirectTo="/admin/login" />
       </header>
       <main className="p-6 max-w-6xl mx-auto">{children}</main>
     </div>
+    </ViewSiteProvider>
   );
 }

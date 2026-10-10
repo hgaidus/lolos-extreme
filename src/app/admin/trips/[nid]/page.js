@@ -5,6 +5,7 @@ import { currentUserName } from '@/lib/adminSession';
 import { getRouteMapInput } from '@/lib/routeMapInput';
 import TripEditForm from './TripEditForm';
 import RouteMapSection from './RouteMapSection';
+import { ViewSiteTarget } from '../../ViewSiteContext';
 
 export default async function AdminTripEditPage({ params }) {
   const { nid } = await params;
@@ -21,6 +22,7 @@ export default async function AdminTripEditPage({ params }) {
       <Link href="/admin" className="text-sm text-blue-700 hover:underline">
         &larr; All trips
       </Link>
+      <ViewSiteTarget href={`/${trip.slug}`} label="View this trip" />
       <h1 className="text-2xl font-bold mt-2 mb-4 text-gray-800">{trip.title}</h1>
 
       <TripEditForm trip={trip} authors={authors} />

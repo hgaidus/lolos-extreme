@@ -2,6 +2,25 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import PhotoPickerModal from './PhotoPickerModal';
+import LinkModal from './LinkModal';
+
+// The <a>…</a> the selection sits inside (or exactly covers), so the Link
+// button edits that link rather than wrapping a second one around it.
+function anchorAround(value, start, end) {
+  const re = /<a\b[^>]*>[\s\S]*?<\/a>/gi;
+  let m;
+  while ((m = re.exec(value))) {
+    const aStart = m.index;
+    const aEnd = aStart + m[0].length;
+    if (aStart > end) break;
+    if (aStart <= start && end <= aEnd) {
+      const href = (m[0].match(/^<a\b[^>]*\bhref\s*=\s*["']([^"']*)["']/i) || [])[1] || '';
+      const text = m[0].replace(/^<a\b[^>]*>/i, '').replace(/<\/a>$/i, '');
+      return { start: aStart, end: aEnd, href, text };
+    }
+  }
+  return null;
+}
 
 // Split-pane travelogue editor: markup textarea on the left, a live rendered
 // preview on the right (same pipeline as the public page, via
@@ -21,6 +40,7 @@ export default function EditorPane({
   const [html, setHtml] = useState('');
   const [previewState, setPreviewState] = useState('idle'); // idle | loading | error
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [linkEdit, setLinkEdit] = useState(null); // {start, end, text, href, editing} while the link dialog is open
   const textareaRef = useRef(null);
   const requestCounter = useRef(0);
 
@@ -63,7 +83,7 @@ export default function EditorPane({
   // Splice text into the current value at the selection, then restore focus
   // with the caret where editing naturally continues.
   const splice = useCallback(
-    (before, after, placeholder, selectOffset = null) => {
+    (before, after, placeholder) => {
       const el = textareaRef.current;
       if (!el) return;
       const start = el.selectionStart;
@@ -77,11 +97,7 @@ export default function EditorPane({
       // throttled tabs while a macrotask always runs.
       setTimeout(() => {
         el.focus();
-        if (selectOffset !== null) {
-          // Put the caret at a fixed offset inside the inserted markup
-          // (used to land inside href="" so the URL can be typed straight away).
-          el.setSelectionRange(start + selectOffset, start + selectOffset);
-        } else if (selected) {
+        if (selected) {
           el.setSelectionRange(start + before.length + inner.length + after.length, start + before.length + inner.length + after.length);
         } else {
           el.setSelectionRange(start + before.length, start + before.length + inner.length);
@@ -107,16 +123,29 @@ export default function EditorPane({
     [value, onChange]
   );
 
+  // Opens the link dialog on whatever the link is about: an existing link the
+  // caret is in, else the selected words, else nothing yet (typed in the dialog).
   const insertLink = () => {
     const el = textareaRef.current;
     if (!el) return;
-    const hasSelection = el.selectionStart !== el.selectionEnd;
-    if (hasSelection) {
-      // Wrap the selection as the link text and land the caret inside href=""
-      splice('<a href="">', '</a>', '', '<a href="'.length);
-    } else {
-      splice('<a href="">', '</a>', 'link text', '<a href="'.length);
-    }
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const existing = anchorAround(value, start, end);
+    if (existing) setLinkEdit({ ...existing, editing: true });
+    else setLinkEdit({ start, end, text: value.slice(start, end), href: '', editing: false });
+  };
+
+  // Puts `text` where the link dialog's range was and leaves the caret after it.
+  const replaceLinkRange = (text) => {
+    const { start, end } = linkEdit;
+    setLinkEdit(null);
+    onChange(value.slice(0, start) + text + value.slice(end));
+    setTimeout(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(start + text.length, start + text.length);
+    }, 0);
   };
 
   const toolButton = 'border border-gray-300 rounded px-2 py-1 text-xs font-semibold bg-white text-gray-700 hover:bg-gray-50';
@@ -171,6 +200,17 @@ export default function EditorPane({
           )}
         </div>
       </div>
+
+      {linkEdit && (
+        <LinkModal
+          initialText={linkEdit.text}
+          initialHref={linkEdit.href}
+          editing={linkEdit.editing}
+          onInsert={replaceLinkRange}
+          onRemove={() => replaceLinkRange(linkEdit.text)}
+          onClose={() => setLinkEdit(null)}
+        />
+      )}
 
       {pickerOpen && (
         <PhotoPickerModal

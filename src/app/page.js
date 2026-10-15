@@ -261,6 +261,12 @@ function cleanBody(html) {
     // section headings these match).
     .replace(/<h2>/g, '<h2 style="color:var(--color-green-dark);font-size:1.05rem;font-weight:700;margin:22px 0 10px">')
     .replace(/<h3>/g, '<h3 style="color:var(--color-green-dark);font-size:0.95rem;font-weight:700;margin:16px 0 8px">')
+    // A paragraph typed with its own <p> tag gets the same spacing as one made
+    // from blank lines above. autoParagraphs passes those through as they are,
+    // and the base styles give a bare <p> no margin, so the closing lines
+    // ("Go to About…", "Thanks for visiting!!") ran together on the page while
+    // the editor's preview, which spaces every <p>, showed them apart.
+    .replace(/<p>/g, '<p style="margin:0 0 14px;line-height:1.7">')
     .replace(/<ul>/g, '<ul style="margin:0 0 12px 18px;line-height:1.8">')
     .replace(/<li>/g, '<li style="margin-bottom:4px">')
     .replace(/<strong>/g, '<strong style="color:#2e2c26">');

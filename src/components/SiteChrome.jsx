@@ -1,15 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import TopNav from "./TopNav";
+
+const isAdminPath = (p) => p === "/admin" || Boolean(p?.startsWith("/admin/"));
 
 // Wraps the public-facing chrome (green banner, top nav, footer) around page
 // content. Admin routes get their own chrome from src/app/admin/layout.js, so
 // this hides the public chrome on /admin/* to avoid two stacked headers.
 export default function SiteChrome({ tripTitles, menus, children }) {
   const pathname = usePathname();
-  const isAdmin = pathname === "/admin" || pathname?.startsWith("/admin/");
+  const router = useRouter();
+  const isAdmin = isAdminPath(pathname);
+
+  // The nav menus come from the root layout, and Next keeps a layout as it is
+  // across in-site navigation — it only re-renders the page underneath. So
+  // after editing a trip in the CMS and following a link back out to the site
+  // (the header's "View this trip", say), the menus were still the ones loaded
+  // when the CMS was opened: a trip moved from West Coast to International
+  // stayed under West Coast until a full reload. Coming out of the CMS is
+  // exactly when the menus may have changed, so re-fetch the layout then.
+  const previousPath = useRef(pathname);
+  useEffect(() => {
+    const cameFromAdmin = isAdminPath(previousPath.current);
+    previousPath.current = pathname;
+    if (cameFromAdmin && !isAdmin) router.refresh();
+  }, [pathname, isAdmin, router]);
 
   if (isAdmin) {
     return <>{children}</>;

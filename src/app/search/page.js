@@ -4,6 +4,15 @@ import { DATA_DIR } from "@/lib/dataPaths";
 import SearchClient from "@/components/SearchClient";
 import { getMenuGroups } from "@/lib/tripMeta";
 import { isPublished } from "@/lib/publishState";
+import { makeVersioned, getDataVersion } from "@/lib/dataVersion";
+
+// Rendered per request, like every other content page. This one was the
+// exception: built once at deploy time, so both its search index and the nav
+// menus in its page froze until the next deploy — a trip moved from West Coast
+// to International (2019 Baja Adventure, 2026-10-14) stayed under West Coast
+// here, and new trips and stops could not be found by search at all. The index
+// is cached against the content files, so this costs a lookup, not a rebuild.
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Search | Lolo's Extreme Cross Country RV Trips",
@@ -22,6 +31,8 @@ function loadJSON(name) {
     return [];
   }
 }
+
+const searchIndexCache = makeVersioned(() => buildSearchIndex(), getDataVersion);
 
 function buildSearchIndex() {
   // Draft filtering here too, not just in /api/search: this index feeds the
@@ -72,6 +83,6 @@ function buildSearchIndex() {
 }
 
 export default function SearchPage() {
-  const searchIndex = buildSearchIndex();
+  const searchIndex = searchIndexCache.get();
   return <SearchClient searchIndex={searchIndex} menus={getMenuGroups()} />;
 }

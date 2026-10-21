@@ -64,6 +64,7 @@ export function updateTrip(nid, fields) {
   for (const key of ['start_date', 'end_date', 'map_image']) {
     if (updated[key] === '') delete updated[key];
   }
+  if (updated.drive_home === null) delete updated.drive_home;
   if (rest.start_date) updated.year = rest.start_date.slice(0, 4);
   // Moving a trip to another region gives it a new slot there, by year, the
   // same way a new trip gets one — its old order numbers mean nothing in the

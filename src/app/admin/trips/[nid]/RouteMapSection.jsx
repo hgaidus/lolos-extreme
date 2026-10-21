@@ -73,9 +73,14 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
 
   const located = stops.filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng)).length;
   // Whether the route drives back home when the itinerary stops short of it.
-  // Starts as the rule says (yes, unless a leg was flown); untick it for a trip
-  // that really did end elsewhere, a one-way ride west, say.
-  const [driveHome, setDriveHome] = useState(() => driveHomeByDefault(stopsAtLoad));
+  // Starts as it was when this trip's map was last generated and saved (the
+  // trip keeps it as drive_home); a trip never saved that way starts as the
+  // rule says (yes, unless a leg was flown). Untick it for a trip that really
+  // did end elsewhere, a one-way ride west, say.
+  const [driveHome, setDriveHome] = useState(() => trip.drive_home ?? driveHomeByDefault(stopsAtLoad));
+  // The ending the preview on screen was drawn with, which is what gets saved
+  // with it, even if the box has been changed since without drawing again.
+  const [drawnEnding, setDrawnEnding] = useState(null); // { endsAway, driveHome }
   const endsAway = buildWaypoints(trip, stops, startDayAtLoad).endsAway;
 
   async function generate() {
@@ -185,6 +190,7 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
       if (drafts) found.push(`${drafts} draft stop${drafts === 1 ? ' is' : 's are'} included. The numbers match the public itinerary once every stop is published.`);
       if (straightFallback) found.push('The routing service did not answer for part of the route, so those legs are straight lines. Try again later for roads.');
       setNotes(found);
+      setDrawnEnding({ endsAway: endsAwayNow, driveHome: returnHome });
       setDrawn(true);
     } catch (err) {
       setMessage({ tone: 'bad', text: `Could not draw the map: ${err.message}.` });
@@ -228,7 +234,7 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
 
   // Upload a picture and make it the trip's map. Used for both a generated map
   // and a file chosen from disk.
-  async function saveAsMap(file, verb) {
+  async function saveAsMap(file, verb, tripFields = {}) {
     const form = new FormData();
     form.append('file', file);
     form.append('kind', 'map');
@@ -242,7 +248,7 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
     const res = await fetch(`/api/admin/trips/${trip.nid}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ map_image: upData.url }),
+      body: JSON.stringify({ map_image: upData.url, ...tripFields }),
     });
     if (!res.ok) throw new Error('the picture uploaded, but the trip could not be pointed at it');
     setMapUrl(upData.url);
@@ -271,7 +277,10 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
       // A fresh name every time: nothing uploaded is ever overwritten, so an
       // earlier map can always be put back.
       const stamp = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').slice(0, 15); // to the second: two saves in one minute must not collide
-      await saveAsMap(new File([blob], `${trip.slug}-route-${stamp}.${ext}`, { type: blob.type }), 'Map saved');
+      // The trip remembers how this map ended, so the next drawing starts the
+      // same way. When the route ended at home anyway there was no choice.
+      const ending = { drive_home: drawnEnding?.endsAway ? drawnEnding.driveHome : null };
+      await saveAsMap(new File([blob], `${trip.slug}-route-${stamp}.${ext}`, { type: blob.type }), 'Map saved', ending);
     } catch (err) {
       setMessage({ tone: 'bad', text: `Not saved: ${err.message}.` });
     } finally {

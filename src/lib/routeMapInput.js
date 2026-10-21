@@ -19,7 +19,11 @@ export function getRouteMapInput(tripNid) {
   const when = (s) => Number(s.arrival_date) || Number(s.created) || 0;
   const stops = getStopsForTrip(tripNid).sort((a, b) => when(a) - when(b));
   return {
-    trip: { nid: trip.nid, slug: trip.slug, map_image: trip.map_image || '' },
+    trip: {
+      nid: trip.nid, slug: trip.slug, map_image: trip.map_image || '',
+      // The ending chosen when the current map was drawn, if one was stored.
+      drive_home: typeof trip.drive_home === 'boolean' ? trip.drive_home : null,
+    },
     stops: stops.map((s) => ({
       nid: s.nid, title: s.title, lat: s.lat, lng: s.lng, arrived_by: s.arrived_by, published: s.published,
     })),

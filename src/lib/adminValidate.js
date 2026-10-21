@@ -163,9 +163,20 @@ const mapImagePath = {
   },
 };
 
+// How the trip's generated route map ends when the itinerary stops short of
+// home: true drives back, false ends at the last stop, null forgets the choice
+// (the generator's rule applies again). Saved with the map it was drawn for.
+const driveHomeFlag = {
+  check(v) {
+    if (v !== null && typeof v !== 'boolean') return { error: 'Must be true, false or null.' };
+    return { value: v };
+  },
+};
+
 const TRIP_RULES = {
   title: nonEmptyString,
   map_image: mapImagePath,
+  drive_home: driveHomeFlag,
   start_date: calendarDay,
   end_date: calendarDay,
   region: regionRule,

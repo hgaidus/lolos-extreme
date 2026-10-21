@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import {
-  BASE_MAP, project, buildWaypoints, splitLegs, flightArcControl, thin, placeLabels,
+  BASE_MAP, project, buildWaypoints, driveHomeByDefault, splitLegs, flightArcControl, thin, placeLabels,
 } from '@/lib/routeMapGeometry';
 
 // The trip's overview map: the picture above the itinerary on the trip page.
@@ -72,6 +72,11 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
   const [message, setMessage] = useState(null); // { tone: 'ok' | 'bad', text }
 
   const located = stops.filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng)).length;
+  // Whether the route drives back home when the itinerary stops short of it.
+  // Starts as the rule says (yes, unless a leg was flown); untick it for a trip
+  // that really did end elsewhere, a one-way ride west, say.
+  const [driveHome, setDriveHome] = useState(() => driveHomeByDefault(stopsAtLoad));
+  const endsAway = buildWaypoints(trip, stops, startDayAtLoad).endsAway;
 
   async function generate() {
     setBusy('drawing');
@@ -94,7 +99,7 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
       } catch {
         stale = true;
       }
-      const { points, skipped, offMap, home } = buildWaypoints(trip, current.stops, current.startDay);
+      const { points, skipped, offMap, home, returnHome, endsAway: endsAwayNow } = buildWaypoints(trip, current.stops, current.startDay, { driveHome });
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(await loadImage(BASE_MAP.src), 0, 0, BASE_MAP.width, BASE_MAP.height);
@@ -145,7 +150,8 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
         }
       }
 
-      const stopsXY = points.map((p) => ({ label: p.label, xy: project(p.lat, p.lng) }));
+      // The drive back home has no number of its own; home is already the 0.
+      const stopsXY = points.filter((p) => p.label).map((p) => ({ label: p.label, xy: project(p.lat, p.lng) }));
       for (const s of stopsXY) {
         ctx.beginPath();
         ctx.arc(s.xy[0], s.xy[1], 3.6, 0, Math.PI * 2);
@@ -167,7 +173,9 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
         ctx.fillText(label.label, label.x, label.y);
       }
 
-      found.push(`${points.length - 1} of ${current.stops.length} stops drawn, starting from home (${home.name}) as 0.`);
+      found.push(`${stopsXY.length - 1} of ${current.stops.length} stops drawn, starting from home (${home.name}) as 0.`);
+      if (returnHome) found.push(`The itinerary ends before home, so the route drives back to ${home.name} from the last stop. Untick "Drive back home" if the trip ended somewhere else.`);
+      else if (endsAwayNow) found.push(`The route ends at the last stop, not back home${driveHomeByDefault(current.stops) ? '' : ' (a leg was flown, so the way home is not assumed)'}. Tick "Drive back home" to draw it.`);
       const dashed = points.filter((p) => p.arrivedBy !== 'drive');
       if (dashed.length) found.push(`Dashed, not driven: the leg${dashed.length === 1 ? '' : 's'} arriving at ${dashed.map((p) => `${p.label}. ${p.title}`).join('; ')}.`);
       if (stale) found.push('Could not check the server for changes, so this uses the stops as they were when the page was opened. Reload the page if a stop was changed since.');
@@ -316,6 +324,12 @@ export default function RouteMapSection({ trip, stops: stopsAtLoad, startDay: st
             >
               {busy === 'drawing' ? 'Drawing…' : drawn ? 'Draw it again' : 'Generate from stops'}
             </button>
+            {endsAway && (
+              <label className="flex items-center gap-2 mt-2 text-sm text-gray-700">
+                <input type="checkbox" checked={driveHome} onChange={(e) => setDriveHome(e.target.checked)} disabled={!!busy} />
+                Drive back home from the last stop
+              </label>
+            )}
             <p className="text-xs text-gray-500 mt-1">
               {located === 0
                 ? 'Give at least one stop a location first.'

@@ -51,6 +51,28 @@ export function isHomeStop(stop) {
 
 export const ARRIVED_BY = ['drive', 'flight', 'ferry'];
 
+// A last stop this close to home (Sebastopol is 11 km from Santa Rosa) already
+// ends the trip there; a drive back would be a smudge on top of the "0".
+const NEAR_HOME_KM = 25;
+
+/**
+ * Whether a trip that ends away from home is drawn driving back. Yes for a road
+ * trip; no once any leg was flown, because then how they got home is not known
+ * (the New Jersey-era trips flew west and flew back; the trip to buy Lola flew
+ * out and drove home). The map generator lets this be overridden per drawing.
+ */
+export function driveHomeByDefault(stops) {
+  return !stops.some((s) => s.arrived_by === 'flight');
+}
+
+function distanceKm(a, b) {
+  const rad = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * rad;
+  const dLng = (b.lng - a.lng) * rad;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+}
+
 /**
  * The points a trip's map passes through, in itinerary order.
  *
@@ -58,11 +80,14 @@ export const ARRIVED_BY = ['drive', 'flight', 'ferry'];
  * itinerary lists — the number drawn beside a stop is its row number there, so
  * a stop with no position is skipped on the map but still uses up its number.
  *
- * Every trip starts from home, drawn as "0". It ends at home only if the trip
- * has a home stop to say so. How each leg was travelled comes from the stop it
+ * Every trip starts from home, drawn as "0". A road trip also ends there: when
+ * the itinerary stops short of home (50 of the 103 trips list no home stop),
+ * a last unnumbered leg drives back from the final stop — unless the trip
+ * already ends at or near home. `driveHome` says whether to; left out, it is
+ * driveHomeByDefault(stops). How each leg was travelled comes from the stop it
  * arrives at (`arrived_by`); anything other than a drive is drawn dashed.
  */
-export function buildWaypoints(trip, stops, startDay) {
+export function buildWaypoints(trip, stops, startDay, { driveHome } = {}) {
   const home = homeBaseFor(startDay);
   const points = [{ lat: home.lat, lng: home.lng, label: '0', title: `Home (${home.name})`, home: true, arrivedBy: 'drive' }];
   const skipped = [];
@@ -73,8 +98,15 @@ export function buildWaypoints(trip, stops, startDay) {
     else if (isHomeStop(stop)) points.push({ lat: home.lat, lng: home.lng, label, title: stop.title, home: true, arrivedBy });
     else skipped.push(`${label}. ${stop.title}`);
   });
+  const last = points[points.length - 1];
+  const endsAway = points.length > 1 && !last.home && distanceKm(last, home) > NEAR_HOME_KM;
+  const returnHome = endsAway && (driveHome ?? driveHomeByDefault(stops));
+  if (returnHome) {
+    // No label: home is already marked 0 where the route began.
+    points.push({ lat: home.lat, lng: home.lng, label: '', title: `Home (${home.name})`, home: true, arrivedBy: 'drive' });
+  }
   const offMap = points.filter((p) => !onMap(project(p.lat, p.lng), 4)).map((p) => `${p.label}. ${p.title}`);
-  return { points, skipped, offMap, home };
+  return { points, skipped, offMap, home, endsAway, returnHome };
 }
 
 /**

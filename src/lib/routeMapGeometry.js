@@ -33,8 +33,15 @@ export function onMap([x, y], margin = 0) {
 // the route needs somewhere to start and end. These are town-level points —
 // on this map a dot is about 15 miles across — not addresses. The family
 // moved west in November 2015.
+//
+// A trip is drawn from the home it STARTED from, so New Jersey lasts until the
+// move was over: arrival at the Petaluma KOA on 2015-11-13. The cut-off used to
+// be 2015-11-06, the day the move began, which put the move itself (2015 Herb
+// and Lolo's Migration West, first stop dated 11-06) on the Santa Rosa side and
+// drew it starting from where it ended. That trip is one-way, so it is also
+// saved with drive_home: false.
 const HOME_BASES = [
-  { until: '2015-11-06', name: 'New Jersey', lat: 41.05, lng: -74.1 },
+  { until: '2015-11-13', name: 'New Jersey', lat: 41.05, lng: -74.1 },
   { until: '9999-12-31', name: 'Santa Rosa, California', lat: 38.44, lng: -122.71 },
 ];
 

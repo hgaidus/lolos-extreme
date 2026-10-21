@@ -150,6 +150,17 @@ export async function POST(request) {
       const mapsDir = path.join(UPLOADS_DIR, 'maps');
       const mapDest = path.join(mapsDir, mapName);
       if (fs.existsSync(mapDest)) {
+        // The same map arriving twice is a repeat of a save that already
+        // happened, not a clash: generated names carry the time to the second.
+        // On 2026-10-20 the reply to a map upload never reached the browser,
+        // the request came again three seconds later, and this refused it, so
+        // the trip was never pointed at the map that HAD been saved. Identical
+        // bytes now answer as the first save did (nothing to write or commit),
+        // and the caller carries on. A different picture under the name is
+        // still refused.
+        if (fs.readFileSync(mapDest).equals(mapBuf)) {
+          return NextResponse.json({ url: `/photos/uploads/maps/${mapName}`, alreadySaved: true });
+        }
         return NextResponse.json(
           { error: 'file_exists', message: `A map named ${mapName} already exists.`, suggestion: suggestRename(mapName) },
           { status: 409 }

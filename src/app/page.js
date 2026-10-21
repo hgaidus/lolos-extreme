@@ -5,7 +5,8 @@ import CrossCountryExplorer from '@/components/CrossCountryExplorer';
 import AdminEditBar from '@/components/AdminEditBar';
 import { viewerCanSeeDrafts } from '@/lib/publishState';
 import { DATA_DIR } from '@/lib/dataPaths';
-import { getMenuGroups } from '@/lib/tripMeta';
+import { getMenuGroups, getTripMapImage } from '@/lib/tripMeta';
+import { photoSrc, photoSrcSet } from '@/lib/photoSrc';
 import { resolveDrupalLinks } from '@/utils/cleanContent';
 
 // Render on every request so CMS edits (the homepage "Plan Your Route" body,
@@ -20,31 +21,6 @@ export const dynamic = 'force-dynamic';
 // OpenGraph still come from the layout, which describes this page anyway.
 export const metadata = {
   alternates: { canonical: "/" },
-};
-
-// Route-map GIFs for each trip. Most were already in the exported archive
-// under their original Drupal filenames. The three newest trips (2015
-// Migration West, 2015 Solo Motorcycle, 2016 Boat West) turned out to have
-// real maps too, but under different filenames/paths than the rest
-// (sites/default/files/images/6k or 8k, not the flat maps/ folder) — found
-// by checking the still-live original site directly and pulling the correct
-// files from the Drupal export, copied into public/maps/ under clearer
-// names. (cc2015b.gif, previously guessed for Migration West, was wrong —
-// it belongs to an unrelated trip and showed a completely different route.)
-const GIF_BY_HREF = {
-  "/1999-cross-country-road-trip": "cc1999s.gif",
-  "/2000-cross-country-road-trip": "cc2000s.gif",
-  "/2001-cross-country-road-trip": "cc2001s.gif",
-  "/2002-cross-country-road-trip": "cc2002s.gif",
-  "/2003-cross-country-road-trip": "cc2003s.gif",
-  "/2005-cross-country-road-trip": "cc2005s.gif",
-  "/2007-cross-country-road-trip": "cc2007s.gif",
-  "/2009-cross-country-camping-trip": "cc20b9s.gif",
-  "/2011-cross-country-road-trip": "cc2011s.gif",
-  "/2013-cross-country-road-trip": "cc2013a.gif",
-  "/2015-herb-and-lolos-migration-west": "cc2015d.gif",
-  "/2015-solo-cross-country-motorcycle-trip": "2015-solo-motorcycle.gif",
-  "/2016-bringing-boat-west": "cc2016c.gif",
 };
 
 // Short editorial blurbs, one per trip — grounded in each trip's real stops,
@@ -183,6 +159,12 @@ function getYear(trip) {
   return m ? m[1] : "";
 }
 
+// Sized like the trip page's own copy of the map (the box is 450 px wide).
+function mapFor(trip) {
+  const url = getTripMapImage(trip);
+  return url ? { src: photoSrc(url, 800), srcSet: photoSrcSet(url, 800) } : null;
+}
+
 function getCrossCountryTrips() {
   try {
     const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
@@ -204,7 +186,11 @@ function getCrossCountryTrips() {
         href: slug,
         miles,
         days: nights + 1,
-        gif: GIF_BY_HREF[t.href] || null,
+        // The trip's own overview map, the one its page shows, so a map
+        // regenerated in the CMS appears here too. This was a hard-coded list
+        // of the original Drupal GIFs, which kept showing them after every
+        // cross-country trip had been given a map generated from its stops.
+        map: mapFor(trip),
         teaser: TEASER_BY_HREF[t.href] || "",
         highlights: HIGHLIGHTS_BY_HREF[t.href] || [],
       };

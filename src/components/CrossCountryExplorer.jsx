@@ -75,10 +75,11 @@ export default function CrossCountryExplorer({ trips }) {
       </div>
 
       <div className="mx-3.5 rounded-md overflow-hidden relative" style={{ maxWidth: "450px", aspectRatio: "3 / 2" }}>
-        {trip.gif ? (
+        {trip.map ? (
           <img
-            key={trip.gif}
-            src={`/maps/${trip.gif}`}
+            key={trip.map.src}
+            src={trip.map.src}
+            srcSet={trip.map.srcSet}
             alt={`${trip.name} route map`}
             width={450}
             height={300}

@@ -31,9 +31,14 @@ export function buildContentRawText(item) {
     item.travelogue &&
     item.description !== item.travelogue
   ) {
+    // The description goes on lines of its own inside the box, so the paragraph
+    // step in cleanDrupalContent sees it as ordinary paragraphs. Written flush
+    // against the opening tag, its first paragraph stayed unwrapped (the block
+    // began with <div>), so it got no paragraph spacing and ran straight into
+    // whatever followed.
     return (
       item.travelogue +
-      `\n\n<hr />\n\n<div class="trip-description-box bg-[#c1593a]/[0.07] border-l-4 border-[#c1593a] rounded text-[#4a4437] italic font-medium leading-relaxed">${item.description}</div>`
+      `\n\n<hr />\n\n<div class="trip-description-box bg-[#c1593a]/[0.07] border-l-4 border-[#c1593a] rounded text-[#4a4437] italic font-medium leading-relaxed">\n\n${item.description}\n\n</div>`
     );
   }
 

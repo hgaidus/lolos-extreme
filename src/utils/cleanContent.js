@@ -246,8 +246,10 @@ export function cleanDrupalContent(text, photoTitles = []) {
       return t;
     }
 
-    // If block starts with other block-level tags, preserve them
-    if (/^<(li|table|blockquote|figure|hr|div|h[1-6]|section|article|aside|pre|header|footer)(\s|>)/i.test(t)) {
+    // If block starts with other block-level tags, preserve them. A closing tag
+    // on its own (the </div> that ends a stop's description box) is preserved
+    // too; wrapped in <p> it would be invalid markup.
+    if (/^<\/?(li|table|blockquote|figure|hr|div|h[1-6]|section|article|aside|pre|header|footer)(\s|>)/i.test(t)) {
       return t;
     }
 

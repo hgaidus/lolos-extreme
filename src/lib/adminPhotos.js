@@ -306,7 +306,11 @@ export function claimEmbeddedPhotos(stop, trip) {
 
   for (const p of claimed) p.trip_stop_nid = String(stop.nid);
   writeDataset('photos', photos);
-  if (trip) for (const p of claimed) appendToTripAlbum(trip, albumEntryFor(p));
+  // A migrated photo with no stop can still sit in an album. If its trip was
+  // renamed since, the album no longer matches the trip's slug or title, and
+  // appending would create a second album for the same trip.
+  const inAlbum = new Set(readDataset('albums').flatMap((a) => (a.images || []).map((i) => String(i.image_nid))));
+  if (trip) for (const p of claimed) if (!inAlbum.has(String(p.image_nid))) appendToTripAlbum(trip, albumEntryFor(p));
   return { linked: claimed.map((p) => String(p.image_nid)) };
 }
 

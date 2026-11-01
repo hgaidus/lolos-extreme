@@ -3,6 +3,7 @@ import path from 'path';
 import { NextResponse } from 'next/server';
 import { FILES_DIR, UPLOADS_DIR } from '@/lib/dataPaths';
 import { parseWidth, resizedImage } from '@/lib/imageResize';
+import { legacyTarget } from '@/lib/legacyRedirects';
 
 const MIME_TYPES = {
   '.jpg': 'image/jpeg',
@@ -231,6 +232,9 @@ export async function GET(request, { params }) {
     }
 
     if (!filePath) {
+      // Not an image: possibly the address of one of Drupal's old photo pages.
+      const target = pathArray.length === 1 && await legacyTarget('photos', pathArray[0]);
+      if (target) return new NextResponse(null, { status: 308, headers: { Location: target } });
       return new NextResponse("Image Not Found", { status: 404 });
     }
 

@@ -1,10 +1,11 @@
 import fs from "fs";
 import path from "path";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { cleanDrupalContent, unescapeDrupalText } from "@/utils/cleanContent";
 import { DATA_DIR } from "@/lib/dataPaths";
 import { isPublished } from "@/lib/publishState";
+import { legacyTarget } from "@/lib/legacyRedirects";
 import { getDataVersion, makeVersioned } from "@/lib/dataVersion";
 import OriginBreadcrumb from "@/components/OriginBreadcrumb";
 
@@ -137,7 +138,12 @@ export default async function ActivityTypePage({ params }) {
   // A type with no activities is not a page — without this, any made-up
   // /activities/<word> URL rendered an empty listing with a 200, which
   // Google rightly flags as a soft 404 (old Drupal paths were hitting it).
-  if (matchingActivities.length === 0) notFound();
+  if (matchingActivities.length === 0) {
+    // Drupal's old per-activity pages shared this path; those go to their stop.
+    const target = await legacyTarget('activities', type);
+    if (target) permanentRedirect(target);
+    notFound();
+  }
 
   const displayTypeName = typeNames[type.toLowerCase()] || type.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 

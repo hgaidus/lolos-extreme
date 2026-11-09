@@ -83,6 +83,31 @@ function tripName(trip) {
   return stripped || full || null;
 }
 
+// The listing's order, chosen with ?sort=. Newest first is the default and
+// carries no parameter, so the canonical URL is the page as Google sees it.
+// Every activity's stop has an arrival_date, so the date sorts are total; ties
+// within one stop fall back to the order the activities were written in.
+const SORTS = [
+  { key: "newest", label: "Newest first" },
+  { key: "oldest", label: "Oldest first" },
+  { key: "az", label: "A–Z" },
+];
+
+function sortKey(raw) {
+  const v = Array.isArray(raw) ? raw[0] : raw;
+  return SORTS.some((s) => s.key === v) ? v : "newest";
+}
+
+function sortHref(slug, key) {
+  return key === "newest" ? `/activities/${slug}` : `/activities/${slug}?sort=${key}`;
+}
+
+// Leading quotes and punctuation would otherwise file "'Ohe'o Gulch" ahead of
+// the A's.
+function titleForSort(t) {
+  return t.replace(/^[^\p{L}\p{N}]+/u, "");
+}
+
 export async function generateStaticParams() {
   const activitiesPath = path.join(DATA_DIR, "activities.json");
   if (!fs.existsSync(activitiesPath)) return [];
@@ -98,8 +123,9 @@ export async function generateStaticParams() {
   return Array.from(typesSet).map(type => ({ type }));
 }
 
-export default async function ActivityTypePage({ params }) {
+export default async function ActivityTypePage({ params, searchParams }) {
   const { type } = await params;
+  const sort = sortKey((await searchParams).sort);
   // Unpublished activities are hidden from the cards AND the sidebar counts.
   const activities = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "activities.json"), "utf-8"))
     .filter(a => isPublished(a));
@@ -145,6 +171,17 @@ export default async function ActivityTypePage({ params }) {
     notFound();
   }
 
+  const arrival = (act) => Number(stopMap[String(act.parent_stop_nid)]?.arrival_date) || 0;
+  const byWritten = (a, b) => Number(a.nid) - Number(b.nid);
+  if (sort === "az") {
+    matchingActivities.sort((a, b) =>
+      titleForSort(cleanTitle(a.title)).localeCompare(titleForSort(cleanTitle(b.title)), "en", { sensitivity: "base", numeric: true })
+      || arrival(b) - arrival(a));
+  } else {
+    const dir = sort === "oldest" ? 1 : -1;
+    matchingActivities.sort((a, b) => dir * (arrival(a) - arrival(b)) || byWritten(a, b));
+  }
+
   const displayTypeName = typeNames[type.toLowerCase()] || type.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 
   return (
@@ -165,6 +202,29 @@ export default async function ActivityTypePage({ params }) {
         <p className="text-sm text-[#6b6455] mt-1">
           Showing {matchingActivities.length} {displayTypeName.toLowerCase()} activities logged during our motorhome cross-country adventures.
         </p>
+        {/* Plain links rather than a client-side control: the order is applied
+            on the server, so it works without JavaScript and a sorted listing
+            can be bookmarked or shared. */}
+        <nav aria-label="Sort activities" className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] uppercase tracking-wider text-[#c1593a] font-extrabold mr-1">Sort</span>
+          {SORTS.map(({ key, label }) => {
+            const isCurrent = key === sort;
+            return (
+              <Link
+                key={key}
+                href={sortHref(type.toLowerCase(), key)}
+                aria-current={isCurrent ? "true" : undefined}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold no-underline transition-all ${
+                  isCurrent
+                    ? "bg-[#7c9880] text-white shadow-md shadow-[#7c9880]/25"
+                    : "bg-black/5 text-[#5c5648] hover:bg-[#c1593a]/10 hover:text-[#2e2c26]"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
       {/* Main Grid Layout: Activities List + Category Sidebar */}
@@ -273,7 +333,7 @@ export default async function ActivityTypePage({ params }) {
               return (
                 <Link
                   key={slug}
-                  href={`/activities/${slug}`}
+                  href={sortHref(slug, sort)}
                   className={`flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                     isCurrent
                       ? "bg-[#7c9880] text-white shadow-md shadow-[#7c9880]/25"

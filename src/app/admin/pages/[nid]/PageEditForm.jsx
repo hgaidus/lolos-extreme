@@ -86,7 +86,7 @@ export default function PageEditForm({ page, publiclyRendered, authors = [] }) {
         value={body}
         onChange={setBody}
         previewType="page"
-        rows={20}
+        rows={40}
       />
 
       <div className="flex items-start gap-2 border-t border-gray-100 pt-4">

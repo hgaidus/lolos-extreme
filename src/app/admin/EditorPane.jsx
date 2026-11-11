@@ -395,6 +395,10 @@ export default function EditorPane({
         onChange={onTextareaChange}
         onKeyDown={historyKey}
         rows={rows}
+        // `rows` sets the starting height, but never taller than the window
+        // less the pinned tab bar, so the whole box fits on screen. Dragging
+        // the corner still resizes it freely.
+        style={{ height: `min(calc(${rows} * 1.25rem + 1.125rem), calc(100vh - 6rem))` }}
         className={`w-full border border-gray-300 rounded px-3 py-2 font-mono text-sm ${tab === 'write' ? '' : 'hidden'}`}
         aria-label={label}
       />

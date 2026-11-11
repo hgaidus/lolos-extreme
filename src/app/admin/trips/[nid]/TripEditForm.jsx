@@ -154,7 +154,7 @@ export default function TripEditForm({ trip, authors = [] }) {
         onChange={setTravelogue}
         previewType="trip"
         tripNid={trip.nid}
-        rows={20}
+        rows={40}
       />
       <div className="flex items-start gap-2 border-t border-gray-100 pt-4">
         <input

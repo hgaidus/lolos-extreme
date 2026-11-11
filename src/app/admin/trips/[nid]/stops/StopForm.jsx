@@ -116,7 +116,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
         description={description}
         stopNid={stop?.nid}
         tripNid={tripNid}
-        rows={24}
+        rows={48}
       />
 
       <div>

@@ -127,7 +127,7 @@ export default function StopForm({ mode, tripNid, stop, categories, states, auth
           rows={4}
           className="w-full border border-gray-300 rounded px-3 py-2"
         />
-        <p className="text-xs text-gray-400 mt-1">Shown in the italic callout box after the travelogue — the live preview above includes it.</p>
+        <p className="text-xs text-gray-400 mt-1">Shown in the italic callout box after the travelogue — the Preview tab above includes it.</p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">

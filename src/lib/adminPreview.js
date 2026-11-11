@@ -29,7 +29,23 @@ function getPhotoTitles() {
  * @returns {string} HTML string (normalized by cleanDrupalContent)
  */
 export function renderContentPreview(draft) {
-  const d = draft || {};
+  const d = { ...(draft || {}) };
+  // Number each photo embed in the text being edited, so a click on a photo in
+  // the preview can find its [img_assist] tag again (EditorPane). The number
+  // rides along as an extra embed= parameter, which cleanDrupalContent turns
+  // into data-embed on the figure; stored content never carries it, so public
+  // pages are unaffected. The stop's description is left unnumbered: its
+  // photos aren't in the text being edited.
+  for (const field of ['travelogue', 'body', 'narrative']) {
+    if (typeof d[field] === 'string') d[field] = numberEmbeds(d[field]);
+  }
   const rawText = d.type === 'activity' ? d.narrative || '' : buildContentRawText(d);
   return cleanDrupalContent(rawText, getPhotoTitles());
+}
+
+// The Nth tag (from 0) gets embed=N, matching the Nth /\[img_assist\|/ in the
+// editor's own text, unresolvable ones included, so the count can't drift.
+function numberEmbeds(text) {
+  let n = 0;
+  return text.replace(/\[img_assist\|/gi, () => `[img_assist|embed=${n++}|`);
 }

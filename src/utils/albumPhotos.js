@@ -5,6 +5,7 @@ import { photoFileExists } from '@/lib/photoExists';
 import { unescapeDrupalText } from '@/utils/cleanContent';
 import { makeVersioned, getDataVersion } from '@/lib/dataVersion';
 import { isPublished } from '@/lib/publishState';
+import { isStopLive } from '@/lib/liveContent';
 
 // Rebuilt when the content JSON changes on disk, so CMS photo/album writes
 // show up in albums and lightbox stop-links without a process restart.
@@ -70,7 +71,7 @@ function resolveStop(imageNid, tripStopNid) {
   if (!nid) return null;
   const stop = stopByNid.get(String(nid));
   // Draft stops 404 publicly — the lightbox must not link to them.
-  if (!stop || !isPublished(stop)) return null;
+  if (!isStopLive(stop)) return null;
   return { stopSlug: stop.slug, stopTitle: stop.title };
 }
 

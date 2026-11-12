@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { DATA_DIR } from './dataPaths.js';
 import { readDataset } from './adminStore.js';
-import { isPublished } from './publishState.js';
+import { isStopLive } from './liveContent.js';
 import { makeVersioned, getDataVersion } from './dataVersion.js';
 
 // Pins for the trip stops map, read from the stops themselves.
@@ -41,7 +41,7 @@ export function hasCoordinates(stop) {
 const cache = makeVersioned(() => {
   const stops = readDataset('stops');
   const pins = stops
-    .filter((s) => hasCoordinates(s) && isPublished(s))
+    .filter((s) => hasCoordinates(s) && isStopLive(s))
     .map((s) => ({
       nid: s.nid,
       lat: s.lat,

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { isPublished } from '@/lib/publishState';
+import { isStopLive, isActivityLive } from '@/lib/liveContent';
 
 const BASE_URL = 'https://cross-country-trips.com';
 
@@ -96,9 +97,9 @@ export default function sitemap() {
     add(cleanPath(t.slug), { lastModified: toDate(t.created), changeFrequency: 'yearly', priority: 0.9 });
   }
 
-  // Stops (drafts excluded)
+  // Stops (drafts excluded, and stops of unpublished trips)
   for (const s of stops) {
-    if (!s.slug || !isPublished(s)) continue;
+    if (!s.slug || !isStopLive(s)) continue;
     add(cleanPath(s.slug), {
       lastModified: toDate(s.arrival_date || s.created),
       changeFrequency: 'yearly',
@@ -132,7 +133,7 @@ export default function sitemap() {
   // published activities, so listing every type here could advertise a 404.
   const activityTypes = new Set();
   for (const act of activities) {
-    if (act.activity_type && isPublished(act)) {
+    if (act.activity_type && isActivityLive(act)) {
       const slug = slugifyActivityType(act.activity_type);
       if (slug) activityTypes.add(slug);
     }

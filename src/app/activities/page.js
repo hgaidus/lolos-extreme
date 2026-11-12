@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import Link from "next/link";
 import { DATA_DIR } from "@/lib/dataPaths";
-import { isPublished } from "@/lib/publishState";
+import { isActivityLive } from "@/lib/liveContent";
 
 // The type list and counts come from activities.json, which changes when
 // content is edited. Render per-request so edits appear within the ~2s
@@ -29,7 +29,7 @@ function getActivityTypes() {
     const counts = {};
     const names = {};
     for (const act of activities) {
-      if (!isPublished(act)) continue;
+      if (!isActivityLive(act)) continue;
       const t = act.activity_type;
       if (!t) continue;
       const slug = slugifyType(t);

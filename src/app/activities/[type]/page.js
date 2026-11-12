@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { cleanDrupalContent, unescapeDrupalText } from "@/utils/cleanContent";
 import { DATA_DIR } from "@/lib/dataPaths";
-import { isPublished } from "@/lib/publishState";
+import { isActivityLive } from "@/lib/liveContent";
 import { legacyTarget } from "@/lib/legacyRedirects";
 import { getDataVersion, makeVersioned } from "@/lib/dataVersion";
 import OriginBreadcrumb from "@/components/OriginBreadcrumb";
@@ -34,7 +34,7 @@ const publishedTypeIndex = makeVersioned(() => {
   try {
     const activities = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "activities.json"), "utf-8"));
     for (const act of activities) {
-      if (!isPublished(act)) continue;
+      if (!isActivityLive(act)) continue;
       const slug = slugifyType(act.activity_type);
       if (!slug) continue;
       if (!index[slug]) index[slug] = { name: act.activity_type, count: 0 };
@@ -129,7 +129,7 @@ export default async function ActivityTypePage({ params, searchParams }) {
   const sort = sortKey((await searchParams).sort);
   // Unpublished activities are hidden from the cards AND the sidebar counts.
   const activities = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "activities.json"), "utf-8"))
-    .filter(a => isPublished(a));
+    .filter(a => isActivityLive(a));
   const stops = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "stops.json"), "utf-8"));
   const trips = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "trips.json"), "utf-8"));
   const photoTitles = fs.existsSync(path.join(DATA_DIR, "photo_titles.json"))

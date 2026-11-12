@@ -9,6 +9,7 @@ import AdminEditBar from '@/components/AdminEditBar';
 import { cleanDrupalContent, unescapeDrupalText } from '@/utils/cleanContent';
 import { buildContentRawText } from '@/lib/stopRawText';
 import { isPublished, viewerCanSeeDrafts } from '@/lib/publishState';
+import { isStopLive, isTripOfStopPublished } from '@/lib/liveContent';
 import { DATA_DIR } from '@/lib/dataPaths';
 import { photoFileExists } from '@/lib/photoExists';
 import { getTripRegionInfo } from '@/lib/tripRegions';
@@ -32,6 +33,12 @@ export const dynamic = 'force-dynamic';
 //
 // 'tips' stays: those 33 pages are excluded by type in sitemap.js, so the two
 // files already agree about them.
+// A stop is public only if its trip is too (liveContent.js); everything else
+// goes by its own flag.
+function isItemLive(item) {
+  return item.itemType === 'stop' ? isStopLive(item) : isPublished(item);
+}
+
 function isExcludedSlug(slugStr) {
   const s = slugStr.toLowerCase();
   return s === 'tips' || s.startsWith('tips/');
@@ -61,7 +68,7 @@ export async function generateMetadata({ params }) {
 
   // Drafts: the page 404s for the public; the admin preview render must not
   // be indexable if a crawler ever saw it, and needs no canonical/OG.
-  if (!isPublished(item)) {
+  if (!isItemLive(item)) {
     return { title: fullTitle, robots: { index: false, follow: false } };
   }
   // Canonicalize to the matched item's own slug, not the requested path.
@@ -376,7 +383,7 @@ export default async function CatchAllPage({ params }) {
   // banner below), so unpublished content can be proofread at its real URL.
   // adminViewer is computed unconditionally: a published trip's itinerary
   // must also show its draft stops to the admin (and only the admin).
-  const isDraft = !isPublished(item);
+  const isDraft = !isItemLive(item);
   const adminViewer = await viewerCanSeeDrafts();
   if (isDraft && !adminViewer) {
     notFound();
@@ -431,8 +438,8 @@ export default async function CatchAllPage({ params }) {
 
   if (displayItem.itemType === 'state_listing' || displayItem.itemType === 'category_listing') {
     const matchingStops = displayItem.itemType === 'state_listing'
-      ? stops.filter(s => s.state && (s.state.toUpperCase() === displayItem.stateCode || s.state === displayItem.stateCode)).sort((a, b) => cleanTitle(a.title).localeCompare(cleanTitle(b.title)))
-      : stops.filter(s => s.category && s.category === displayItem.categoryName).sort((a, b) => cleanTitle(a.title).localeCompare(cleanTitle(b.title)));
+      ? stops.filter(s => isStopLive(s) && s.state && (s.state.toUpperCase() === displayItem.stateCode || s.state === displayItem.stateCode)).sort((a, b) => cleanTitle(a.title).localeCompare(cleanTitle(b.title)))
+      : stops.filter(s => isStopLive(s) && s.category && s.category === displayItem.categoryName).sort((a, b) => cleanTitle(a.title).localeCompare(cleanTitle(b.title)));
 
     return (
       <div className="w-full max-w-6xl mx-auto min-w-0 py-6 px-4 sm:px-6 font-sans">
@@ -544,7 +551,7 @@ export default async function CatchAllPage({ params }) {
 
   // Draft stops stay out of the itinerary, prev/next, and the trip hand-off
   // for the public; the admin sees them (that's how a draft is reached).
-  const stopVisible = (s) => isPublished(s) || adminViewer;
+  const stopVisible = (s) => isStopLive(s) || adminViewer;
 
   if (displayItem.itemType === 'trip') {
     currentTrip = displayItem;
@@ -598,7 +605,11 @@ export default async function CatchAllPage({ params }) {
       {isDraft && adminViewer && (
         <div className="mb-6 rounded border-2 border-amber-500 bg-amber-50 px-4 py-3 font-sans">
           <span className="font-extrabold text-amber-800 uppercase tracking-wide text-sm">Draft</span>
-          <span className="text-amber-800 text-sm"> — not visible to the public. Publish it from the admin editor when ready.</span>
+          <span className="text-amber-800 text-sm">
+            {displayItem.itemType === 'stop' && isPublished(displayItem) && !isTripOfStopPublished(displayItem)
+              ? ' — this stop is published, but its trip is not, so the public can’t see it yet. Publish the trip when ready.'
+              : ' — not visible to the public. Publish it from the admin editor when ready.'}
+          </span>
         </div>
       )}
 
@@ -839,7 +850,7 @@ export default async function CatchAllPage({ params }) {
                       // stop, as the old site's stop pages did. Only when the
                       // stop actually has a pin there: it needs a position, and
                       // the map shows published stops only.
-                      const onMap = Number.isFinite(displayItem.lat) && Number.isFinite(displayItem.lng) && isPublished(displayItem);
+                      const onMap = Number.isFinite(displayItem.lat) && Number.isFinite(displayItem.lng) && isStopLive(displayItem);
                       const links = [
                         displayItem.state && (
                           <Link key="state" href={`/state/${displayItem.state.toLowerCase()}`} className="link-chrome">

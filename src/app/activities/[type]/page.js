@@ -83,23 +83,24 @@ function tripName(trip) {
   return stripped || full || null;
 }
 
-// The listing's order, chosen with ?sort=. Newest first is the default and
-// carries no parameter, so the canonical URL is the page as Google sees it.
+// The listing's order, chosen with ?sort=. A–Z is the default (Lolo's choice,
+// 2026-11-12) and carries no parameter, so the canonical URL is the page as
+// Google sees it. ?sort=az still works, for links made while newest was first.
 // Every activity's stop has an arrival_date, so the date sorts are total; ties
 // within one stop fall back to the order the activities were written in.
 const SORTS = [
+  { key: "az", label: "A–Z" },
   { key: "newest", label: "Newest first" },
   { key: "oldest", label: "Oldest first" },
-  { key: "az", label: "A–Z" },
 ];
 
 function sortKey(raw) {
   const v = Array.isArray(raw) ? raw[0] : raw;
-  return SORTS.some((s) => s.key === v) ? v : "newest";
+  return SORTS.some((s) => s.key === v) ? v : "az";
 }
 
 function sortHref(slug, key) {
-  return key === "newest" ? `/activities/${slug}` : `/activities/${slug}?sort=${key}`;
+  return key === "az" ? `/activities/${slug}` : `/activities/${slug}?sort=${key}`;
 }
 
 // Leading quotes and punctuation would otherwise file "'Ohe'o Gulch" ahead of
